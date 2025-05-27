@@ -1,0 +1,13 @@
+/**/image_brighten_node:
+  ros__parameters:
+    brightness_factor: 1.0
+    input_image_topic: color/image/orin
+    output_image_topic: color/brighten/image
+
+/**/simple_matcher_node:
+  ros__parameters:
+    input_image_topic: color/brighten/image
+
+/**/simple_pose_estimator_node:
+  ros__parameters:
+    camera_info_topic: color/camera_info
