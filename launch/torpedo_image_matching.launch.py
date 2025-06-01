@@ -1,10 +1,11 @@
 import os
 
 from ament_index_python.packages import get_package_share_directory
+from launch_ros.actions import Node, PushRosNamespace
+
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import Node, PushRosNamespace
 
 
 def generate_launch_description():
@@ -12,7 +13,7 @@ def generate_launch_description():
         get_package_share_directory("vision_pipeline"),
         "config",
         "auv4_orin",
-        "image_matching.yaml",
+        "torpedo_image_matching.yaml",
     )
 
     launch_objects = [
@@ -38,8 +39,8 @@ def generate_launch_description():
         ),
         Node(
             package="pose_estimator",
-            executable="simple_pose_estimator_node",
-            name="simple_pose_estimator_node",
+            executable="points_pose_estimator_node",
+            name="points_pose_estimator_node",
             parameters=[config],
         ),
     ]

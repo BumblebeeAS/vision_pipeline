@@ -8,6 +8,8 @@
   ros__parameters:
     input_image_topic: color/brighten/image
 
-/**/simple_pose_estimator_node:
+/**/points_pose_estimator_node:
   ros__parameters:
     camera_info_topic: color/camera_info
+    input_points_topic: image_matching/point_correspondences
+    output_pose_topic: /auv4/torpedo/pose
