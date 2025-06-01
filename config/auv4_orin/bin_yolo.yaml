@@ -10,6 +10,6 @@
 /**/bin_pose_estimator_node:
   ros__parameters:
     camera_frame_id: auv4/bot_cam_optical
-    object_frame_id: auv4/bin/yolo
+    object_frame_id: bin/yolo
     camera_info_topic: color/camera_info
     detections_topic: bin/yolo/detections
