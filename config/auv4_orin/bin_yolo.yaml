@@ -1,6 +1,6 @@
 /**/bin_yolo_node:
   ros__parameters:
-    model_name: yolov11s_bin_20250526_1.engine
+    model_name: yolov11s_bin_20250531_0.engine
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
@@ -9,7 +9,6 @@
     output_image_topic: bin/yolo/image
 /**/bin_pose_estimator_node:
   ros__parameters:
-    camera_frame_id: auv4/bot_cam_optical
-    object_frame_id: bin/yolo
     camera_info_topic: color/camera_info
-    detections_topic: bin/yolo/detections
+    object_frame_id: bin/yolo
+    input_detections_topic: bin/yolo/detections

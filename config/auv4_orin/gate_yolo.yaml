@@ -1,6 +1,6 @@
 /**/gate_yolo_node:
   ros__parameters:
-    model_name: yolov11s_gate_20250522_1.engine
+    model_name: yolov11s_gate_20250531_0.engine
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
@@ -18,7 +18,6 @@
     output_image_topic: symbol/yolo/image
 /**/gate_pose_estimator_node:
   ros__parameters:
-    camera_frame_id: auv4/front_cam_optical
-    object_frame_id: gate
     camera_info_topic: color/camera_info
-    detections_topic: gate/yolo/detections
+    object_frame_id: gate
+    input_detections_topic: gate/yolo/detections
