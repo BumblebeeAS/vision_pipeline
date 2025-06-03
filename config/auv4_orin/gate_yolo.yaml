@@ -22,3 +22,8 @@
     object_frame_id: gate
     camera_info_topic: color/camera_info
     detections_topic: gate/yolo/detections
+
+/**/gate_shark_fish_estimator_node:
+  ros__parameters:
+    detections_topic: symbol/yolo/detections
+    output_string_topic: /auv4/gate/shark_fish
