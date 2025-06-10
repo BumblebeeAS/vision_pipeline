@@ -24,6 +24,15 @@ ros2 launch vision_pipeline image_matching.launch.py
 ros2 launch vision_pipeline gate_yolo.launch.py
 ```
 
+### Slalom
+
+```bash
+ros2 launch vision_pipeline slalom.launch.py
+```
+#### Issues
+**1. LLVM Out of Memory**
+**Fix:** Check that the `model_path` parameter for `slalom_depth_anything_node` in `slalom.yaml` is set to the `.onnx` model, not the `.engine` model. The `.engine` is built from the `.onnx` when the node is run for the first time, so on the first run, the model path has to be set to point to the `.onnx` model instead.
+
 ## Notes
 
 Each node in `vision_pipeline` subscribes to `Image` and publishes `Image` topics. Additional republishers are added should we need to convert to `CompressedImage` topics for visualization.
