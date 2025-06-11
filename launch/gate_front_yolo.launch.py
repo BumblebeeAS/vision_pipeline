@@ -1,14 +1,14 @@
 import os
 
 from ament_index_python.packages import get_package_share_directory
-from launch_ros.actions import Node, PushRosNamespace
-
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node, PushRosNamespace
 
 
 def generate_launch_description():
+    # We can use the same config for both front and back, unused configs will be ignored
     config = os.path.join(
         get_package_share_directory("vision_pipeline"),
         "config",

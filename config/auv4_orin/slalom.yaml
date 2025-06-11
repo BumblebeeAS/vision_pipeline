@@ -1,7 +1,7 @@
 # Pipeline nodes
 /**/slalom_yolo_node:
   ros__parameters:
-    model_name: yolov11s_slalom_20250607_0.engine
+    model_path: /workspaces/ros2_ws/src/ml_models/yolov11_segment/yolov11s_slalom_20250607_0.engine
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
@@ -10,7 +10,7 @@
     output_image_topic: slalom/yolo/image
 /**/slalom_depth_anything_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/depth_anything_ros2_trt/data/depth_anything_v2_vitb.engine
+    model_path: /workspaces/ros2_ws/src/ml_models/depth_anything/depth_anything_v2_vitb.engine
     precision: fp16
 /**/slalom_pose_estimator_node:
   ros__parameters:

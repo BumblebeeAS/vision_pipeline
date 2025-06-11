@@ -1,6 +1,6 @@
 /**/gate_yolo_node:
   ros__parameters:
-    model_name: yolov11s_gate_20250531_0.engine
+    model_path: /workspaces/ros2_ws/src/ml_models/yolov11_segment/yolov11s_gate_20250531_0.engine
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
@@ -9,7 +9,7 @@
     output_image_topic: gate/yolo/image
 /**/symbol_yolo_node:
   ros__parameters:
-    model_name: yolov11s_symbol_20250527_2.engine
+    model_path: /workspaces/ros2_ws/src/ml_models/yolov11_segment/yolov11s_symbol_20250527_2.engine
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
