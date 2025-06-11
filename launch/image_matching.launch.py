@@ -13,7 +13,7 @@ def generate_launch_description():
         get_package_share_directory("vision_pipeline"),
         "config",
         "auv4_orin",
-        "torpedo_image_matching.yaml",
+        "image_matching.yaml",
     )
 
     launch_objects = [
