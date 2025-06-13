@@ -19,6 +19,24 @@ def generate_launch_description():
                 ("out", "color/image/orin"),
             ],
         )
+
+        # Lossy compression for visualization
+        # (SBC -> Orin is lossless)
+        compress_node = Node(
+            package="image_transport",
+            executable="republish",
+            name="orin_compression_node",
+            arguments=["raw", "compressed"],
+            output="screen",
+            parameters=[{"out.jpeg_quality": 30}],
+            namespace=f"auv4/{cam_name}/",
+            remappings=[
+                ("in", "color/image/orin"),
+                ("out/compressed", "color/vis/image/compressed"),
+            ],
+        )
+
         repub_nodes.append(repub_node)
+        repub_nodes.append(compress_node)
 
     return LaunchDescription(repub_nodes)
