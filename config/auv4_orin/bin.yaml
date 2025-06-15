@@ -12,3 +12,17 @@
     camera_info_topic: color/camera_info
     object_frame_id: bin/yolo
     input_detections_topic: bin/yolo/detections
+
+/**/bin_image_brighten_node:
+  ros__parameters:
+    brightness_factor: 1.0
+    input_image_topic: color/image/orin
+    output_image_topic: color/brighten/image
+/**/bin_simple_matcher_node:
+  ros__parameters:
+    input_image_topic: color/brighten/image
+/**/bin_points_pose_estimator_node:
+  ros__parameters:
+    camera_info_topic: color/camera_info
+    input_points_topic: image_matching/point_correspondences
+    output_pose_topic: bin/image_matching/pose
