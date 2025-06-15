@@ -1,11 +1,10 @@
 import os
 
 from ament_index_python.packages import get_package_share_directory
-from launch_ros.actions import Node, PushRosNamespace
-
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node, PushRosNamespace
 
 
 def generate_launch_description():
@@ -49,7 +48,7 @@ def generate_launch_description():
         Node(
             package="image_transport",
             executable="republish",
-            name="image_republisher",
+            name="brighten_compression_node",
             arguments=["raw", "compressed"],
             output="screen",
             parameters=[{"out.jpeg_quality": 30}],
@@ -61,7 +60,7 @@ def generate_launch_description():
         Node(
             package="image_transport",
             executable="republish",
-            name="image_republisher",
+            name="image_matching_compression_node",
             arguments=["raw", "compressed"],
             output="screen",
             parameters=[{"out.jpeg_quality": 30}],
