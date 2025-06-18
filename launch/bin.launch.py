@@ -2,9 +2,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import Node, PushRosNamespace
+from launch_ros.actions import LifecycleNode, Node, PushRosNamespace
 
 
 def generate_launch_description():
@@ -15,25 +13,26 @@ def generate_launch_description():
         "bin.yaml",
     )
 
-    launch_objects = [
-        DeclareLaunchArgument(
-            "camera_name",
-            default_value="bot_cam",
-        ),
-        PushRosNamespace(["/auv4/", LaunchConfiguration("camera_name")]),
-    ]
+    launch_objects = [PushRosNamespace("/auv4/bin")]
 
     yolo_nodes = [
-        Node(
+        LifecycleNode(
             package="yolo_ros_trt",
             executable="yolo_node",
             name="bin_yolo_node",
             parameters=[config],
+            namespace="",
         ),
         Node(
             package="pose_estimator",
             executable="bin_pose_estimator_node",
             name="bin_pose_estimator_node",
+            parameters=[config],
+        ),
+        Node(
+            package="vision_pipeline",
+            executable="lifecycle_manager",
+            name="lifecycle_manager",
             parameters=[config],
         ),
     ]
@@ -66,7 +65,6 @@ def generate_launch_description():
             name="bin_yolo_compression_node",
             arguments=["raw", "compressed"],
             output="screen",
-            parameters=[{"out.jpeg_quality": 50}],
             remappings=[
                 ("in", "bin/yolo/image"),
                 ("out/compressed", "bin/yolo/image/compressed"),
@@ -78,10 +76,9 @@ def generate_launch_description():
             name="bin_brighten_compression_node",
             arguments=["raw", "compressed"],
             output="screen",
-            parameters=[{"out.jpeg_quality": 30}],
             remappings=[
-                ("in", "color/brighten/image"),
-                ("out/compressed", "color/brighten/image/compressed"),
+                ("in", "/auv4/bot_cam/color/brighten/image"),
+                ("out/compressed", "/auv4/bot_cam/color/brighten/image/compressed"),
             ],
         ),
         Node(
@@ -90,7 +87,6 @@ def generate_launch_description():
             name="bin_image_matching_compression_node",
             arguments=["raw", "compressed"],
             output="screen",
-            parameters=[{"out.jpeg_quality": 30}],
             remappings=[
                 ("in", "image_matching/image"),
                 ("out/compressed", "image_matching/image/compressed"),

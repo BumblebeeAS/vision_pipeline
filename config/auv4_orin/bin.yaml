@@ -1,28 +1,46 @@
+# YOLO nodes
 /**/bin_yolo_node:
   ros__parameters:
     model_path: /workspaces/ros2_ws/src/ml_models/yolov11_segment/yolov11s_bin_20250531_0.engine
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
-    input_image_topic: color/image/orin
+    input_image_topic: /auv4/bot_cam/color/image/orin
     output_detections_topic: bin/yolo/detections
     output_image_topic: bin/yolo/image
 /**/bin_pose_estimator_node:
   ros__parameters:
-    camera_info_topic: color/camera_info
+    camera_info_topic: /auv4/bot_cam/color/camera_info
     object_frame_id: bin/yolo
     input_detections_topic: bin/yolo/detections
+/**/lifecycle_manager:
+  ros__parameters:
+    node_names:
+      - bin_yolo_node
+    wait_timeout_sec: 1.0
 
+# Image matching nodes
 /**/bin_image_brighten_node:
   ros__parameters:
-    brightness_factor: 1.0
-    input_image_topic: color/image/orin
-    output_image_topic: color/brighten/image
+    brightness_factor: 1.5
+    input_image_topic: /auv4/bot_cam/color/image/orin
+    output_image_topic: /auv4/bot_cam/color/brighten/image
 /**/bin_simple_matcher_node:
   ros__parameters:
-    input_image_topic: color/brighten/image
+    input_image_topic: /auv4/bot_cam/color/brighten/image
 /**/bin_points_pose_estimator_node:
   ros__parameters:
-    camera_info_topic: color/camera_info
+    camera_info_topic: /auv4/bot_cam/color/camera_info
     input_points_topic: image_matching/point_correspondences
     output_pose_topic: bin/image_matching/pose
+
+# Visualization nodes
+/**/bin_yolo_compression_node:
+  ros__parameters:
+    out.jpeg_quality: 50
+/**/bin_brighten_compression_node:
+  ros__parameters:
+    out.jpeg_quality: 50
+/**/bin_image_matching_compression_node:
+  ros__parameters:
+    out.jpeg_quality: 50
