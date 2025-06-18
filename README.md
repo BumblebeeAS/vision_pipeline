@@ -29,7 +29,9 @@ ros2 launch vision_pipeline gate_yolo.launch.py
 ```bash
 ros2 launch vision_pipeline slalom.launch.py
 ```
-#### Common Issues
+
+## Common Issues
+
 **1. LLVM Out of Memory**
 
 **Fix:** Check that the `model_path` parameter for `slalom_depth_anything_node` in `slalom.yaml` is set to the `.onnx` model, not the `.engine` model. The `.engine` is built from the `.onnx` when the node is run for the first time, so on the first run, the model path has to be set to point to the `.onnx` model instead.
@@ -44,8 +46,13 @@ Since the cameras are connected to the SBC and not directly to the Orin, we need
 
 To reduce network load, the images are compressed before being passed. However, I think we should not subscribe directly to the `CompressedImage` topics in our image processing and ML nodes because each subscriber to the `CompressedImage` topic would request for messages over the network adding to network load and each subscriber has to decode the compression adding to CPU load. Instead a single `image_transport` republisher converts the `CompressedImage` messages to `Image` messages for each camera stream which the downstream vision nodes subscribe to. **Importantly, all subscribers to the republished `Image` topics reside locally on the Orin.**
 
+### Lifecycle Manager
+
+The [Nav2 Lifecycle Manager](https://docs.nav2.org/configuration/packages/configuring-lifecycle.html) is meant to support `LifecycleNode` in `nav2_util`. While it is possible to make it work by setting `bond_timeout` to `0.0`, it kills node process(es) when trying to transition to invalid states. We create our own Lifecycle Manager to support normal ROS 2 Lifecycle Nodes and handle invalid states.
+
 ## Related Repositories
 
+- [Depth Anything ROS2 TensorRT](https://github.com/BumblebeeAS/depth_anything_ros2_trt)
 - [Image matching](https://github.com/BumblebeeAS/image_matching)
 - [Image processing](https://github.com/BumblebeeAS/image_processing)
 - [Pose estimator](https://github.com/BumblebeeAS/pose_estimator)
