@@ -1,5 +1,7 @@
 # Lifecycle Manager for normal ROS 2 Lifecycle Nodes
-# Reference: https://github.com/ros-navigation/navigation2/tree/main/nav2_lifecycle_manager
+# References:
+# https://github.com/ros-navigation/navigation2/tree/main/nav2_lifecycle_manager
+# https://github.com/ros2/rclpy/issues/1313#issuecomment-2307615945
 
 from typing import Sequence
 
@@ -10,6 +12,20 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.client import Client
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
+
+# NOTE: TRANSITION_DESTROY is not available
+# This is required since the ChangeState service request allows arbitrary labels
+lifecycle_transitions = {
+    0: "TRANSITION_CREATE",
+    1: "TRANSITION_CONFIGURE",
+    2: "TRANSITION_CLEANUP",
+    3: "TRANSITION_ACTIVATE",
+    4: "TRANSITION_DEACTIVATE",
+    5: "TRANSITION_UNCONFIGURED_SHUTDOWN",
+    6: "TRANSITION_INACTIVE_SHUTDOWN",
+    7: "TRANSITION_ACTIVE_SHUTDOWN",
+    8: "TRANSITION_DESTROY",
+}
 
 
 class LifecycleManager(Node):
@@ -29,8 +45,12 @@ class LifecycleManager(Node):
             .double_value
         )
 
-        self.client_cb_group = ReentrantCallbackGroup()
         self.srv = self.create_service(ChangeState, "manage_nodes", self.manage_nodes)
+
+        # Required to create clients in the service callback
+        # without blocking the main thread
+        # TODO: See if MutuallyExclusiveCallbackGroup can be used instead
+        self.client_cb_group = ReentrantCallbackGroup()
 
     def get_client_and_check_service(
         self, service_type: type, service_name: str
@@ -43,32 +63,28 @@ class LifecycleManager(Node):
             return None
         return client
 
-    def call_get_state(self, client: Client) -> State:
+    async def call_get_state(self, client: Client) -> State:
         req = GetState.Request()
-        self.get_logger().info(f"Waiting for client to respond")
         future = client.call_async(req)
-        self.get_logger().info(f"Waiting for client to respond")
-        self.executor.spin_until_future_complete(future)
-        self.get_logger().info(f"Future completed")
-        result: GetState.Response = future.result()
+        result: GetState.Response = await future
         return result.current_state
 
-    def call_get_transitions(self, client: Client) -> Sequence[TransitionDescription]:
+    async def call_get_transitions(
+        self, client: Client
+    ) -> Sequence[TransitionDescription]:
         req = GetAvailableTransitions.Request()
         future = client.call_async(req)
-        self.executor.spin_until_future_complete(future)
-        result: GetAvailableTransitions.Response = future.result()
+        result: GetAvailableTransitions.Response = await future
         return result.available_transitions
 
-    def call_change_state(self, client: Client, transition_id: int) -> bool:
+    async def call_change_state(self, client: Client, transition_id: int) -> bool:
         req = ChangeState.Request()
         req.transition.id = transition_id
         future = client.call_async(req)
-        self.executor.spin_until_future_complete(future)
-        result: ChangeState.Response = future.result()
+        result: ChangeState.Response = await future
         return result.success
 
-    def manage_nodes(
+    async def manage_nodes(
         self, request: ChangeState.Request, response: ChangeState.Response
     ) -> ChangeState.Response:
         for node_name in self.node_names:
@@ -82,7 +98,7 @@ class LifecycleManager(Node):
             if get_state_client is None:
                 response.success = False
                 return response
-            state = self.call_get_state(get_state_client)
+            state = await self.call_get_state(get_state_client)
             self.get_logger().info(f"Current state: {state.label} (id: {state.id})")
             if state.id == request.transition.id:
                 self.get_logger().info(f"{node_name} already in state: {state.label}")
@@ -97,12 +113,14 @@ class LifecycleManager(Node):
             if get_transitions_client is None:
                 response.success = False
                 return response
-            available_transitions = self.call_get_transitions(get_transitions_client)
+            available_transitions = await self.call_get_transitions(
+                get_transitions_client
+            )
             transition_ids = [t.transition.id for t in available_transitions]
             if request.transition.id not in transition_ids:
+                transition_name = lifecycle_transitions[request.transition.id]
                 self.get_logger().error(
-                    f"""Transition {request.transition.label} (id: {request.transition.id})
-                    not available for {node_name}"""
+                    f"""Transition {transition_name} (id: {request.transition.id}) not available for {node_name}"""
                 )
                 response.success = False
                 return response
@@ -116,7 +134,7 @@ class LifecycleManager(Node):
             if change_state_client is None:
                 response.success = False
                 return response
-            is_state_changed = self.call_change_state(
+            is_state_changed = await self.call_change_state(
                 change_state_client, request.transition.id
             )
             if not is_state_changed:
@@ -140,8 +158,10 @@ def main(args=None):
         executor.spin()
     except KeyboardInterrupt:
         pass
-    node.destroy_node()
-    rclpy.shutdown()
+    finally:
+        node.destroy_node()
+        executor.shutdown()
+        rclpy.shutdown()
 
 
 if __name__ == "__main__":
