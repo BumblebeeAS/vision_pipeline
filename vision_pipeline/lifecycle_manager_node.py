@@ -3,6 +3,7 @@
 # https://github.com/ros-navigation/navigation2/tree/main/nav2_lifecycle_manager
 # https://github.com/ros2/rclpy/issues/1313#issuecomment-2307615945
 
+import asyncio
 from typing import Sequence
 
 import rclpy
@@ -13,19 +14,12 @@ from rclpy.client import Client
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 
-# NOTE: TRANSITION_DESTROY is not available
-# This is required since the ChangeState service request allows arbitrary labels
-lifecycle_transitions = {
-    0: "TRANSITION_CREATE",
-    1: "TRANSITION_CONFIGURE",
-    2: "TRANSITION_CLEANUP",
-    3: "TRANSITION_ACTIVATE",
-    4: "TRANSITION_DEACTIVATE",
-    5: "TRANSITION_UNCONFIGURED_SHUTDOWN",
-    6: "TRANSITION_INACTIVE_SHUTDOWN",
-    7: "TRANSITION_ACTIVE_SHUTDOWN",
-    8: "TRANSITION_DESTROY",
-}
+from vision_pipeline.utils.lifecycle_manager import (
+    call_change_state,
+    call_get_state,
+    call_get_transitions,
+    lifecycle_transitions,
+)
 
 
 class LifecycleManager(Node):
@@ -49,6 +43,7 @@ class LifecycleManager(Node):
 
         # Required to create clients in the service callback
         # without blocking the main thread
+        # It seems that creating a list of clients in init does not work with rclpy.spin
         # TODO: See if MutuallyExclusiveCallbackGroup can be used instead
         self.client_cb_group = ReentrantCallbackGroup()
 
@@ -63,26 +58,79 @@ class LifecycleManager(Node):
             return None
         return client
 
-    async def call_get_state(self, client: Client) -> State:
-        req = GetState.Request()
-        future = client.call_async(req)
-        result: GetState.Response = await future
-        return result.current_state
+    async def get_current_state(self, node_name: str) -> State | None:
+        """Get the current state of a node using the GetState service.
 
-    async def call_get_transitions(
-        self, client: Client
-    ) -> Sequence[TransitionDescription]:
-        req = GetAvailableTransitions.Request()
-        future = client.call_async(req)
-        result: GetAvailableTransitions.Response = await future
-        return result.available_transitions
+        Args:
+            node_name (str): Name of the node to get the state of.
 
-    async def call_change_state(self, client: Client, transition_id: int) -> bool:
-        req = ChangeState.Request()
-        req.transition.id = transition_id
-        future = client.call_async(req)
-        result: ChangeState.Response = await future
-        return result.success
+        Returns:
+            State | None: Current state of the node, or None if the service call fails.
+        """
+        self.get_logger().info(f"Getting current state")
+
+        service_name = f"{node_name}/get_state"
+        get_state_client = self.get_client_and_check_service(GetState, service_name)
+        if get_state_client is None:
+            self.get_logger().error(f"Client for {service_name} is not available")
+            return None
+
+        state = await call_get_state(get_state_client)
+
+        self.destroy_client(get_state_client)
+        return state
+
+    async def get_available_transitions(
+        self, node_name: str
+    ) -> Sequence[TransitionDescription] | None:
+        """Get the available transitions of a node using the GetAvailableTransitions service.
+
+        Args:
+            node_name (str): Name of the node to get the transitions of.
+
+        Returns:
+            Sequence[TransitionDescription] | None: List of available transitions for the node,
+            or None if the service call fails.
+        """
+        self.get_logger().info(f"Getting available states")
+
+        service_name = f"{node_name}/get_available_transitions"
+        get_transitions_client = self.get_client_and_check_service(
+            GetAvailableTransitions, service_name
+        )
+        if get_transitions_client is None:
+            self.get_logger().error(f"Client for {service_name} is not available")
+            return None
+
+        available_transitions = await call_get_transitions(get_transitions_client)
+
+        self.destroy_client(get_transitions_client)
+        return available_transitions
+
+    async def change_state(self, node_name: str, transition_id: int) -> bool:
+        """Change the state of a node using the ChangeState service.
+
+        Args:
+            node_name (str): Name of the node to change the state of.
+            transition_id (int): ID of the transition to change to.
+
+        Returns:
+            bool: True if the state was changed successfully, False otherwise.
+        """
+        self.get_logger().info(f"Changing state")
+
+        service_name = f"{node_name}/change_state"
+        change_state_client = self.get_client_and_check_service(
+            ChangeState, service_name
+        )
+        if change_state_client is None:
+            self.get_logger().error(f"Client for {service_name} is not available")
+            return False
+
+        is_state_changed = await call_change_state(change_state_client, transition_id)
+
+        self.destroy_client(change_state_client)
+        return is_state_changed
 
     async def manage_nodes(
         self, request: ChangeState.Request, response: ChangeState.Response
@@ -91,31 +139,23 @@ class LifecycleManager(Node):
             self.get_logger().info(f"--- Managing {node_name} ---")
 
             # If a node is in the requested state, skip it
-            self.get_logger().info(f"Getting current state")
-            get_state_client = self.get_client_and_check_service(
-                GetState, f"{node_name}/get_state"
-            )
-            if get_state_client is None:
+            state = await self.get_current_state(node_name)
+            if state is None:
                 response.success = False
                 return response
-            state = await self.call_get_state(get_state_client)
+            state: State
             self.get_logger().info(f"Current state: {state.label} (id: {state.id})")
             if state.id == request.transition.id:
                 self.get_logger().info(f"{node_name} already in state: {state.label}")
                 continue
-            self.destroy_client(get_state_client)
 
-            # Otherwise, raise an error if the requested transition is not available
-            self.get_logger().info(f"Getting available states")
-            get_transitions_client = self.get_client_and_check_service(
-                GetAvailableTransitions, f"{node_name}/get_available_transitions"
-            )
-            if get_transitions_client is None:
+            # Otherwise, if the requested transition is not available, return failure
+            available_transitions = await self.get_available_transitions(node_name)
+            if available_transitions is None:
                 response.success = False
                 return response
-            available_transitions = await self.call_get_transitions(
-                get_transitions_client
-            )
+            available_transitions: Sequence[TransitionDescription]
+
             transition_ids = [t.transition.id for t in available_transitions]
             if request.transition.id not in transition_ids:
                 transition_name = lifecycle_transitions[request.transition.id]
@@ -124,26 +164,15 @@ class LifecycleManager(Node):
                 )
                 response.success = False
                 return response
-            self.destroy_client(get_transitions_client)
 
             # Change the state of the node
-            self.get_logger().info(f"Changing state")
-            change_state_client = self.get_client_and_check_service(
-                ChangeState, f"{node_name}/change_state"
-            )
-            if change_state_client is None:
-                response.success = False
-                return response
-            is_state_changed = await self.call_change_state(
-                change_state_client, request.transition.id
-            )
+            is_state_changed = await self.change_state(node_name, request.transition.id)
             if not is_state_changed:
                 self.get_logger().error(
                     f"Failed to change state of {node_name} to {request.transition.label}"
                 )
                 response.success = False
                 return response
-            self.destroy_client(change_state_client)
 
         response.success = True
         return response

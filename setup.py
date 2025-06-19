@@ -30,7 +30,7 @@ setup(
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
-            "lifecycle_manager = vision_pipeline.lifecycle_manager:main",
+            "lifecycle_manager_node = vision_pipeline.lifecycle_manager_node:main",
         ],
     },
 )
