@@ -15,6 +15,13 @@ def parse_list_nodes_response(response: ListNodes.Response) -> Dict[str, int]:
     return node_states
 
 
+def are_node_names_equal(node_name_1: str, node_name_2: str) -> bool:
+    """Check if two node names are equal, ignoring first front slash."""
+    node_name_1 = node_name_1.lstrip("/")
+    node_name_2 = node_name_2.lstrip("/")
+    return node_name_1 == node_name_2
+
+
 def load_yaml_config(config_path: str) -> Dict[str, LoadNode.Request]:
     """Load the YAML configuration file and return a dictionary of node parameters.
 

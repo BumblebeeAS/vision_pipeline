@@ -6,6 +6,7 @@ from rclpy.executors import MultiThreadedExecutor
 from std_srvs.srv import SetBool
 
 from vision_pipeline.utils.component_manager import (
+    are_node_names_equal,
     load_yaml_config,
     parse_list_nodes_response,
 )
@@ -26,7 +27,6 @@ class ComponentManagerNode(ServiceCallerNode):
         )
 
         self.node_request_dict = load_yaml_config(self.config_path)
-        self.get_logger().info(f"Params_config: {self.node_request_dict}")
         self.container_service_ns = f"{self.container_name}/_container"
 
         self.srv = self.create_service(SetBool, "manage_components", self.manage_nodes)
@@ -91,10 +91,11 @@ class ComponentManagerNode(ServiceCallerNode):
 
         # Load nodes
         if is_load_nodes:
+            is_curr_node = lambda node_name: any(
+                are_node_names_equal(node_name, k) for k in curr_nodes_dict
+            )
             filtered_node_request_dict = {
-                k: v
-                for k, v in self.node_request_dict.items()
-                if k not in curr_nodes_dict
+                k: v for k, v in self.node_request_dict.items() if not is_curr_node(k)
             }
             response.success = await self.load_nodes(filtered_node_request_dict)
             return response
