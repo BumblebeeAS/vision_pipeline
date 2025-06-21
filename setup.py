@@ -31,6 +31,7 @@ setup(
     entry_points={
         "console_scripts": [
             "lifecycle_manager_node = vision_pipeline.lifecycle_manager_node:main",
+            "component_manager_node = vision_pipeline.component_manager_node:main",
         ],
     },
 )

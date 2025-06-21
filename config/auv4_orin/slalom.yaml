@@ -1,29 +1,35 @@
 # Pipeline nodes
 /**/slalom_yolo_node:
   ros__parameters:
-    model_path: /workspaces/ros2_ws/src/ml_models/yolov11_segment/yolov11s_slalom_20250612_1.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_slalom_20250612_1.engine
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
-    input_image_topic: color/image/orin
+    input_image_topic: /auv4/front_cam/color/image/orin
     output_detections_topic: slalom/yolo/detections
     output_image_topic: slalom/yolo/image
-/**/slalom_depth_anything_node:
-  ros__parameters:
-    model_path: /workspaces/ros2_ws/src/ml_models/depth_anything/depth_anything_v2_vitb_770.engine
-    precision: fp16
 /**/slalom_pose_estimator_node:
   ros__parameters:
-    camera_info_topic: color/camera_info
+    camera_info_topic: /auv4/front_cam/color/camera_info
     input_detections_topic: slalom/yolo/detections
-    input_depth_image_topic: slalom/depth/image
+    input_depth_image_topic: depth/image
     output_pose_topic: /auv4/slalom/pose
+/**/slalom_component_manager_node:
+  ros__parameters:
+    container_name: /auv4/slalom/depth_anything_container
+    config_path: /workspaces/isaac_ros-dev/src/vision_pipeline/config/auv4_orin/slalom_depth_anything.yaml
+    wait_timeout_sec: 1.0
+/**/slalom_lifecycle_manager_node:
+  ros__parameters:
+    node_names:
+      - slalom_yolo_node
+    wait_timeout_sec: 1.0
 
 # Visualization nodes
 /**/slalom_depth_to_rgb_node:
   ros__parameters:
-    input_image_topic: slalom/depth/image
-    output_image_topic: slalom/depth/color/image
+    input_image_topic: depth/image
+    output_image_topic: depth/color/image
 /**/slalom_yolo_compression_node:
   ros__parameters:
     out.jpeg_quality: 50

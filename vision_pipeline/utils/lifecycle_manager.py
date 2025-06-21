@@ -1,4 +1,3 @@
-import asyncio
 from typing import Sequence
 
 from lifecycle_msgs.msg import State, TransitionDescription

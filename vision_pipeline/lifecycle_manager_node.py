@@ -1,7 +1,6 @@
 # Lifecycle Manager for normal ROS 2 Lifecycle Nodes
 # References:
 # https://github.com/ros-navigation/navigation2/tree/main/nav2_lifecycle_manager
-# https://github.com/ros2/rclpy/issues/1313#issuecomment-2307615945
 
 import asyncio
 from typing import Sequence
@@ -190,7 +189,7 @@ def main(args=None):
     finally:
         node.destroy_node()
         executor.shutdown()
-        rclpy.shutdown()
+        rclpy.try_shutdown()
 
 
 if __name__ == "__main__":

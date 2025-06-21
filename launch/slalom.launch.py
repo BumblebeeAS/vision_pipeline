@@ -2,9 +2,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import Node, PushRosNamespace
+from launch_ros.actions import ComposableNodeContainer, Node, PushRosNamespace
 
 
 def generate_launch_description():
@@ -14,14 +12,7 @@ def generate_launch_description():
         "auv4_orin",
         "slalom.yaml",
     )
-
-    launch_objects = [
-        DeclareLaunchArgument(
-            "camera_name",
-            default_value="front_cam",
-        ),
-        PushRosNamespace(["/auv4/", LaunchConfiguration("camera_name")]),
-    ]
+    launch_objects = [PushRosNamespace("/auv4/slalom")]
 
     pipeline_nodes = [
         Node(
@@ -31,20 +22,32 @@ def generate_launch_description():
             parameters=[config],
         ),
         Node(
-            package="depth_anything_ros2_trt",
-            executable="depth_anything_node",
-            name="slalom_depth_anything_node",
-            output="screen",
-            parameters=[config],
-            remappings=[
-                ("~/input/image", "color/image/orin"),
-                ("~/output/depth_image", "slalom/depth/image"),
-            ],
-        ),
-        Node(
             package="pose_estimator",
             executable="slalom_pose_estimator_node",
             name="slalom_pose_estimator_node",
+            output="screen",
+            parameters=[config],
+        ),
+        ComposableNodeContainer(
+            package="rclcpp_components",
+            executable="component_container",
+            name="depth_anything_container",
+            composable_node_descriptions=[],
+            output="screen",
+            arguments=["--ros-args", "--log-level", "INFO"],
+            namespace="",
+        ),
+        Node(
+            package="vision_pipeline",
+            executable="component_manager_node",
+            name="slalom_component_manager_node",
+            output="screen",
+            parameters=[config],
+        ),
+        Node(
+            package="vision_pipeline",
+            executable="lifecycle_manager_node",
+            name="slalom_lifecycle_manager_node",
             output="screen",
             parameters=[config],
         ),
@@ -76,8 +79,8 @@ def generate_launch_description():
             arguments=["raw", "compressed"],
             output="screen",
             remappings=[
-                ("in", "slalom/depth/color/image"),
-                ("out/compressed", "slalom/depth/color/image/compressed"),
+                ("in", "depth/color/image"),
+                ("out/compressed", "depth/color/image/compressed"),
             ],
         ),
     ]
