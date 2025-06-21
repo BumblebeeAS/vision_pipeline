@@ -2,26 +2,18 @@
 # References:
 # https://github.com/ros-navigation/navigation2/tree/main/nav2_lifecycle_manager
 
-import asyncio
 from typing import Sequence
 
 import rclpy
 from lifecycle_msgs.msg import State, TransitionDescription
 from lifecycle_msgs.srv import ChangeState, GetAvailableTransitions, GetState
-from rclpy.callback_groups import ReentrantCallbackGroup
-from rclpy.client import Client
 from rclpy.executors import MultiThreadedExecutor
-from rclpy.node import Node
 
-from vision_pipeline.utils.lifecycle_manager import (
-    call_change_state,
-    call_get_state,
-    call_get_transitions,
-    lifecycle_transitions,
-)
+from vision_pipeline.utils.lifecycle_manager import lifecycle_transitions
+from vision_pipeline.utils.service_caller_node import ServiceCallerNode
 
 
-class LifecycleManager(Node):
+class LifecycleManager(ServiceCallerNode):
     def __init__(self):
         super().__init__("lifecycle_manager")
 
@@ -32,30 +24,8 @@ class LifecycleManager(Node):
             .get_parameter_value()
             .string_array_value
         )
-        self.wait_timeout_sec = (
-            self.declare_parameter("wait_timeout_sec", 1.0)
-            .get_parameter_value()
-            .double_value
-        )
 
         self.srv = self.create_service(ChangeState, "manage_nodes", self.manage_nodes)
-
-        # Required to create clients in the service callback
-        # without blocking the main thread
-        # It seems that creating a list of clients in init does not work with rclpy.spin
-        # TODO: See if MutuallyExclusiveCallbackGroup can be used instead
-        self.client_cb_group = ReentrantCallbackGroup()
-
-    def get_client_and_check_service(
-        self, service_type: type, service_name: str
-    ) -> Client | None:
-        client = self.create_client(
-            service_type, service_name, callback_group=self.client_cb_group
-        )
-        if not client.wait_for_service(timeout_sec=self.wait_timeout_sec):
-            self.get_logger().error(f"Service {service_name} not available")
-            return None
-        return client
 
     async def get_current_state(self, node_name: str) -> State | None:
         """Get the current state of a node using the GetState service.
@@ -74,7 +44,9 @@ class LifecycleManager(Node):
             self.get_logger().error(f"Client for {service_name} is not available")
             return None
 
-        state = await call_get_state(get_state_client)
+        result = await self.call_service(GetState, service_name, GetState.Request())
+        result: GetState.Response
+        state = result.current_state
 
         self.destroy_client(get_state_client)
         return state
@@ -101,7 +73,11 @@ class LifecycleManager(Node):
             self.get_logger().error(f"Client for {service_name} is not available")
             return None
 
-        available_transitions = await call_get_transitions(get_transitions_client)
+        result = await self.call_service(
+            GetAvailableTransitions, service_name, GetAvailableTransitions.Request()
+        )
+        result: GetAvailableTransitions.Response
+        available_transitions = result.available_transitions
 
         self.destroy_client(get_transitions_client)
         return available_transitions
@@ -126,7 +102,11 @@ class LifecycleManager(Node):
             self.get_logger().error(f"Client for {service_name} is not available")
             return False
 
-        is_state_changed = await call_change_state(change_state_client, transition_id)
+        request = ChangeState.Request()
+        request.transition.id = transition_id
+        result = await self.call_service(ChangeState, service_name, request)
+        result: ChangeState.Response
+        is_state_changed = result.success
 
         self.destroy_client(change_state_client)
         return is_state_changed
