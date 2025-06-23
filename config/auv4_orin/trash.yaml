@@ -32,7 +32,7 @@
     node_names:
       - trash_yolo_node
       - symbol_yolo_node
-    wait_timeout_sec: -1.0
+    wait_timeout_sec: 1.0
 
 # Visualization nodes
 /**/trash_compression_node:
