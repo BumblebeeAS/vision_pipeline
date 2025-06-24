@@ -40,12 +40,12 @@ def generate_launch_description():
             name="trash_pose_estimator_node",
             parameters=[config],
         ),
-        # Node(
-        #     package="pose_estimator",
-        #     executable="shark_fish_estimator_node",
-        #     name="gate_shark_fish_estimator_node",
-        #     parameters=[config],
-        # ),
+        Node(
+            package="pose_estimator",
+            executable="shark_fish_pose_estimator_node",
+            name="shark_fish_pose_estimator_node",
+            parameters=[config],
+        ),
         Node(
             package="vision_pipeline",
             executable="lifecycle_manager_node",
@@ -54,7 +54,7 @@ def generate_launch_description():
         ),
     ]
 
-    repub_nodes = [
+    vis_nodes = [
         Node(
             package="image_transport",
             executable="republish",
@@ -81,4 +81,4 @@ def generate_launch_description():
         ),
     ]
 
-    return LaunchDescription(launch_objects + pipeline_nodes + repub_nodes)
+    return LaunchDescription(launch_objects + pipeline_nodes + vis_nodes)
