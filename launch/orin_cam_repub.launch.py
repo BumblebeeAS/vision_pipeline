@@ -28,7 +28,7 @@ def generate_launch_description():
             name="orin_compression_node",
             arguments=["raw", "compressed"],
             output="screen",
-            parameters=[{"out.jpeg_quality": 30}],
+            parameters=[{".out.jpeg_quality": 50}],
             namespace=f"auv4/{cam_name}/",
             remappings=[
                 ("in", "color/image/orin"),

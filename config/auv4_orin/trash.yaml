@@ -21,12 +21,13 @@
   ros__parameters:
     camera_info_topic: /auv4/bot_cam/color/camera_info
     input_detections_topic: trash/yolo/detections
-    output_pose_topic: /auv4/trash/table/pose
+    output_pose_topic: table/pose
 /**/trash_pose_estimator_node:
   ros__parameters:
     camera_info_topic: /auv4/bot_cam/color/camera_info
     input_detections_topic: trash/yolo/detections
-    output_pose_topic: /auv4/trash/pose
+    table_pose_topic: table/pose
+    output_pose_topic: pose
 /**/trash_lifecycle_manager_node:
   ros__parameters:
     node_names:
@@ -37,7 +38,7 @@
 # Visualization nodes
 /**/trash_compression_node:
   ros__parameters:
-    out.jpeg_quality: 50
+    .out.jpeg_quality: 50
 /**/symbol_compression_node:
   ros__parameters:
-    out.jpeg_quality: 50
+    .out.jpeg_quality: 50

@@ -1,7 +1,7 @@
 # YOLO nodes
 /**/bin_yolo_node:
   ros__parameters:
-    model_path: /workspaces/ros2_ws/src/ml_models/yolov11_segment/yolov11s_bin_20250531_0.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_bin_20250531_0.engine
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
@@ -37,10 +37,10 @@
 # Visualization nodes
 /**/bin_yolo_compression_node:
   ros__parameters:
-    out.jpeg_quality: 50
+    .out.jpeg_quality: 50
 /**/bin_brighten_compression_node:
   ros__parameters:
-    out.jpeg_quality: 50
+    .out.jpeg_quality: 50
 /**/bin_image_matching_compression_node:
   ros__parameters:
-    out.jpeg_quality: 50
+    .out.jpeg_quality: 50

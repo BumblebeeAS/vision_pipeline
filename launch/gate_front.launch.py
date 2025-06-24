@@ -2,8 +2,6 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node, PushRosNamespace
 
 
@@ -13,16 +11,10 @@ def generate_launch_description():
         get_package_share_directory("vision_pipeline"),
         "config",
         "auv4_orin",
-        "gate_yolo.yaml",
+        "gate.yaml",
     )
 
-    launch_objects = [
-        DeclareLaunchArgument(
-            "camera_name",
-            default_value="front_cam",
-        ),
-        PushRosNamespace(["/auv4/", LaunchConfiguration("camera_name")]),
-    ]
+    launch_objects = [PushRosNamespace("/auv4/gate_front")]
 
     pipeline_nodes = [
         Node(
@@ -41,7 +33,7 @@ def generate_launch_description():
             package="pose_estimator",
             executable="gate_pose_estimator_node",
             name="gate_pose_estimator_node",
-            parameters=[config],
+            parameters=[config, {"from_front": True}],
         ),
         Node(
             package="pose_estimator",
@@ -49,16 +41,26 @@ def generate_launch_description():
             name="gate_shark_fish_estimator_node",
             parameters=[config],
         ),
+        Node(
+            package="vision_pipeline",
+            executable="lifecycle_manager_node",
+            name="lifecycle_manager_node",
+            output="screen",
+            parameters=[
+                config,
+                {"node_names": ["gate_yolo_node", "symbol_yolo_node"]},
+            ],
+        ),
     ]
 
-    repub_nodes = [
+    vis_nodes = [
         Node(
             package="image_transport",
             executable="republish",
             name="gate_compression_node",
             arguments=["raw", "compressed"],
             output="screen",
-            parameters=[{"out.jpeg_quality": 50}],
+            parameters=[config],
             remappings=[
                 ("in", "gate/yolo/image"),
                 ("out/compressed", "gate/yolo/image/compressed"),
@@ -70,7 +72,7 @@ def generate_launch_description():
             name="symbol_compression_node",
             arguments=["raw", "compressed"],
             output="screen",
-            parameters=[{"out.jpeg_quality": 50}],
+            parameters=[config],
             remappings=[
                 ("in", "symbol/yolo/image"),
                 ("out/compressed", "symbol/yolo/image/compressed"),
@@ -78,4 +80,4 @@ def generate_launch_description():
         ),
     ]
 
-    return LaunchDescription(launch_objects + pipeline_nodes + repub_nodes)
+    return LaunchDescription(launch_objects + pipeline_nodes + vis_nodes)

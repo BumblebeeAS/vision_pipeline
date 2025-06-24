@@ -61,7 +61,7 @@ def generate_launch_description():
             name="trash_compression_node",
             arguments=["raw", "compressed"],
             output="screen",
-            parameters=[{"out.jpeg_quality": 50}],
+            parameters=[config],
             remappings=[
                 ("in", "trash/yolo/image"),
                 ("out/compressed", "trash/yolo/image/compressed"),
@@ -73,7 +73,7 @@ def generate_launch_description():
             name="symbol_compression_node",
             arguments=["raw", "compressed"],
             output="screen",
-            parameters=[{"out.jpeg_quality": 50}],
+            parameters=[config],
             remappings=[
                 ("in", "symbol/yolo/image"),
                 ("out/compressed", "symbol/yolo/image/compressed"),
