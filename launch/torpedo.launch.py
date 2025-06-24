@@ -10,23 +10,23 @@ def generate_launch_description():
         get_package_share_directory("vision_pipeline"),
         "config",
         "auv4_orin",
-        "bin.yaml",
+        "torpedo.yaml",
     )
 
-    launch_objects = [PushRosNamespace("/auv4/bin")]
+    launch_objects = [PushRosNamespace("/auv4/torpedo")]
 
     yolo_nodes = [
         LifecycleNode(
             package="yolo_ros_trt",
             executable="yolo_node",
-            name="bin_yolo_node",
+            name="torpedo_yolo_node",
             parameters=[config],
             namespace="",
         ),
         Node(
             package="pose_estimator",
-            executable="bin_pose_estimator_node",
-            name="bin_pose_estimator_node",
+            executable="torpedo_pose_estimator_node",
+            name="torpedo_pose_estimator_node",
             parameters=[config],
         ),
         Node(
@@ -58,16 +58,16 @@ def generate_launch_description():
         ),
     ]
 
-    repub_nodes = [
+    vis_nodes = [
         Node(
             package="image_transport",
             executable="republish",
-            name="bin_yolo_compression_node",
+            name="torpedo_yolo_compression_node",
             arguments=["raw", "compressed"],
             output="screen",
             remappings=[
-                ("in", "bin/yolo/image"),
-                ("out/compressed", "bin/yolo/image/compressed"),
+                ("in", "torpedo/yolo/image"),
+                ("out/compressed", "torpedo/yolo/image/compressed"),
             ],
         ),
         Node(
@@ -77,8 +77,8 @@ def generate_launch_description():
             arguments=["raw", "compressed"],
             output="screen",
             remappings=[
-                ("in", "/auv4/bot_cam/color/brighten/image"),
-                ("out/compressed", "/auv4/bot_cam/color/brighten/image/compressed"),
+                ("in", "/auv4/front_cam/color/brighten/image"),
+                ("out/compressed", "/auv4/front_cam/color/brighten/image/compressed"),
             ],
         ),
         Node(
@@ -95,5 +95,5 @@ def generate_launch_description():
     ]
 
     return LaunchDescription(
-        launch_objects + yolo_nodes + image_matching_nodes + repub_nodes
+        launch_objects + yolo_nodes + image_matching_nodes + vis_nodes
     )
