@@ -51,7 +51,6 @@ def generate_launch_description():
             name="brighten_compression_node",
             arguments=["raw", "compressed"],
             output="screen",
-            parameters=[{"out.jpeg_quality": 30}],
             remappings=[
                 ("in", "color/brighten/image"),
                 ("out/compressed", "color/brighten/image/compressed"),
@@ -63,7 +62,6 @@ def generate_launch_description():
             name="image_matching_compression_node",
             arguments=["raw", "compressed"],
             output="screen",
-            parameters=[{"out.jpeg_quality": 30}],
             remappings=[
                 ("in", "image_matching/image"),
                 ("out/compressed", "image_matching/image/compressed"),

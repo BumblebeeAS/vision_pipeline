@@ -65,6 +65,7 @@ def generate_launch_description():
             name="bin_yolo_compression_node",
             arguments=["raw", "compressed"],
             output="screen",
+            parameters=[config],
             remappings=[
                 ("in", "bin/yolo/image"),
                 ("out/compressed", "bin/yolo/image/compressed"),
@@ -76,6 +77,7 @@ def generate_launch_description():
             name="image_brighten_compression_node",
             arguments=["raw", "compressed"],
             output="screen",
+            parameters=[config],
             remappings=[
                 ("in", "/auv4/bot_cam/color/brighten/image"),
                 ("out/compressed", "/auv4/bot_cam/color/brighten/image/compressed"),
@@ -87,6 +89,7 @@ def generate_launch_description():
             name="image_matching_compression_node",
             arguments=["raw", "compressed"],
             output="screen",
+            parameters=[config],
             remappings=[
                 ("in", "image_matching/image"),
                 ("out/compressed", "image_matching/image/compressed"),
