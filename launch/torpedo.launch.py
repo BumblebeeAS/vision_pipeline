@@ -45,7 +45,7 @@ def generate_launch_description():
             parameters=[config],
         ),
         Node(
-            package="image_matching",
+            package="custom_image_republisher",
             executable="simple_matcher_node",
             name="simple_matcher_node",
             parameters=[config],
@@ -60,7 +60,7 @@ def generate_launch_description():
 
     vis_nodes = [
         Node(
-            package="image_transport",
+            package="custom_image_republisher",
             executable="republish",
             name="torpedo_yolo_compression_node",
             arguments=["raw", "compressed"],
@@ -71,7 +71,7 @@ def generate_launch_description():
             ],
         ),
         Node(
-            package="image_transport",
+            package="custom_image_republisher",
             executable="republish",
             name="image_brighten_compression_node",
             arguments=["raw", "compressed"],
@@ -82,7 +82,7 @@ def generate_launch_description():
             ],
         ),
         Node(
-            package="image_transport",
+            package="custom_image_republisher",
             executable="republish",
             name="image_matching_compression_node",
             arguments=["raw", "compressed"],

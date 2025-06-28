@@ -62,7 +62,7 @@ def generate_launch_description():
             parameters=[config],
         ),
         Node(
-            package="image_transport",
+            package="custom_image_republisher",
             executable="republish",
             name="slalom_yolo_compression_node",
             arguments=["raw", "compressed"],
@@ -74,7 +74,7 @@ def generate_launch_description():
             ],
         ),
         Node(
-            package="image_transport",
+            package="custom_image_republisher",
             executable="republish",
             name="slalom_depth_compression_node",
             arguments=["raw", "compressed"],

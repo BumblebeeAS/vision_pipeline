@@ -60,7 +60,7 @@ def generate_launch_description():
 
     repub_nodes = [
         Node(
-            package="image_transport",
+            package="custom_image_republisher",
             executable="republish",
             name="bin_yolo_compression_node",
             arguments=["raw", "compressed"],
@@ -72,7 +72,7 @@ def generate_launch_description():
             ],
         ),
         Node(
-            package="image_transport",
+            package="custom_image_republisher",
             executable="republish",
             name="image_brighten_compression_node",
             arguments=["raw", "compressed"],
@@ -84,7 +84,7 @@ def generate_launch_description():
             ],
         ),
         Node(
-            package="image_transport",
+            package="custom_image_republisher",
             executable="republish",
             name="image_matching_compression_node",
             arguments=["raw", "compressed"],

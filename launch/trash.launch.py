@@ -56,7 +56,7 @@ def generate_launch_description():
 
     vis_nodes = [
         Node(
-            package="image_transport",
+            package="custom_image_republisher",
             executable="republish",
             name="trash_compression_node",
             arguments=["raw", "compressed"],
@@ -68,7 +68,7 @@ def generate_launch_description():
             ],
         ),
         Node(
-            package="image_transport",
+            package="custom_image_republisher",
             executable="republish",
             name="symbol_compression_node",
             arguments=["raw", "compressed"],

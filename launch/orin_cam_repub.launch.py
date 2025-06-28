@@ -7,7 +7,7 @@ def generate_launch_description():
 
     for cam_name in ["front_cam", "bot_cam"]:
         repub_node = Node(
-            package="image_transport",
+            package="custom_image_republisher",
             executable="republish",
             name="sbc2orin_repub_node",
             arguments=["compressed", "raw"],
@@ -23,7 +23,7 @@ def generate_launch_description():
         # Lossy compression for visualization
         # (SBC -> Orin is lossless)
         compress_node = Node(
-            package="image_transport",
+            package="custom_image_republisher",
             executable="republish",
             name="orin_compression_node",
             arguments=["raw", "compressed"],

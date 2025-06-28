@@ -48,6 +48,10 @@ Since the cameras are connected to the SBC and not directly to the Orin, we need
 
 To reduce network load, the images are compressed before being passed. However, I think we should not subscribe directly to the `CompressedImage` topics in our image processing and ML nodes because each subscriber to the `CompressedImage` topic would request for messages over the network adding to network load and each subscriber has to decode the compression adding to CPU load. Instead a single `image_transport` republisher converts the `CompressedImage` messages to `Image` messages for each camera stream which the downstream vision nodes subscribe to. **Importantly, all subscribers to the republished `Image` topics reside locally on the Orin.**
 
+### ROS QoS Profiles
+
+The QoS profiles for all nodes in vision pipelines are set to "sensor data", which uses "best effort" reliability. Note that "reliable" subscribers are **incompatible** with "best effort" publishers. 
+
 ## Related Repositories
 
 - [Depth Anything ROS2 TensorRT](https://github.com/BumblebeeAS/depth_anything_ros2_trt)

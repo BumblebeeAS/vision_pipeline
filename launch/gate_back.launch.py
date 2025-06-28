@@ -43,7 +43,7 @@ def generate_launch_description():
 
     vis_nodes = [
         Node(
-            package="image_transport",
+            package="custom_image_republisher",
             executable="republish",
             name="gate_compression_node",
             arguments=["raw", "compressed"],

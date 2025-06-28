@@ -8,12 +8,12 @@
   <license>todo</license>
 
   <!-- Bumblebee's Packages -->
+  <exec_depend>custom_image_republisher</exec_depend>
   <exec_depend>image_matching</exec_depend>
   <exec_depend>image_processing</exec_depend>
   <exec_depend>pose_estimator</exec_depend>
   <exec_depend>yolo_ros_trt</exec_depend>
 
-  <depend>image_transport</depend>
   <depend>rosidl_default_generators</depend>
   <depend>rosidl_default_runtime</depend>
 
