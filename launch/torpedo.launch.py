@@ -45,7 +45,7 @@ def generate_launch_description():
             parameters=[config],
         ),
         Node(
-            package="custom_image_republisher",
+            package="image_matching",
             executable="simple_matcher_node",
             name="simple_matcher_node",
             parameters=[config],
