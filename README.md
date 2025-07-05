@@ -54,6 +54,7 @@ The QoS profiles for all nodes in vision pipelines are set to "sensor data", whi
 
 ## Related Repositories
 
+- [Custom Image Republisher](https://github.com/bumblebeeAS/custom_image_republisher)
 - [Depth Anything ROS2 TensorRT](https://github.com/BumblebeeAS/depth_anything_ros2_trt)
 - [Image matching](https://github.com/BumblebeeAS/image_matching)
 - [Image processing](https://github.com/BumblebeeAS/image_processing)

@@ -9,6 +9,7 @@
 
   <!-- Bumblebee's Packages -->
   <exec_depend>custom_image_republisher</exec_depend>
+  <exec_depend>depth_anything_ros2_trt</exec_depend>
   <exec_depend>image_matching</exec_depend>
   <exec_depend>image_processing</exec_depend>
   <exec_depend>pose_estimator</exec_depend>
