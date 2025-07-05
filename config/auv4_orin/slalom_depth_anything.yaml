@@ -1,5 +1,4 @@
 # Composable nodes require a different ROS params format
-# TODO: Check if this still works for ComposableNode after splitting by node names
 
 depth_anything_node:
   package_name: depth_anything_ros2_trt
