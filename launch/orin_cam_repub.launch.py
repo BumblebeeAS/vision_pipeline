@@ -1,18 +1,17 @@
 from launch import LaunchDescription
-from launch_ros.actions import Node
+from launch_ros.actions import ComposableNodeContainer, Node
+from launch_ros.descriptions import ComposableNode
 
 
 def generate_launch_description():
     repub_nodes = []
 
     for cam_name in ["front_cam", "bot_cam"]:
-        repub_node = Node(
+        repub_node = ComposableNode(
             package="custom_image_republisher",
-            executable="republish",
+            plugin="custom_image_republisher::Republisher",
             name="sbc2orin_repub_node",
-            arguments=["compressed", "raw"],
-            output="screen",
-            parameters=[],
+            parameters=[{"in_transport": "compressed", "out_transport": "raw"}],
             namespace=f"auv4/{cam_name}/",
             remappings=[
                 ("in/compressed", "color/image/compressed"),
@@ -21,14 +20,18 @@ def generate_launch_description():
         )
 
         # Lossy compression for visualization
-        # (SBC -> Orin is lossless)
-        compress_node = Node(
+        # (SBC -> Orin is at default 95% quality)
+        compress_node = ComposableNode(
             package="custom_image_republisher",
-            executable="republish",
+            plugin="custom_image_republisher::Republisher",
             name="orin_compression_node",
-            arguments=["raw", "compressed"],
-            output="screen",
-            parameters=[{".out.jpeg_quality": 50}],
+            parameters=[
+                {
+                    "in_transport": "raw",
+                    "out_transport": "compressed",
+                    ".out.jpeg_quality": 50,
+                }
+            ],
             namespace=f"auv4/{cam_name}/",
             remappings=[
                 ("in", "color/image/orin"),
@@ -36,7 +39,15 @@ def generate_launch_description():
             ],
         )
 
-        repub_nodes.append(repub_node)
-        repub_nodes.append(compress_node)
+        container = ComposableNodeContainer(
+            name="orin_repub_container",
+            namespace=f"auv4/{cam_name}/",
+            package="rclcpp_components",
+            executable="component_container",
+            composable_node_descriptions=[repub_node, compress_node],
+            output="screen",
+        )
+
+        repub_nodes.append(container)
 
     return LaunchDescription(repub_nodes)
