@@ -7,7 +7,7 @@
     agnostic_nms: true
     input_image_topic: /auv4/front_cam/color/image/orin
     output_detections_topic: torpedo/yolo/detections
-    output_image_topic: torpedo/yolo/image
+    output_annotations_topic: torpedo/yolo/annotations
 /**/torpedo_pose_estimator_node:
   ros__parameters:
     camera_info_topic: /auv4/front_cam/color/camera_info

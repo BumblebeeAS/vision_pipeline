@@ -7,7 +7,7 @@
     agnostic_nms: true
     input_image_topic: /auv4/bot_cam/color/image/orin
     output_detections_topic: bin/yolo/detections
-    output_image_topic: bin/yolo/image
+    output_annotations_topic: bin/yolo/annotations
 /**/bin_pose_estimator_node:
   ros__parameters:
     camera_info_topic: /auv4/bot_cam/color/camera_info
