@@ -16,7 +16,11 @@
 # Visualization nodes
 /**/image_brighten_compression_node:
   ros__parameters:
+    in_transport: raw
+    out_transport: compressed
     .out.jpeg_quality: 50
 /**/image_matching_compression_node:
   ros__parameters:
+    in_transport: raw
+    out_transport: compressed
     .out.jpeg_quality: 50

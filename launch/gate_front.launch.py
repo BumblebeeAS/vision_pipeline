@@ -53,31 +53,6 @@ def generate_launch_description():
         ),
     ]
 
-    vis_nodes = [
-        Node(
-            package="custom_image_republisher",
-            executable="republish",
-            name="gate_compression_node",
-            arguments=["raw", "compressed"],
-            output="screen",
-            parameters=[config],
-            remappings=[
-                ("in", "gate/yolo/image"),
-                ("out/compressed", "gate/yolo/image/compressed"),
-            ],
-        ),
-        Node(
-            package="custom_image_republisher",
-            executable="republish",
-            name="symbol_compression_node",
-            arguments=["raw", "compressed"],
-            output="screen",
-            parameters=[config],
-            remappings=[
-                ("in", "symbol/yolo/image"),
-                ("out/compressed", "symbol/yolo/image/compressed"),
-            ],
-        ),
-    ]
+    vis_nodes = []
 
     return LaunchDescription(launch_objects + pipeline_nodes + vis_nodes)

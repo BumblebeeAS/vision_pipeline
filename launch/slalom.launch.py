@@ -64,20 +64,7 @@ def generate_launch_description():
         Node(
             package="custom_image_republisher",
             executable="republish",
-            name="slalom_yolo_compression_node",
-            arguments=["raw", "compressed"],
-            output="screen",
-            parameters=[config],
-            remappings=[
-                ("in", "slalom/yolo/image"),
-                ("out/compressed", "slalom/yolo/image/compressed"),
-            ],
-        ),
-        Node(
-            package="custom_image_republisher",
-            executable="republish",
             name="slalom_depth_compression_node",
-            arguments=["raw", "compressed"],
             output="screen",
             parameters=[config],
             remappings=[

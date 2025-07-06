@@ -41,9 +41,3 @@
     wait_timeout_sec: 1.0
 
 # Visualization nodes
-/**/trash_compression_node:
-  ros__parameters:
-    .out.jpeg_quality: 50
-/**/symbol_compression_node:
-  ros__parameters:
-    .out.jpeg_quality: 50

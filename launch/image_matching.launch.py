@@ -49,7 +49,6 @@ def generate_launch_description():
             package="custom_image_republisher",
             executable="republish",
             name="brighten_compression_node",
-            arguments=["raw", "compressed"],
             output="screen",
             remappings=[
                 ("in", "color/brighten/image"),
@@ -60,7 +59,6 @@ def generate_launch_description():
             package="custom_image_republisher",
             executable="republish",
             name="image_matching_compression_node",
-            arguments=["raw", "compressed"],
             output="screen",
             remappings=[
                 ("in", "image_matching/image"),

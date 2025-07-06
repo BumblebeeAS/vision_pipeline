@@ -30,9 +30,8 @@
   ros__parameters:
     input_image_topic: depth/image
     output_image_topic: depth/color/image
-/**/slalom_yolo_compression_node:
-  ros__parameters:
-    .out.jpeg_quality: 50
 /**/slalom_depth_compression_node:
   ros__parameters:
+    in_transport: raw
+    out_transport: compressed
     .out.jpeg_quality: 50

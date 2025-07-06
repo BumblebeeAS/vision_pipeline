@@ -62,32 +62,7 @@ def generate_launch_description():
         Node(
             package="custom_image_republisher",
             executable="republish",
-            name="torpedo_yolo_compression_node",
-            arguments=["raw", "compressed"],
-            output="screen",
-            parameters=[config],
-            remappings=[
-                ("in", "torpedo/yolo/image"),
-                ("out/compressed", "torpedo/yolo/image/compressed"),
-            ],
-        ),
-        Node(
-            package="custom_image_republisher",
-            executable="republish",
-            name="image_brighten_compression_node",
-            arguments=["raw", "compressed"],
-            output="screen",
-            parameters=[config],
-            remappings=[
-                ("in", "/auv4/front_cam/color/brighten/image"),
-                ("out/compressed", "/auv4/front_cam/color/brighten/image/compressed"),
-            ],
-        ),
-        Node(
-            package="custom_image_republisher",
-            executable="republish",
             name="image_matching_compression_node",
-            arguments=["raw", "compressed"],
             output="screen",
             parameters=[config],
             remappings=[
