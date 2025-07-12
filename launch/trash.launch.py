@@ -18,7 +18,7 @@ def generate_launch_description():
     pipeline_nodes = [
         Node(
             package="yolo_ros_trt",
-            executable="yolo_node",
+            executable="tracking_node",
             name="trash_yolo_node",
             parameters=[config],
         ),
