@@ -42,6 +42,12 @@ def generate_launch_description():
         ),
         Node(
             package="pose_estimator",
+            executable="trash_pose_estimator_node2",
+            name="trash_pose_estimator_node2",
+            parameters=[config],
+        ),
+        Node(
+            package="pose_estimator",
             executable="shark_fish_pose_estimator_node",
             name="shark_fish_pose_estimator_node",
             parameters=[config],
