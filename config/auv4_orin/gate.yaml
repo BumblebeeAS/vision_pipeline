@@ -1,25 +1,25 @@
 # Pipeline nodes
 /**/gate_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_gate_20250531_0.engine
+    model_path: /home/orca4/colcon_ws/src/ml_models/yolov11_segment/yolov11s_gate_20250531_0.pt
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
-    input_image_topic: /auv4/front_cam/color/image/orin
+    input_image_topic: /front_camera
     output_detections_topic: gate/yolo/detections
     output_annotations_topic: gate/yolo/annotations
 /**/symbol_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_symbol_20250527_2.engine
+    model_path: /home/orca4/colcon_ws/src/ml_models/yolov11_segment/yolov11s_symbol_20250624_0.pt
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
-    input_image_topic: /auv4/front_cam/color/image/orin
+    input_image_topic: /front_camera
     output_detections_topic: symbol/yolo/detections
     output_annotations_topic: symbol/yolo/annotations
 /**/gate_pose_estimator_node:
   ros__parameters:
-    camera_info_topic: /auv4/front_cam/color/camera_info
+    camera_info_topic: /front_camera/camera_info
     object_frame_id: gate
     input_detections_topic: gate/yolo/detections
     # from_front differ for front and back cases, specified in the launch file
