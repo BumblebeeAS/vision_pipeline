@@ -19,7 +19,7 @@ def generate_launch_description():
         Node(
             package="yolo_ros_trt",
             executable="tracking_node",
-            name="trash_yolo_node",
+            name="trash_tracking_node",
             parameters=[config],
         ),
         Node(
@@ -36,14 +36,14 @@ def generate_launch_description():
         ),
         Node(
             package="pose_estimator",
-            executable="trash_pose_estimator_node",
-            name="trash_pose_estimator_node",
+            executable="trash_pose_estimator_depth_from_odom_node",
+            name="trash_pose_estimator_depth_from_odom_node",
             parameters=[config],
         ),
         Node(
             package="pose_estimator",
-            executable="trash_pose_estimator_node2",
-            name="trash_pose_estimator_node2",
+            executable="trash_pose_estimator_depth_from_table_node",
+            name="trash_pose_estimator_depth_from_table_node",
             parameters=[config],
         ),
         Node(
