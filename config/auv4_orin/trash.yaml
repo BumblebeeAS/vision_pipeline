@@ -29,7 +29,6 @@
     camera_info_topic: /auv4/bot_cam/color/camera_info
     input_detections_topic: trash/yolo/detections
     table_pose_topic: table/pose
-    output_pose_topic: pose
 /**/trash_pose_estimator_depth_from_odom_node:
   ros__parameters:
     camera_info_topic: /auv4/bot_cam/color/camera_info
@@ -38,12 +37,10 @@
     odom_frame: auv4/base_link_ned
     camera_frame: auv4/bot_cam_optical
     trash_frame_clustered: bottle_0/clustered
-    output_pose_topic: pose
 /**/shark_fish_pose_estimator_node:
   ros__parameters:
     camera_info_topic: /auv4/front_cam/color/camera_info
     input_detections_topic: symbol/yolo/detections
-    output_pose_topic: shark_fish/pose
 /**/trash_lifecycle_manager_node:
   ros__parameters:
     node_names:
