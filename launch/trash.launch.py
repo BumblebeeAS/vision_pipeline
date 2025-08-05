@@ -36,6 +36,12 @@ def generate_launch_description():
         ),
         Node(
             package="pose_estimator",
+            executable="paired_objects_tracker_node",
+            name="trash_tracker_node",
+            parameters=[config],
+        ),
+        Node(
+            package="pose_estimator",
             executable="trash_pose_estimator_depth_from_odom_node",
             name="trash_pose_estimator_depth_from_odom_node",
             parameters=[config],

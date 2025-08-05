@@ -1,7 +1,7 @@
 # Pipeline nodes
 /**/trash_tracking_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_trash_20250721_0.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_trash_20250731_0.engine
     conf: 0.25
     iou: 0.7
     agnostic_nms: false
@@ -24,15 +24,25 @@
     camera_info_topic: /auv4/bot_cam/color/camera_info
     input_detections_topic: trash/yolo/detections
     output_pose_topic: table/pose
+/**/trash_tracker_node:
+  ros__parameters:
+    track_object_names: [bottle, ladle]
+    camera_info_topic: /auv4/bot_cam/color/camera_info
+    input_detections_topic: trash/yolo/detections
+    output_detections_topic: trash/track/yolo/detections
+    num_last_centroids: 100
+    keep_track_alive_counter: 50
 /**/trash_pose_estimator_depth_from_table_node:
   ros__parameters:
     camera_info_topic: /auv4/bot_cam/color/camera_info
     input_detections_topic: trash/yolo/detections
+    input_track_detections_topic: trash/track/yolo/detections
     table_pose_topic: table/pose
 /**/trash_pose_estimator_depth_from_odom_node:
   ros__parameters:
     camera_info_topic: /auv4/bot_cam/color/camera_info
     input_detections_topic: trash/yolo/detections
+    input_track_detections_topic: trash/track/yolo/detections
     input_odom_topic: /auv4/nav/odom_ned
     odom_frame: auv4/base_link_ned
     camera_frame: auv4/bot_cam_optical
