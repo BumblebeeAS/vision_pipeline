@@ -13,6 +13,15 @@
     camera_info_topic: /auv4/front_cam/color/camera_info
     input_detections_topic: slalom/yolo/detections
     input_depth_image_topic: depth/image
+    object_frame: slalom_layer
+    max_reprojection_error: 10.0
+/**/slalom_pose_estimator_near_node:
+  ros__parameters:
+    camera_info_topic: /auv4/front_cam/color/camera_info
+    input_detections_topic: slalom/yolo/detections
+    input_depth_image_topic: depth/image
+    object_frame: slalom_layer_near
+    max_reprojection_error: 100.0
 /**/slalom_component_manager_node:
   ros__parameters:
     container_name: /auv4/slalom/depth_anything_container

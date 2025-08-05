@@ -28,6 +28,13 @@ def generate_launch_description():
             output="screen",
             parameters=[config],
         ),
+        Node(
+            package="pose_estimator",
+            executable="slalom_pose_estimator_node",
+            name="slalom_pose_estimator_near_node",
+            output="screen",
+            parameters=[config],
+        ),
         ComposableNodeContainer(
             package="rclcpp_components",
             executable="component_container",
