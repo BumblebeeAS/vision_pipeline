@@ -30,6 +30,12 @@ def generate_launch_description():
         ),
         Node(
             package="pose_estimator",
+            executable="trash_detections_processor_node",
+            name="trash_detections_processor_node",
+            parameters=[config],
+        ),
+        Node(
+            package="pose_estimator",
             executable="trash_table_pose_estimator_node",
             name="trash_table_pose_estimator_node",
             parameters=[config],
