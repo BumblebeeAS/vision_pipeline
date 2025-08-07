@@ -36,7 +36,7 @@
     output_detections_topic: trash/track/yolo/detections
     num_last_centroids: 100
     init_centroid: [1024.0, 768.0] # Center of 2048 x 1536 image
-    keep_track_alive_time: 5.0
+    keep_track_alive_time: 3.0
 /**/trash_pose_estimator_depth_from_table_node:
   ros__parameters:
     camera_info_topic: /auv4/bot_cam/color/camera_info
@@ -52,6 +52,7 @@
     odom_frame: auv4/base_link_ned
     camera_frame: auv4/bot_cam_optical
     trash_frame_clustered: bottle_0/clustered
+    time_sync_slop: 0.2
 /**/shark_fish_pose_estimator_node:
   ros__parameters:
     camera_info_topic: /auv4/front_cam/color/camera_info
