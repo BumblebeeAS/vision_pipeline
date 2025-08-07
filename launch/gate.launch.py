@@ -14,7 +14,7 @@ def generate_launch_description():
         "gate.yaml",
     )
 
-    launch_objects = [PushRosNamespace("/auv4/gate_back")]
+    launch_objects = [PushRosNamespace("/auv4/gate_front")]
 
     pipeline_nodes = [
         Node(
@@ -24,10 +24,28 @@ def generate_launch_description():
             parameters=[config],
         ),
         Node(
+            package="yolo_ros_trt",
+            executable="yolo_node",
+            name="symbol_yolo_node",
+            parameters=[config],
+        ),
+        Node(
             package="pose_estimator",
             executable="gate_pose_estimator_node",
-            name="gate_pose_estimator_node",
-            parameters=[config, {"from_front": False}],
+            name="gate_front_pose_estimator_node",
+            parameters=[config],
+        ),
+        Node(
+            package="pose_estimator",
+            executable="gate_pose_estimator_node",
+            name="gate_back_pose_estimator_node",
+            parameters=[config],
+        ),
+        Node(
+            package="pose_estimator",
+            executable="shark_fish_estimator_node",
+            name="gate_shark_fish_estimator_node",
+            parameters=[config],
         ),
         Node(
             package="vision_pipeline",
@@ -36,7 +54,7 @@ def generate_launch_description():
             output="screen",
             parameters=[
                 config,
-                {"node_names": ["gate_yolo_node"]},
+                {"node_names": ["gate_yolo_node", "symbol_yolo_node"]},
             ],
         ),
     ]
