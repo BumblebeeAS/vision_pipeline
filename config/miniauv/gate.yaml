@@ -1,0 +1,41 @@
+# Pipeline nodes
+/**/gate_yolo_node:
+  ros__parameters:
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_gate_20250531_0.engine
+    conf: 0.25
+    iou: 0.7
+    agnostic_nms: true
+    input_image_topic: /dwe/image_raw
+    output_detections_topic: gate/yolo/detections
+    output_image_topic: gate/yolo/image
+/**/symbol_yolo_node:
+  ros__parameters:
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_symbol_20250527_2.engine
+    conf: 0.25
+    iou: 0.7
+    agnostic_nms: true
+    input_image_topic: /dwe/image_raw
+    output_detections_topic: symbol/yolo/detections
+    output_image_topic: symbol/yolo/image
+/**/gate_pose_estimator_node:
+  ros__parameters:
+    camera_info_topic: /dwe/camera_info
+    object_frame_id: gate
+    input_detections_topic: gate/yolo/detections
+    # from_front differ for front and back cases, specified in the launch file
+/**/gate_shark_fish_estimator_node:
+  ros__parameters:
+    detections_topic: symbol/yolo/detections
+    output_string_topic: /miniauv/gate/shark_fish
+/**/lifecycle_manager_node:
+  ros__parameters:
+    # node_names differ for front and back cases, specified in the launch file
+    wait_timeout_sec: 1.0
+
+# Visualization nodes
+/**/gate_compression_node:
+  ros__parameters:
+    .out.jpeg_quality: 50
+/**/symbol_compression_node:
+  ros__parameters:
+    .out.jpeg_quality: 50
