@@ -57,6 +57,13 @@
   ros__parameters:
     camera_info_topic: /auv4/front_cam/color/camera_info
     input_detections_topic: symbol/yolo/detections
+/**/trash_object_in_grabber_node:
+  ros__parameters:
+    input_detections_topic: trash/yolo/detections
+    output_detections_in_grabber_topic: /auv4/trash/in_grabber
+    grab_region_polygon: [0, 0, 1, 1, 2, 2, 3, 3]
+    bottle_grab_area_threshold: 5.0
+    ladle_grab_perimeter_threshold: 5.0
 /**/trash_lifecycle_manager_node:
   ros__parameters:
     node_names:

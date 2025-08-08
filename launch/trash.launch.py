@@ -65,6 +65,12 @@ def generate_launch_description():
             parameters=[config],
         ),
         Node(
+            package="pose_estimator",
+            executable="trash_object_in_grabber_node",
+            name="trash_object_in_grabber_node",
+            parameters=[config],
+        )
+        Node(
             package="vision_pipeline",
             executable="lifecycle_manager_node",
             name="trash_lifecycle_manager_node",
