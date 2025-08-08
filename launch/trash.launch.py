@@ -48,6 +48,12 @@ def generate_launch_description():
         ),
         Node(
             package="pose_estimator",
+            executable="trash_object_in_grabber_node",
+            name="trash_object_in_grabber_node",
+            parameters=[config],
+        ),
+        Node(
+            package="pose_estimator",
             executable="trash_pose_estimator_depth_from_odom_node",
             name="trash_pose_estimator_depth_from_odom_node",
             parameters=[config],

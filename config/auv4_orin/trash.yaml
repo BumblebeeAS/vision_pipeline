@@ -37,6 +37,16 @@
     num_last_centroids: 100
     init_centroid: [1024.0, 768.0] # Center of 2048 x 1536 image
     keep_track_alive_time: 3.0
+/**/trash_object_in_grabber_node:
+  ros__parameters:
+    camera_info_topic: /auv4/bot_cam/color/camera_info
+    input_detections_topic: trash/yolo/detections
+    output_detections_in_grabber_topic: trash/in_grabber/yolo/detections
+    output_annotations_topic: trash/in_grabber/yolo/annotations
+    bottle_roi_polygon: [0.600, 0.0603, 0.602, 0.595, 0.829, 0.608, 0.829, 0.0587]
+    ladle_roi_polygon: [0.600, 0.0603, 0.602, 0.595, 0.829, 0.608, 0.829, 0.0587]
+    bottle_grab_area_threshold: 0.8
+    ladle_grab_area_threshold: 0.8
 /**/trash_pose_estimator_depth_from_table_node:
   ros__parameters:
     camera_info_topic: /auv4/bot_cam/color/camera_info
