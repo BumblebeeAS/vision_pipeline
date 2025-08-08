@@ -14,7 +14,7 @@ def generate_launch_description():
         "gate.yaml",
     )
 
-    launch_objects = [PushRosNamespace("/auv4/gate_front")]
+    launch_objects = [PushRosNamespace("/auv4/gate")]
 
     pipeline_nodes = [
         Node(
