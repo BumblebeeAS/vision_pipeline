@@ -40,6 +40,43 @@ def generate_launch_description():
             ),
         ]
 
+        if cam_name == "front_cam":
+            cam_container_nodes.extend(
+                [
+                    ComposableNode(
+                        package="custom_image_republisher",
+                        plugin="custom_image_republisher::Rectifier",
+                        name="front_cam_rectify_node",
+                        namespace=f"auv4/{cam_name}/",
+                        remappings=[
+                            ("image", "color/image/orin"),
+                            ("camera_info", "color/camera_info"),
+                            ("image_rect", "color/rect/image"),
+                            ("image_rect/compressed", "color/rect/image/compressed"),
+                        ],
+                    ),
+                    # Lossy compression for visualization
+                    # (SBC -> Orin is at default 95% quality)
+                    ComposableNode(
+                        package="custom_image_republisher",
+                        plugin="custom_image_republisher::Republisher",
+                        name="front_cam_rectify_compression_node",
+                        parameters=[
+                            {
+                                "in_transport": "raw",
+                                "out_transport": "compressed",
+                                ".out.jpeg_quality": 50,
+                            }
+                        ],
+                        namespace=f"auv4/{cam_name}/",
+                        remappings=[
+                            ("in", "color/rect/image"),
+                            ("out/compressed", "color/rect/vis/image/compressed"),
+                        ],
+                    ),
+                ]
+            )
+
         container = ComposableNodeContainer(
             name="orin_repub_container",
             namespace=f"auv4/{cam_name}/",
