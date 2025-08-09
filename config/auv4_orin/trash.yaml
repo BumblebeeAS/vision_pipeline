@@ -1,13 +1,15 @@
 # Pipeline nodes
-/**/trash_yolo_node:
+/**/trash_tracking_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_trash_20250616_0.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_trash_20250711_1.engine
     conf: 0.25
     iou: 0.7
     agnostic_nms: false
     input_image_topic: /auv4/bot_cam/color/image/orin
     output_detections_topic: trash/yolo/detections
     output_annotations_topic: trash/yolo/annotations
+    display_tracker_id: true
+    font_size: 30.0
 /**/symbol_yolo_node:
   ros__parameters:
     model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_symbol_20250624_0.engine
@@ -22,11 +24,20 @@
     camera_info_topic: /auv4/bot_cam/color/camera_info
     input_detections_topic: trash/yolo/detections
     output_pose_topic: table/pose
-/**/trash_pose_estimator_node:
+/**/trash_pose_estimator_depth_from_table_node:
   ros__parameters:
     camera_info_topic: /auv4/bot_cam/color/camera_info
     input_detections_topic: trash/yolo/detections
     table_pose_topic: table/pose
+    output_pose_topic: pose
+/**/trash_pose_estimator_depth_from_odom_node:
+  ros__parameters:
+    camera_info_topic: /auv4/bot_cam/color/camera_info
+    input_detections_topic: trash/yolo/detections
+    input_odom_topic: /auv4/nav/odom_ned
+    odom_frame: auv4/base_link_ned
+    camera_frame: auv4/bot_cam_optical
+    trash_frame_clustered: bottle_0/clustered
     output_pose_topic: pose
 /**/shark_fish_pose_estimator_node:
   ros__parameters:
@@ -36,8 +47,7 @@
 /**/trash_lifecycle_manager_node:
   ros__parameters:
     node_names:
-      - trash_yolo_node
+      - trash_tracking_node
       - symbol_yolo_node
     wait_timeout_sec: 1.0
-
 # Visualization nodes
