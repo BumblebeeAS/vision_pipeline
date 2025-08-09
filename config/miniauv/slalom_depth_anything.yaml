@@ -1,0 +1,10 @@
+# Composable nodes require a different ROS params format
+
+depth_anything_node:
+  package_name: depth_anything_ros2_trt
+  plugin_name: depth_anything::DepthAnythingNode
+  model_path: /workspaces/isaac_ros-dev/src/ml_models/depth_anything/depth_anything_v2_vits_518.engine
+  node_namespace: /auv4/slalom
+  remap_rules:
+    - ~/input/image:=/dwe/image_raw
+    - ~/output/depth_image:=/auv4/slalom/depth/image
