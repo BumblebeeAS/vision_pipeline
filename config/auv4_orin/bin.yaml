@@ -28,6 +28,7 @@
 /**/simple_matcher_node:
   ros__parameters:
     input_image_topic: /auv4/bot_cam/color/brighten/image
+    output_annotations_topic: image_matching/annotations
 /**/points_pose_estimator_node:
   ros__parameters:
     camera_info_topic: /auv4/bot_cam/color/camera_info

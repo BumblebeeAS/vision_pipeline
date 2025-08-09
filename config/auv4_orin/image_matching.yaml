@@ -7,6 +7,7 @@
 /**/simple_matcher_node:
   ros__parameters:
     input_image_topic: color/brighten/image
+    output_annotations_topic: image_matching/annotations
 /**/points_pose_estimator_node:
   ros__parameters:
     camera_info_topic: color/camera_info
