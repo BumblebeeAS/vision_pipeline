@@ -23,7 +23,7 @@
 /**/image_brighten_node:
   ros__parameters:
     brightness_factor: 1.5
-    input_image_topic: /auv4/front_cam/color/image/orin
+    input_image_topic: /auv4/front_cam/color/rect/image
     output_image_topic: /auv4/front_cam/color/brighten/image
 /**/simple_matcher_node:
   ros__parameters:
@@ -32,6 +32,7 @@
 /**/points_pose_estimator_node:
   ros__parameters:
     camera_info_topic: /auv4/front_cam/color/camera_info
+    is_image_rectified: true
     input_points_topic: image_matching/point_correspondences
 
 # Visualization nodes
