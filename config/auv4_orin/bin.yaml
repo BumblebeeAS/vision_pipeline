@@ -33,10 +33,3 @@
   ros__parameters:
     camera_info_topic: /auv4/bot_cam/color/camera_info
     input_points_topic: image_matching/point_correspondences
-
-# Visualization nodes
-/**/image_matching_compression_node:
-  ros__parameters:
-    in_transport: raw
-    out_transport: compressed
-    .out.jpeg_quality: 50

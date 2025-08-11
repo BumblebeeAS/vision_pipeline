@@ -58,20 +58,8 @@ def generate_launch_description():
         ),
     ]
 
-    repub_nodes = [
-        Node(
-            package="custom_image_republisher",
-            executable="republish",
-            name="image_matching_compression_node",
-            output="screen",
-            parameters=[config],
-            remappings=[
-                ("in", "image_matching/image"),
-                ("out/compressed", "image_matching/image/compressed"),
-            ],
-        ),
-    ]
+    vis_nodes = []
 
     return LaunchDescription(
-        launch_objects + yolo_nodes + image_matching_nodes + repub_nodes
+        launch_objects + yolo_nodes + image_matching_nodes + vis_nodes
     )

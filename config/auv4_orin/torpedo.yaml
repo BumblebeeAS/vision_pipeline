@@ -34,10 +34,3 @@
     camera_info_topic: /auv4/front_cam/color/camera_info
     is_image_rectified: true
     input_points_topic: image_matching/point_correspondences
-
-# Visualization nodes
-/**/image_matching_compression_node:
-  ros__parameters:
-    in_transport: raw
-    out_transport: compressed
-    .out.jpeg_quality: 50

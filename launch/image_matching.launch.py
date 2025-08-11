@@ -55,16 +55,6 @@ def generate_launch_description():
                 ("out/compressed", "color/brighten/image/compressed"),
             ],
         ),
-        Node(
-            package="custom_image_republisher",
-            executable="republish",
-            name="image_matching_compression_node",
-            output="screen",
-            remappings=[
-                ("in", "image_matching/image"),
-                ("out/compressed", "image_matching/image/compressed"),
-            ],
-        ),
     ]
 
     return LaunchDescription(launch_objects + pipeline_nodes + repub_nodes)
