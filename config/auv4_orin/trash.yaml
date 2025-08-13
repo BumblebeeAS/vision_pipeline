@@ -1,7 +1,7 @@
 # Pipeline nodes
 /**/trash_tracking_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_trash_20250805_0.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_trash_20250807_0.engine
     conf: 0.25
     iou: 0.7
     agnostic_nms: false
