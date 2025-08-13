@@ -1,16 +1,17 @@
 # Pipeline nodes
 /**/slalom_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_slalom_20250709_0.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_slalom_20250809_0.engine
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
-    input_image_topic: /auv4/front_cam/color/image/orin
+    input_image_topic: /auv4/front_cam/color/rect/image
     output_detections_topic: slalom/yolo/detections
     output_annotations_topic: slalom/yolo/annotations
 /**/slalom_pose_estimator_node:
   ros__parameters:
     camera_info_topic: /auv4/front_cam/color/camera_info
+    is_image_rectified: true
     input_detections_topic: slalom/yolo/detections
     input_depth_image_topic: depth/image
     object_frame: slalom_layer
@@ -18,6 +19,7 @@
 /**/slalom_pose_estimator_near_node:
   ros__parameters:
     camera_info_topic: /auv4/front_cam/color/camera_info
+    is_image_rectified: true
     input_detections_topic: slalom/yolo/detections
     input_depth_image_topic: depth/image
     object_frame: slalom_layer_near

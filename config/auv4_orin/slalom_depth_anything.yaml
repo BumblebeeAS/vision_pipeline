@@ -6,5 +6,5 @@ depth_anything_node:
   model_path: /workspaces/isaac_ros-dev/src/ml_models/depth_anything/depth_anything_v2_vitb_770.engine
   node_namespace: /auv4/slalom
   remap_rules:
-    - ~/input/image:=/auv4/front_cam/color/image/orin
+    - ~/input/image:=/auv4/front_cam/color/rect/image
     - ~/output/depth_image:=/auv4/slalom/depth/image
