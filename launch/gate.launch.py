@@ -37,12 +37,6 @@ def generate_launch_description():
         ),
         Node(
             package="pose_estimator",
-            executable="gate_pose_estimator_node",
-            name="gate_back_pose_estimator_node",
-            parameters=[config],
-        ),
-        Node(
-            package="pose_estimator",
             executable="shark_fish_estimator_node",
             name="gate_shark_fish_estimator_node",
             parameters=[config],
