@@ -38,7 +38,10 @@ def evaluate_launch(context, *args, **kwargs):
                 {"camera_link_frame_name": camera_link_frame_name},
                 {"camera_info_url": f"file://{calibration_data_file}"},
             ],
-            remappings=[("left/image_raw", "image")],
+            remappings=[
+                ("left/image_raw", "image"),
+                ("left/camera_info", "camera_info"),
+            ],
             namespace=namespace,
         ),
         # ComposableNode(
@@ -53,7 +56,13 @@ def evaluate_launch(context, *args, **kwargs):
             package="custom_image_republisher",
             plugin="custom_image_republisher::Republisher",
             name="orin_compression_node",
-            parameters=[{"in_transport": "raw", "out_transport": "compressed"}],
+            parameters=[
+                {
+                    "in_transport": "raw",
+                    "out_transport": "compressed",
+                    ".out.jpeg_quality": 50,
+                }
+            ],
             namespace=namespace,
             remappings=[
                 ("in", "image"),
