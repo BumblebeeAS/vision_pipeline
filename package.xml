@@ -8,6 +8,7 @@
   <license>todo</license>
 
   <!-- Bumblebee's Packages -->
+  <exec_depend>aruco_loco</exec_depend>
   <exec_depend>custom_image_republisher</exec_depend>
   <exec_depend>depth_anything_ros2_trt</exec_depend>
   <exec_depend>image_matching</exec_depend>

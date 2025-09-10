@@ -20,6 +20,14 @@ setup(
             os.path.join("share", package_name, "config", "auv4_orin"),
             glob(os.path.join("config", "auv4_orin", "*.yaml")),
         ),
+        (
+            os.path.join("share", package_name, "config", "drone"),
+            glob(os.path.join("config", "drone", "*.yaml")),
+        ),
+        (
+            os.path.join("share", package_name, "config", "drone", "calib"),
+            glob(os.path.join("config", "drone", "calib", "*.yaml")),
+        ),
     ],
     install_requires=["setuptools"],
     zip_safe=True,
