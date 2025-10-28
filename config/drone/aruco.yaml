@@ -3,7 +3,7 @@
     input_image_topic: image
     output_point_correspondences_topic: aruco/point_correspondences
     output_annotations_topic: aruco/annotations
-    aruco_tags_path: /workspaces/isaac_ros-dev/src/aruco-loco/aruco_tags/robotx24/aruco_tags_v2.json
+    aruco_tags_path: /workspaces/isaac_ros-dev/src/aruco_loco/aruco_tags/robotx24/aruco_tags_v2.json
 /**/points_pose_estimator_node:
   ros__parameters:
     camera_info_topic: camera_info
