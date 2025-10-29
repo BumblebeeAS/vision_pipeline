@@ -20,7 +20,7 @@ def generate_launch_description():
             "camera_name",
             default_value="",
         ),
-        PushRosNamespace(["/drone/", LaunchConfiguration("camera_name")]),
+        PushRosNamespace(["/uav2/", LaunchConfiguration("camera_name")]),
     ]
 
     pipeline_nodes = [

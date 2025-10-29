@@ -5,6 +5,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import GroupAction, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_ros.actions import PushRosNamespace
 from launch_ros.substitutions import FindPackageShare
 
 config_file = os.path.join(
@@ -26,6 +27,7 @@ def generate_launch_description():
         pipeline_groups.append(
             GroupAction(
                 actions=[
+                    PushRosNamespace(camera_name),
                     IncludeLaunchDescription(
                         PythonLaunchDescriptionSource(
                             [
@@ -45,7 +47,7 @@ def generate_launch_description():
             )
         )
 
-    return LaunchDescription(pipeline_groups)
+    return LaunchDescription([PushRosNamespace("uav2")] + pipeline_groups)
 
 
 if __name__ == "__main__":

@@ -17,7 +17,6 @@ def evaluate_launch(context, *args, **kwargs):
         context
     )
 
-    namespace = f"drone/{camera_name}"
     calibration_data_file = os.path.join(
         get_package_share_directory("vision_pipeline"),
         "config",
@@ -42,7 +41,6 @@ def evaluate_launch(context, *args, **kwargs):
                 ("left/image_raw", "image"),
                 ("left/camera_info", "camera_info"),
             ],
-            namespace=namespace,
         ),
         # ComposableNode(
         #     name="rectify_node",
@@ -56,17 +54,26 @@ def evaluate_launch(context, *args, **kwargs):
             package="custom_image_republisher",
             plugin="custom_image_republisher::Republisher",
             name="orin_compression_node",
+            parameters=[{"in_transport": "raw", "out_transport": "compressed"}],
+            remappings=[
+                ("in", "image"),
+                ("out/compressed", "image/compressed"),
+            ],
+        ),
+        ComposableNode(
+            package="custom_image_republisher",
+            plugin="custom_image_republisher::Republisher",
+            name="vis_compression_node",
             parameters=[
                 {
                     "in_transport": "raw",
                     "out_transport": "compressed",
-                    ".out.jpeg_quality": 50,
+                    ".out.jpeg_quality": 30,
                 }
             ],
-            namespace=namespace,
             remappings=[
                 ("in", "image"),
-                ("out/compressed", "image/compressed"),
+                ("out/compressed", "image/vis/compressed"),
             ],
         ),
     ]
