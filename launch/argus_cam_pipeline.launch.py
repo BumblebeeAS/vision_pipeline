@@ -42,6 +42,18 @@ def evaluate_launch(context, *args, **kwargs):
                 ("left/camera_info", "camera_info"),
             ],
         ),
+        ComposableNode(
+            name="resize_node",
+            package="isaac_ros_image_proc",
+            plugin="nvidia::isaac_ros::image_proc::ResizeNode",
+            parameters=[
+                {"input_width": 1280},
+                {"input_height": 720},
+                {"output_width": 640},
+                {"output_height": 360},
+                {"keep_aspect_ratio": True},
+            ],
+        ),
         # ComposableNode(
         #     name="rectify_node",
         #     package="isaac_ros_image_proc",
@@ -68,12 +80,12 @@ def evaluate_launch(context, *args, **kwargs):
                 {
                     "in_transport": "raw",
                     "out_transport": "compressed",
-                    ".out.jpeg_quality": 30,
+                    ".out.jpeg_quality": 10,
                 }
             ],
             remappings=[
-                ("in", "image"),
-                ("out/compressed", "image/vis/compressed"),
+                ("in", "resize/image"),
+                ("out/compressed", "resize/image/compressed"),
             ],
         ),
     ]
