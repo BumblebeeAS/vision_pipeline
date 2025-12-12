@@ -17,16 +17,20 @@ setup(
             glob(os.path.join("launch", "*launch.[pxy][yma]*")),
         ),
         (
+            os.path.join("share", package_name, "launch"),
+            glob(os.path.join("launch", "robotx", "*launch.[pxy][yma]*")),
+        ),
+        (
             os.path.join("share", package_name, "config", "auv4_orin"),
             glob(os.path.join("config", "auv4_orin", "*.yaml")),
         ),
         (
-            os.path.join("share", package_name, "config", "drone"),
-            glob(os.path.join("config", "drone", "*.yaml")),
+            os.path.join("share", package_name, "config", "uav2"),
+            glob(os.path.join("config", "uav2", "*.yaml")),
         ),
         (
-            os.path.join("share", package_name, "config", "drone", "calib"),
-            glob(os.path.join("config", "drone", "calib", "*.yaml")),
+            os.path.join("share", package_name, "config", "uav2", "calib"),
+            glob(os.path.join("config", "uav2", "calib", "*.yaml")),
         ),
     ],
     install_requires=["setuptools"],

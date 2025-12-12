@@ -1,0 +1,17 @@
+# Pipeline nodes
+/**/tins_yolo_node:
+  ros__parameters:
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_tins_20251211_1.engine
+    conf: 0.25
+    iou: 0.7
+    agnostic_nms: true
+    input_image_topic: /uav2/wide_a/resize/image
+    output_detections_topic: tins/yolo/detections
+    output_annotations_topic: tins/yolo/annotations
+/**/lifecycle_manager_node:
+  ros__parameters:
+    node_names:
+      - tins_yolo_node
+    wait_timeout_sec: 1.0
+
+# Visualization nodes

@@ -20,7 +20,7 @@ def evaluate_launch(context, *args, **kwargs):
     calibration_data_file = os.path.join(
         get_package_share_directory("vision_pipeline"),
         "config",
-        "drone",
+        "uav2",
         "calib",
         f"{camera_name}.yaml",
     )
