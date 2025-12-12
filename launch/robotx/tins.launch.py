@@ -24,6 +24,12 @@ def generate_launch_description():
             parameters=[config],
         ),
         Node(
+            package="pose_estimator",
+            executable="helipad_pose_estimator_node",
+            name="helipad_pose_estimator_node",
+            parameters=[config],
+        ),
+        Node(
             package="vision_pipeline",
             executable="lifecycle_manager_node",
             name="lifecycle_manager_node",
