@@ -7,6 +7,8 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 
+from vision_pipeline.common.uav2_image_proc import get_image_proc_nodes
+
 
 def evaluate_launch(context, *args, **kwargs):
     camera_name = LaunchConfiguration("camera_name").perform(context)
@@ -42,60 +44,15 @@ def evaluate_launch(context, *args, **kwargs):
                 ("left/camera_info", "camera_info"),
             ],
         ),
-        ComposableNode(
-            name="resize_node",
-            package="isaac_ros_image_proc",
-            plugin="nvidia::isaac_ros::image_proc::ResizeNode",
-            parameters=[
-                {"input_width": 1280},
-                {"input_height": 720},
-                {"output_width": 640},
-                {"output_height": 360},
-                {"keep_aspect_ratio": True},
-            ],
-        ),
-        # ComposableNode(
-        #     name="rectify_node",
-        #     package="isaac_ros_image_proc",
-        #     plugin="nvidia::isaac_ros::image_proc::RectifyNode",
-        #     parameters=[{"output_height": 480}, {"output_width": 640}],
-        #     namespace=namespace,
-        #     remappings=[("image_rect", "rect/image")],
-        # ),
-        ComposableNode(
-            package="custom_image_republisher",
-            plugin="custom_image_republisher::Republisher",
-            name="orin_compression_node",
-            parameters=[{"in_transport": "raw", "out_transport": "compressed"}],
-            remappings=[
-                ("in", "image"),
-                ("out/compressed", "image/compressed"),
-            ],
-        ),
-        ComposableNode(
-            package="custom_image_republisher",
-            plugin="custom_image_republisher::Republisher",
-            name="vis_compression_node",
-            parameters=[
-                {
-                    "in_transport": "raw",
-                    "out_transport": "compressed",
-                    ".out.jpeg_quality": 10,
-                }
-            ],
-            remappings=[
-                ("in", "resize/image"),
-                ("out/compressed", "resize/image/compressed"),
-            ],
-        ),
     ]
+    cam_container_nodes.extend(get_image_proc_nodes())
 
     camera_container = ComposableNodeContainer(
         name="camera_container",
         package="rclcpp_components",
         executable="component_container_mt",
         composable_node_descriptions=cam_container_nodes,
-        namespace=camera_name,
+        namespace="",
         output="screen",
         arguments=["--ros-args", "--log-level", "info"],
     )
