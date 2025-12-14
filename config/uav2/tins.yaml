@@ -10,7 +10,7 @@
     output_annotations_topic: tins/yolo/annotations
 /**/helipad_pose_estimator_node:
   ros__parameters:
-    camera_info_topic: /uav2/wide_a/camera_info
+    camera_info_topic: /uav2/wide_a/resize/camera_info
     object_frame_id: helipad
     input_detections_topic: tins/yolo/detections
 /**/lifecycle_manager_node:
@@ -18,5 +18,4 @@
     node_names:
       - tins_yolo_node
     wait_timeout_sec: 1.0
-
 # Visualization nodes
