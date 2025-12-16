@@ -39,8 +39,8 @@ def generate_launch_description():
                             "camera_name": camera_name,
                             "camera_id": str(camera_id),
                             "camera_mode": str(camera_mode),
-                            "camera_frame_id": f"drone/{camera_name}_optical",
-                            "camera_link_frame_name": f"drone/{camera_name}_link",
+                            "camera_frame_id": f"uav2/{camera_name}_optical",
+                            "camera_link_frame_name": f"uav2/{camera_name}_link",
                         }.items(),
                     ),
                 ]
