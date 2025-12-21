@@ -13,6 +13,13 @@
     camera_info_topic: /uav2/wide_a/resize/camera_info
     object_frame_id: helipad
     input_detections_topic: tins/yolo/detections
+/**/tins_pose_estimator_depth_from_odom_node:
+  ros__parameters:
+    camera_info_topic: /uav2/wide_a/resize/camera_info
+    input_track_detections_topic: tins/yolo/detections
+    input_odom_topic: /uav2/odom_ned
+    odom_frame: odom_ned
+    time_sync_slop: 0.2
 /**/lifecycle_manager_node:
   ros__parameters:
     node_names:

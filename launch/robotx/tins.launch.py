@@ -30,6 +30,12 @@ def generate_launch_description():
             parameters=[config],
         ),
         Node(
+            package="pose_estimator",
+            executable="tins_pose_estimator_depth_from_odom_node",
+            name="tins_pose_estimator_depth_from_odom_node",
+            parameters=[config],
+        ),
+        Node(
             package="vision_pipeline",
             executable="lifecycle_manager_node",
             name="lifecycle_manager_node",
