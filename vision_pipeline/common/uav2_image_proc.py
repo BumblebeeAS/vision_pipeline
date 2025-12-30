@@ -16,25 +16,29 @@ def get_image_proc_nodes():
         List of ComposableNode objects
     """
     return [
+        # ComposableNode(
+        #     name="resize_node",
+        #     package="isaac_ros_image_proc",
+        #     plugin="nvidia::isaac_ros::image_proc::ResizeNode",
+        #     parameters=[
+        #         {"input_width": 1280},
+        #         {"input_height": 720},
+        #         {"output_width": 640},
+        #         {"output_height": 360},
+        #         {"keep_aspect_ratio": True},
+        #     ],
+        # ),
         ComposableNode(
-            name="resize_node",
+            name="rectify_node",
             package="isaac_ros_image_proc",
-            plugin="nvidia::isaac_ros::image_proc::ResizeNode",
-            parameters=[
-                {"input_width": 1280},
-                {"input_height": 720},
-                {"output_width": 640},
-                {"output_height": 360},
-                {"keep_aspect_ratio": True},
+            plugin="nvidia::isaac_ros::image_proc::RectifyNode",
+            parameters=[{"output_height": 360}, {"output_width": 640}],
+            remappings=[
+                ("image_raw", "image"),
+                ("image_rect", "rect/image"),
+                ("camera_info_rect", "rect/camera_info"),
             ],
         ),
-        # ComposableNode(
-        #     name="rectify_node",
-        #     package="isaac_ros_image_proc",
-        #     plugin="nvidia::isaac_ros::image_proc::RectifyNode",
-        #     parameters=[{"output_height": 480}, {"output_width": 640}],
-        #     remappings=[("image_rect", "rect/image")],
-        # ),
         ComposableNode(
             package="custom_image_republisher",
             plugin="custom_image_republisher::Republisher",
@@ -57,8 +61,8 @@ def get_image_proc_nodes():
                 }
             ],
             remappings=[
-                ("in", "resize/image"),
-                ("out/compressed", "resize/image/compressed"),
+                ("in", "rect/image"),
+                ("out/compressed", "rect/image/compressed"),
             ],
         ),
     ]
