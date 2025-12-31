@@ -13,6 +13,7 @@
     camera_info_topic: /uav2/wide_a/rect/camera_info
     object_frame_id: helipad
     input_detections_topic: tins/yolo/detections
+    output_pose_topic: tins/helipad/pose
     is_image_rectified: true
 /**/tins_pose_estimator_depth_from_odom_node:
   ros__parameters:
