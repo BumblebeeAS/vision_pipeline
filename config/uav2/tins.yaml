@@ -5,21 +5,23 @@
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
-    input_image_topic: /uav2/wide_a/resize/image
+    input_image_topic: /uav2/wide_a/rect/image
     output_detections_topic: tins/yolo/detections
     output_annotations_topic: tins/yolo/annotations
 /**/helipad_pose_estimator_node:
   ros__parameters:
-    camera_info_topic: /uav2/wide_a/resize/camera_info
+    camera_info_topic: /uav2/wide_a/rect/camera_info
     object_frame_id: helipad
     input_detections_topic: tins/yolo/detections
+    is_image_rectified: true
 /**/tins_pose_estimator_depth_from_odom_node:
   ros__parameters:
-    camera_info_topic: /uav2/wide_a/resize/camera_info
+    camera_info_topic: /uav2/wide_a/rect/camera_info
     input_track_detections_topic: tins/yolo/detections
     input_odom_topic: /uav2/odom_ned
     odom_frame: odom_ned
     time_sync_slop: 0.2
+    is_image_rectified: true
 /**/lifecycle_manager_node:
   ros__parameters:
     node_names:
