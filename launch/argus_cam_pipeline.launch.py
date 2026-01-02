@@ -42,6 +42,8 @@ def evaluate_launch(context, *args, **kwargs):
             remappings=[
                 ("left/image_raw", "image"),
                 ("left/camera_info", "camera_info"),
+                # To ignore static TFs from Argus
+                ("/tf_static", "/_argus_tf_static_ignored"),
             ],
         ),
     ]
