@@ -36,6 +36,12 @@ See [vision_pipeline/README.md](vision_pipeline/README.md) for more details.
 
 **Fix:** Check that the `model_path` parameter for `slalom_depth_anything_node` in `slalom.yaml` is set to the `.onnx` model, not the `.engine` model. The `.engine` is built from the `.onnx` when the node is run for the first time, so on the first run, the model path has to be set to point to the `.onnx` model instead.
 
+**2. Rectified image from nvidia::isaac_ros::image_proc::RectifyNode is sometimes blurry**
+
+See: https://forums.developer.nvidia.com/t/isaac-ros-image-proc-rectify-node-unreliable-startup/330189
+
+"Fix" is to restart the node or reboot the Jetson.
+
 ## Notes
 
 ### Image Types

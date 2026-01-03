@@ -32,7 +32,7 @@ def generate_launch_description():
                         PythonLaunchDescriptionSource(
                             [
                                 FindPackageShare("vision_pipeline"),
-                                "/launch/argus_cam_pipeline.launch.py",
+                                "/launch/uav2_cam_pipeline.launch.py",
                             ]
                         ),
                         launch_arguments={

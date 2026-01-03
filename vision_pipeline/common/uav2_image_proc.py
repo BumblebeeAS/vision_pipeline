@@ -39,16 +39,18 @@ def get_image_proc_nodes():
                 ("camera_info_rect", "rect/camera_info"),
             ],
         ),
-        ComposableNode(
-            package="custom_image_republisher",
-            plugin="custom_image_republisher::Republisher",
-            name="orin_compression_node",
-            parameters=[{"in_transport": "raw", "out_transport": "compressed"}],
-            remappings=[
-                ("in", "image"),
-                ("out/compressed", "image/compressed"),
-            ],
-        ),
+        # # High quality compression for bagging
+        # ComposableNode(
+        #     package="custom_image_republisher",
+        #     plugin="custom_image_republisher::Republisher",
+        #     name="orin_compression_node",
+        #     parameters=[{"in_transport": "raw", "out_transport": "compressed"}],
+        #     remappings=[
+        #         ("in", "rect/image"),
+        #         ("out/compressed", "rect/image/compressed"),
+        #     ],
+        # ),
+        # Low quality compression for visualization over RF comms
         ComposableNode(
             package="custom_image_republisher",
             plugin="custom_image_republisher::Republisher",
