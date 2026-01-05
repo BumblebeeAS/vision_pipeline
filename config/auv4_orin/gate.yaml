@@ -1,7 +1,7 @@
 # Pipeline nodes
 /**/gate_yolo_node:
   ros__parameters:
-    model_path: /home/orca4/colcon_ws/src/ml_models/yolov11_segment/yolov11s_gate_20250531_0.pt
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_gate_20250813_0.pt
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
@@ -10,7 +10,7 @@
     output_annotations_topic: gate/yolo/annotations
 /**/symbol_yolo_node:
   ros__parameters:
-    model_path: /home/orca4/colcon_ws/src/ml_models/yolov11_segment/yolov11s_symbol_20250624_0.pt
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_symbol_20250624_0.pt
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
