@@ -20,6 +20,10 @@ setup(
             os.path.join("share", package_name, "config", "miniauv"),
             glob(os.path.join("config", "miniauv", "*.yaml")),
         ),
+        (
+            os.path.join("share", package_name, "config", "auv4_orin"),
+            glob(os.path.join("config", "auv4_orin", "*.yaml")),
+        ),
     ],
     install_requires=["setuptools"],
     zip_safe=True,
