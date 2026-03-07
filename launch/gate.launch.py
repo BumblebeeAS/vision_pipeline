@@ -1,8 +1,9 @@
 import os
 
 from ament_index_python.packages import get_package_share_directory
-from launch import LaunchDescription
 from launch_ros.actions import Node, PushRosNamespace
+
+from launch import LaunchDescription
 
 
 def generate_launch_description():
@@ -33,6 +34,12 @@ def generate_launch_description():
             package="pose_estimator",
             executable="gate_pose_estimator_node",
             name="gate_front_pose_estimator_node",
+            parameters=[config],
+        ),
+        Node(
+            package="pose_estimator",
+            executable="gate_pose_estimator_node",
+            name="gate_back_pose_estimator_node",
             parameters=[config],
         ),
         Node(

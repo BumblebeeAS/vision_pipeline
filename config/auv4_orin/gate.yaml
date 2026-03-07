@@ -23,12 +23,14 @@
     object_frame_id: gate/front
     input_detections_topic: gate/yolo/detections
     from_front: true
+    output_pose_topic: /auv4/gate/front_pose
 /**/gate_back_pose_estimator_node:
   ros__parameters:
     camera_info_topic: /auv4/front_cam/color/camera_info
     object_frame_id: gate/back
     input_detections_topic: gate/yolo/detections
     from_front: false
+    output_pose_topic: /auv4/gate/back_pose
 /**/gate_shark_fish_estimator_node:
   ros__parameters:
     detections_topic: symbol/yolo/detections
