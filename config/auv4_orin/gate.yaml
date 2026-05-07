@@ -5,7 +5,7 @@
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
-    input_image_topic: /auv4/front_cam/color/image/orin
+    input_image_topic: /auv4/front_cam/color/image
     output_detections_topic: gate/yolo/detections
     output_annotations_topic: gate/yolo/annotations
 /**/symbol_yolo_node:
@@ -14,7 +14,7 @@
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
-    input_image_topic: /auv4/front_cam/color/image/orin
+    input_image_topic: /auv4/front_cam/color/image
     output_detections_topic: symbol/yolo/detections
     output_annotations_topic: symbol/yolo/annotations
 /**/gate_front_pose_estimator_node:
@@ -23,14 +23,14 @@
     object_frame_id: gate/front
     input_detections_topic: gate/yolo/detections
     from_front: true
-    output_pose_topic: /auv4/gate/front_pose
+    # output_pose_topic: /auv4/gate/front_pose
 /**/gate_back_pose_estimator_node:
   ros__parameters:
     camera_info_topic: /auv4/front_cam/color/camera_info
     object_frame_id: gate/back
     input_detections_topic: gate/yolo/detections
     from_front: false
-    output_pose_topic: /auv4/gate/back_pose
+    # output_pose_topic: /auv4/gate/back_pose
 /**/gate_shark_fish_estimator_node:
   ros__parameters:
     detections_topic: symbol/yolo/detections

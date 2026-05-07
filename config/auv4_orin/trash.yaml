@@ -5,7 +5,7 @@
     conf: 0.25
     iou: 0.7
     agnostic_nms: false
-    input_image_topic: /auv4/bot_cam/color/image/orin
+    input_image_topic: /auv4/bot_cam/color/image
     output_detections_topic: trash/yolo/detections
     output_annotations_topic: trash/yolo/annotations
     display_tracker_id: true
@@ -16,7 +16,7 @@
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
-    input_image_topic: /auv4/front_cam/color/image/orin
+    input_image_topic: /auv4/front_cam/color/image
     output_detections_topic: symbol/yolo/detections
     output_annotations_topic: symbol/yolo/annotations
 /**/trash_detections_processor_node:

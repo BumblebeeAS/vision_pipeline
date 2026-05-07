@@ -2,7 +2,7 @@
 /**/image_brighten_node:
   ros__parameters:
     brightness_factor: 1.0
-    input_image_topic: color/image/orin
+    input_image_topic: color/image
     output_image_topic: color/brighten/image
 /**/simple_matcher_node:
   ros__parameters:

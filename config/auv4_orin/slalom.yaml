@@ -1,7 +1,7 @@
 # Pipeline nodes
 /**/slalom_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_slalom_20250809_0.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_slalom_20250812_0.engine
     conf: 0.25
     iou: 0.7
     agnostic_nms: true

@@ -5,7 +5,7 @@
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
-    input_image_topic: /auv4/front_cam/color/image/orin
+    input_image_topic: /auv4/front_cam/color/image
     output_detections_topic: torpedo/yolo/detections
     output_annotations_topic: torpedo/yolo/annotations
 /**/torpedo_pose_estimator_node:
@@ -22,7 +22,7 @@
 # Image matching nodes
 /**/image_brighten_node:
   ros__parameters:
-    brightness_factor: 1.5
+    brightness_factor: 1.0
     input_image_topic: /auv4/front_cam/color/rect/image
     output_image_topic: /auv4/front_cam/color/brighten/image
 /**/simple_matcher_node:

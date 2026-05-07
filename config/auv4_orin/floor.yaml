@@ -5,7 +5,7 @@
     conf: 0.25
     iou: 0.7
     agnostic_nms: false
-    input_image_topic: /auv4/bot_cam/color/image/orin
+    input_image_topic: /auv4/bot_cam/color/image
     output_detections_topic: floor/yolo/detections
     output_annotations_topic: floor/yolo/annotations
     display_tracker_id: true

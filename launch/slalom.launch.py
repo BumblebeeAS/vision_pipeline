@@ -1,8 +1,9 @@
 import os
 
 from ament_index_python.packages import get_package_share_directory
-from launch import LaunchDescription
 from launch_ros.actions import ComposableNodeContainer, Node, PushRosNamespace
+
+from launch import LaunchDescription
 
 
 def generate_launch_description():
@@ -21,29 +22,29 @@ def generate_launch_description():
             name="slalom_yolo_node",
             parameters=[config],
         ),
-        Node(
-            package="pose_estimator",
-            executable="slalom_pose_estimator_node",
-            name="slalom_pose_estimator_node",
-            output="screen",
-            parameters=[config],
-        ),
-        Node(
-            package="pose_estimator",
-            executable="slalom_pose_estimator_node",
-            name="slalom_pose_estimator_near_node",
-            output="screen",
-            parameters=[config],
-        ),
-        ComposableNodeContainer(
-            package="rclcpp_components",
-            executable="component_container",
-            name="depth_anything_container",
-            composable_node_descriptions=[],
-            output="screen",
-            arguments=["--ros-args", "--log-level", "INFO"],
-            namespace="",
-        ),
+        # Node(
+        #     package="pose_estimator",
+        #     executable="slalom_pose_estimator_node",
+        #     name="slalom_pose_estimator_node",
+        #     output="screen",
+        #     parameters=[config],
+        # ),
+        # Node(
+        #     package="pose_estimator",
+        #     executable="slalom_pose_estimator_node",
+        #     name="slalom_pose_estimator_near_node",
+        #     output="screen",
+        #     parameters=[config],
+        # ),
+        # ComposableNodeContainer(
+        #     package="rclcpp_components",
+        #     executable="component_container",
+        #     name="depth_anything_container",
+        #     composable_node_descriptions=[],
+        #     output="screen",
+        #     arguments=["--ros-args", "--log-level", "INFO"],
+        #     namespace="",
+        # ),
         Node(
             package="vision_pipeline",
             executable="component_manager_node",
@@ -81,4 +82,5 @@ def generate_launch_description():
         ),
     ]
 
-    return LaunchDescription(launch_objects + pipeline_nodes + vis_nodes)
+    # return LaunchDescription(launch_objects + pipeline_nodes + vis_nodes)
+    return LaunchDescription(launch_objects + pipeline_nodes)
