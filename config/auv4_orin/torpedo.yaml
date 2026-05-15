@@ -1,36 +1,54 @@
 # YOLO nodes
 /**/torpedo_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_torpedo_20250711_0.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_torpedo_20260514.engine
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
     input_image_topic: /auv4/front_cam/color/image
     output_detections_topic: torpedo/yolo/detections
     output_annotations_topic: torpedo/yolo/annotations
+/**/torpedo_hole_yolo_node:
+  ros__parameters:
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_torpedo_hole_20260513.engine
+    conf: 0.25
+    iou: 0.7
+    agnostic_nms: true
+    input_image_topic: /auv4/front_cam/color/image
+    output_detections_topic: torpedo/hole/yolo/detections
+    output_annotations_topic: torpedo/hole/yolo/annotations
+
 /**/torpedo_pose_estimator_node:
   ros__parameters:
     camera_info_topic: /auv4/front_cam/color/camera_info
     object_frame_id: torpedo/yolo
     input_detections_topic: torpedo/yolo/detections
+/**/torpedo_hole_pose_estimator_node:
+  ros__parameters:
+    camera_info_topic: /auv4/front_cam/color/camera_info
+    object_frame_id: torpedo/hole/yolo
+    input_detections_topic: torpedo/hole/yolo/detections
+
 /**/lifecycle_manager_node:
   ros__parameters:
     node_names:
       - torpedo_yolo_node
+      - torpedo_hole_yolo_node
     wait_timeout_sec: 1.0
 
+      # - torpedo_far_yolo_node
 # Image matching nodes
-/**/image_brighten_node:
-  ros__parameters:
-    brightness_factor: 1.0
-    input_image_topic: /auv4/front_cam/color/rect/image
-    output_image_topic: /auv4/front_cam/color/brighten/image
-/**/simple_matcher_node:
-  ros__parameters:
-    input_image_topic: /auv4/front_cam/color/brighten/image
-    output_annotations_topic: image_matching/annotations
-/**/points_pose_estimator_node:
-  ros__parameters:
-    camera_info_topic: /auv4/front_cam/color/camera_info
-    is_image_rectified: true
-    input_points_topic: image_matching/point_correspondences
+# /**/image_brighten_node:
+#   ros__parameters:
+#     brightness_factor: 1.0
+#     input_image_topic: /auv4/front_cam/color/rect/image
+#     output_image_topic: /auv4/front_cam/color/brighten/image
+# /**/simple_matcher_node:
+#   ros__parameters:
+#     input_image_topic: /auv4/front_cam/color/brighten/image
+#     output_annotations_topic: image_matching/annotations
+# /**/points_pose_estimator_node:
+#   ros__parameters:
+#     camera_info_topic: /auv4/front_cam/color/camera_info
+#     is_image_rectified: true
+#     input_points_topic: image_matching/point_correspondences
