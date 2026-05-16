@@ -1,7 +1,7 @@
 # YOLO nodes
 /**/torpedo_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_torpedo_20260514.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_torpedo_combined_20260516.engine
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
@@ -10,13 +10,15 @@
     output_annotations_topic: torpedo/yolo/annotations
 /**/torpedo_hole_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_torpedo_hole_20260513.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_torpedo_combined_20260516.engine
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
     input_image_topic: /auv4/front_cam/color/image
     output_detections_topic: torpedo/hole/yolo/detections
     output_annotations_topic: torpedo/hole/yolo/annotations
+    display_tracker_id: true
+    tracker_config: botsort.yaml
 
 /**/torpedo_pose_estimator_node:
   ros__parameters:
@@ -26,8 +28,11 @@
 /**/torpedo_hole_pose_estimator_node:
   ros__parameters:
     camera_info_topic: /auv4/front_cam/color/camera_info
-    object_frame_id: torpedo/hole/yolo
     input_detections_topic: torpedo/hole/yolo/detections
+    top_left_frame_id: torpedo/hole/top_left
+    top_right_frame_id: torpedo/hole/top_right
+    bottom_left_frame_id: torpedo/hole/bottom_left
+    bottom_right_frame_id: torpedo/hole/bottom_right
 
 /**/lifecycle_manager_node:
   ros__parameters:

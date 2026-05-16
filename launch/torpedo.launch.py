@@ -25,7 +25,7 @@ def generate_launch_description():
         ),
         LifecycleNode(
             package="yolo_ros_trt",
-            executable="yolo_node",
+            executable="tracking_node",
             name="torpedo_hole_yolo_node",
             parameters=[config],
             namespace="",
@@ -38,7 +38,7 @@ def generate_launch_description():
         ),
         Node(
             package="pose_estimator",
-            executable="torpedo_pose_estimator_node",
+            executable="red_circle_pose_estimator_node",
             name="torpedo_hole_pose_estimator_node",
             parameters=[config],
         ),
