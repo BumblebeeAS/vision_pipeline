@@ -37,29 +37,6 @@ def generate_launch_description():
         ),
     ]
 
-    image_matching_nodes = [
-        Node(
-            package="image_processing",
-            executable="image_brighten_node",
-            name="image_brighten_node",
-            parameters=[config],
-        ),
-        Node(
-            package="image_matching",
-            executable="simple_matcher_node",
-            name="simple_matcher_node",
-            parameters=[config],
-        ),
-        Node(
-            package="pose_estimator",
-            executable="points_pose_estimator_node",
-            name="points_pose_estimator_node",
-            parameters=[config],
-        ),
-    ]
-
     vis_nodes = []
 
-    return LaunchDescription(
-        launch_objects + yolo_nodes + image_matching_nodes + vis_nodes
-    )
+    return LaunchDescription(launch_objects + yolo_nodes + vis_nodes)
