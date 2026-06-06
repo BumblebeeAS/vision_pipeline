@@ -31,13 +31,16 @@
     input_detections_topic: gate/yolo/detections
     from_front: false
     # output_pose_topic: /auv4/gate/back_pose
-/**/gate_shark_fish_estimator_node:
+/**/sos_repair_estimator_node:
   ros__parameters:
     detections_topic: symbol/yolo/detections
-    output_string_topic: /auv4/gate/shark_fish
+    output_string_topic: gate/sos_repair
 /**/lifecycle_manager_node:
   ros__parameters:
     # node_names differ for front and back cases, specified in the launch file
+    node_names:
+        - gate_yolo_node
+        - symbol_yolo_node
     wait_timeout_sec: 1.0
 
 # Visualization nodes
