@@ -1,0 +1,52 @@
+# Pipeline nodes
+/**/gate_vision_node:
+  ros__parameters:
+    input_image_topic: /auv5/front_cam/color/image
+    models:
+      - gate
+      - symbol
+    gate.model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_gate_20250813_0.engine
+    gate.conf: 0.25
+    gate.iou: 0.7
+    gate.agnostic_nms: true
+    gate.detections_topic: gate/yolo/detections
+    gate.annotations_topic: gate/yolo/annotations
+    symbol.model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_gate_20260523.engine
+    symbol.conf: 0.25
+    symbol.iou: 0.7
+    symbol.agnostic_nms: true
+    symbol.detections_topic: symbol/yolo/detections
+    symbol.annotations_topic: symbol/yolo/annotations
+/**/gate_front_pose_estimator_node:
+  ros__parameters:
+    camera_info_topic: /auv5/front_cam/color/camera_info
+    object_frame_id: gate/front
+    input_detections_topic: gate/yolo/detections
+    from_front: true
+/**/gate_back_pose_estimator_node:
+  ros__parameters:
+    camera_info_topic: /auv5/front_cam/color/camera_info
+    object_frame_id: gate/back
+    input_detections_topic: gate/yolo/detections
+    from_front: false
+/**/gate_symbol_pose_estimator_node:
+  ros__parameters:
+    camera_info_topic: /auv5/front_cam/color/camera_info
+    input_detections_topic: symbol/yolo/detections
+/**/gate_pose_estimator_from_symbol_node:
+  ros__parameters:
+    camera_info_topic: /auv5/front_cam/color/camera_info
+    object_frame_id: gate/from_symbol
+    input_detections_topic: symbol/yolo/detections
+/**/sos_repair_estimator_node:
+  ros__parameters:
+    detections_topic: symbol/yolo/detections
+    output_string_topic: /auv5/gate/gate/sos_repair
+/**/lifecycle_manager_node:
+  ros__parameters:
+    node_names:
+      - gate_vision_node
+    wait_timeout_sec: 1.0
+
+
+# Visualization nodes
