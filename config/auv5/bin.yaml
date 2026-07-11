@@ -1,0 +1,72 @@
+# YOLO nodes
+# bin + lightbox share bot_cam/color/image; run them in ONE node (multi_yolo_node,
+# same pattern as gate_vision_node) so the frame is decoded once instead of twice.
+/**/bin_vision_node:
+  ros__parameters:
+    input_image_topic: /auv5/bot_cam/color/image
+    models:
+      - bin
+      - lightbox
+      - lightbox_faceplate
+    bin.model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_bins_20260710.engine
+    bin.conf: 0.25
+    bin.iou: 0.7
+    bin.agnostic_nms: true
+    bin.detections_topic: bin/yolo/detections
+    bin.annotations_topic: bin/yolo/annotations
+    lightbox.model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_binz_20260710.engine
+    lightbox.conf: 0.25
+    lightbox.iou: 0.7
+    lightbox.agnostic_nms: true
+    lightbox.detections_topic: lightbox/yolo/detections
+    lightbox.annotations_topic: lightbox/yolo/annotations
+    lightbox_faceplate.model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_faceplate_color_new_20260710.engine
+    lightbox_faceplate.conf: 0.25
+    lightbox_faceplate.iou: 0.7
+    lightbox_faceplate.agnostic_nms: true
+    lightbox_faceplate.detections_topic: light_box/face_plate/yolo/detections
+    lightbox_faceplate.annotations_topic: light_box/face_plate/yolo/annotations
+# /**/light_box_face_plate_yolo_node:
+#   ros__parameters:
+#     model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_lightbox_bottom_faceplate_20260706.engine
+#     conf: 0.25
+#     iou: 0.7  
+#     agnostic_nms: true
+#     input_image_topic: /auv5/bot_cam/color/image
+#     output_detections_topic: light_box/face_plate/yolo/detections
+#     output_annotations_topic: light_box/face_plate/yolo/annotations
+/**/bin_pose_estimator_node:
+  ros__parameters:
+    camera_info_topic: /auv5/bot_cam/color/camera_info
+    object_frame_id: bin/yolo
+    input_detections_topic: bin/yolo/detections
+/**/light_box_pose_estimator_node:
+  ros__parameters:
+    camera_info_topic: /auv5/bot_cam/color/camera_info
+    input_detections_topic: /auv5/bin/light_box/face_plate/yolo/detections
+# /**/light_box_triangulation_pose_estimator_node:
+#   ros__parameters:
+#     camera_info_topic: /auv5/bot_cam/color/camera_info
+#     input_detections_topic: bin/yolo/detections
+#     input_odom_topic: /auv5/nav/odom_ned
+#     light_box_frame_id: bin/light_box/triangulated
+/**/bin_structure_pf_node:
+  ros__parameters:
+    camera_info_topic: /auv5/bot_cam/color/camera_info
+    input_odom_topic: /auv5/nav/odom_ned
+    # Structure detections ('bin' rim + 'lightbox', the lightbox_bottom
+    # model) drive the filter: every detection is PnP'd. The symbol topic
+    # ('fire'/'blood', the bins model) is never PnP'd -- the bin walls
+    # occlude the symbols from oblique views -- it only tags rim points
+    # by mask intersection for the blood/fire identity posterior.
+    structure_detections_topic: lightbox/yolo/detections
+    symbol_detections_topic: bin/yolo/detections
+    # Measured structure geometry, FLU mm, bin 1 = origin (anchor).
+    # Row-major triplets; converted to NED meters in the node.
+    bin_positions_flu_mm: [0.0, 0.0, 0.0, 237.63, -394.46, 33.86, 692.73, 226.31, 69.30, 910.21, -168.15, 270.89]
+    light_box_positions_flu_mm: [-278.56, -381.89, -34.37, 1171.25, 213.74, 371.50]
+/**/lifecycle_manager_node:
+  ros__parameters:
+    node_names:
+      - bin_vision_node
+    wait_timeout_sec: 1.0
