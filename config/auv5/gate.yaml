@@ -11,7 +11,7 @@
     gate.agnostic_nms: true
     gate.detections_topic: gate/yolo/detections
     gate.annotations_topic: gate/yolo/annotations
-    symbol.model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_gate_20260523.engine
+    symbol.model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_gate_symbol_20260704.engine
     symbol.conf: 0.25
     symbol.iou: 0.7
     symbol.agnostic_nms: true
@@ -38,6 +38,13 @@
     camera_info_topic: /auv5/front_cam/color/camera_info
     object_frame_id: gate/from_symbol
     input_detections_topic: symbol/yolo/detections
+/**/gate_structure_pose_estimator_node:
+  ros__parameters:
+    camera_info_topic: /auv5/front_cam/color/camera_info
+    object_frame_id: gate/front
+    gate_poles_detections_topic: gate/yolo/detections
+    gate_symbols_detections_topic: symbol/yolo/detections
+    from_front: true
 /**/sos_repair_estimator_node:
   ros__parameters:
     detections_topic: symbol/yolo/detections
@@ -47,6 +54,5 @@
     node_names:
       - gate_vision_node
     wait_timeout_sec: 1.0
-
 
 # Visualization nodes
