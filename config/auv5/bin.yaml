@@ -8,19 +8,19 @@
       - bin
       - lightbox
       - lightbox_faceplate
-    bin.model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_bins_20260710.engine
+    bin.model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_bins_20260712.engine
     bin.conf: 0.25
     bin.iou: 0.7
     bin.agnostic_nms: true
     bin.detections_topic: bin/yolo/detections
     bin.annotations_topic: bin/yolo/annotations
-    lightbox.model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_binz_20260710.engine
+    lightbox.model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_binz_20260713.engine
     lightbox.conf: 0.25
     lightbox.iou: 0.7
     lightbox.agnostic_nms: true
     lightbox.detections_topic: lightbox/yolo/detections
     lightbox.annotations_topic: lightbox/yolo/annotations
-    lightbox_faceplate.model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_faceplate_color_new_20260710.engine
+    lightbox_faceplate.model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_faceplate_color_new_20260713.engine
     lightbox_faceplate.conf: 0.25
     lightbox_faceplate.iou: 0.7
     lightbox_faceplate.agnostic_nms: true

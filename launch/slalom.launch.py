@@ -10,10 +10,10 @@ def generate_launch_description():
     config = os.path.join(
         get_package_share_directory("vision_pipeline"),
         "config",
-        "auv4_orin",
+        "auv5",
         "slalom.yaml",
     )
-    launch_objects = [PushRosNamespace("/auv4/slalom")]
+    launch_objects = [PushRosNamespace("/auv5/slalom")]
 
     pipeline_nodes = [
         Node(
@@ -45,10 +45,17 @@ def generate_launch_description():
         #     arguments=["--ros-args", "--log-level", "INFO"],
         #     namespace="",
         # ),
+        # Node(
+        #     package="vision_pipeline",
+        #     executable="component_manager_node",
+        #     name="slalom_component_manager_node",
+        #     output="screen",
+        #     parameters=[config],
+        # ),
         Node(
-            package="vision_pipeline",
-            executable="component_manager_node",
-            name="slalom_component_manager_node",
+            package="pose_estimator",
+            executable="slalom_structure_pf_node",
+            name="slalom_structure_pf_node",
             output="screen",
             parameters=[config],
         ),

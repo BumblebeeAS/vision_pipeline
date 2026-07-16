@@ -28,16 +28,22 @@ def generate_launch_description():
             name="gate_vision_node",
             parameters=[config],
         ),
-        Node(
-            package="pose_estimator",
-            executable="gate_pose_estimator_node",
-            name="gate_front_pose_estimator_node",
-            parameters=[config],
-        ),
+        # Node(
+        #     package="pose_estimator",
+        #     executable="gate_pose_estimator_node",
+        #     name="gate_front_pose_estimator_node",
+        #     parameters=[config],
+        # ),
         Node(
             package="pose_estimator",
             executable="gate_pose_estimator_node",
             name="gate_back_pose_estimator_node",
+            parameters=[config],
+        ),
+        Node(
+            package="pose_estimator",
+            executable="gate_structure_pose_estimator_node",
+            name="gate_structure_pose_estimator_node",
             parameters=[config],
         ),
         Node(
