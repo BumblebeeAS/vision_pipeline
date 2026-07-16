@@ -9,11 +9,11 @@ def generate_launch_description():
     config = os.path.join(
         get_package_share_directory("vision_pipeline"),
         "config",
-        "auv4_orin",
+        "auv5",
         "trash.yaml",
     )
 
-    launch_objects = [PushRosNamespace("/auv4/trash")]
+    launch_objects = [PushRosNamespace("/auv5/trash")]
 
     pipeline_nodes = [
         Node(
