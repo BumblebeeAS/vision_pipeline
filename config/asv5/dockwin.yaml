@@ -1,0 +1,20 @@
+# YOLO nodes
+/**/dockwin_yolo_node:
+  ros__parameters:
+    model_path: /workspaces/common_ws/src/ml_models/dockwin/kieran_window_frame.engine
+    conf: 0.1
+    iou: 0.7
+    agnostic_nms: true
+    input_image_topic: /asv5/oakd/color/image_raw
+    output_detections_topic: dockwin/yolo/detections
+    output_annotations_topic: dockwin/yolo/annotations
+/**/dockwin_pose_estimator_node:
+  ros__parameters:
+    camera_info_topic: /asv5/oakd/camera_info
+    object_frame_id: dockwin/yolo
+    input_detections_topic: dockwin/yolo/detections
+/**/lifecycle_manager_node:
+  ros__parameters:
+    node_names:
+      - dockwin_yolo_node
+    wait_timeout_sec: 1.0
