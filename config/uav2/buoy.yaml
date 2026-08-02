@@ -1,0 +1,52 @@
+# YOLO nodes
+/**/buoy_yolo_node:
+  ros__parameters:
+    model_path: /workspaces/common_ws/src/ml_models/yolov26_segment/yolov26_channel_buoy_20260802.onnx
+    conf: 0.1
+    iou: 0.7
+    agnostic_nms: true
+    input_image_topic: /uav2/wide_a/unstamped/image
+    output_detections_topic: buoy/yolo/detections
+    output_annotations_topic: buoy/yolo/annotations
+/**/buoy_pose_estimator_node:
+  ros__parameters:
+    camera_info_topic: /uav2/wide_a/unstamped/camera_info
+    input_detections_topic: buoy/yolo/detections
+    is_image_rectified: false
+    output_pose_topic: "/buoy_detections"
+    debug_annotations_topic: "debug_annotations"
+/**/buoy_gate_manager_node:
+  ros__parameters:
+    buoy_detections_topic: "buoy_detections"
+    marker_topic: "gate_manager_markers"
+    from_ll_service: "/fromLL"
+    to_ll_service: "/toLL"
+    set_state_service: "set_gate_manager_state"
+    reset_service: "reset_tracks"
+    extract_goal_service: "extract_local_goal"
+    get_entry_service: "get_entry"
+    get_exit_service: "get_exit"
+    world_frame_id: "map"
+    base_link_frame_id: "base_link"
+    fft_timer_period: 0.5
+    required_density: 0.8
+    virtual_sampling_rate: 10.0
+    max_association_radius: 0.5
+    dbscan_min_samples: 5
+    track_timeout: 60.0
+    butterworth_cutoff_freq: 3.0
+    butterworth_order: 4
+    target_freq_min: 0.8
+    target_freq_max: 1.2
+    duty_cycle_min: 0.1
+    duty_cycle_max: 0.85
+    consistent_threshold: 0.6
+    fft_min_magnitude: 0.2
+    max_gate_width: 1.0
+    vehicle_encasing_radius: 0.8
+    waypoint_pass_tol: 1.0
+/**/lifecycle_manager_node:
+  ros__parameters:
+    node_names:
+      - buoy_yolo_node
+    wait_timeout_sec: 1.0
