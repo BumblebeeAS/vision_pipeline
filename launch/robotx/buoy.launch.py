@@ -28,12 +28,12 @@ def generate_launch_description():
             name="buoy_pose_estimator_node",
             parameters=[config],
         ),
-        # Node(
-        #     package="pose_estimator",
-        #     executable="buoy_gate_manager_node",
-        #     name="buoy_gate_manager_node",
-        #     parameters=[config],
-        # ),
+        Node(
+            package="pose_estimator",
+            executable="buoy_gate_manager_node",
+            name="buoy_gate_manager_node",
+            parameters=[config],
+        ),
         Node(
             package="vision_pipeline",
             executable="lifecycle_manager_node",

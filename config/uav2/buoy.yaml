@@ -13,12 +13,14 @@
     camera_info_topic: /uav2/wide_a/unstamped/camera_info
     input_detections_topic: buoy/yolo/detections
     is_image_rectified: false
-    output_pose_topic: "/buoy_detections"
+    output_pose_topic: "buoy_detections"
     debug_annotations_topic: "debug_annotations"
 /**/buoy_gate_manager_node:
   ros__parameters:
     buoy_detections_topic: "buoy_detections"
     marker_topic: "gate_manager_markers"
+    # Absolute on purpose: navsat_transform_node runs in the root namespace, so these
+    # cannot be resolved relative to the pushed /uav2/buoy namespace.
     from_ll_service: "/fromLL"
     to_ll_service: "/toLL"
     set_state_service: "set_gate_manager_state"
@@ -26,25 +28,26 @@
     extract_goal_service: "extract_local_goal"
     get_entry_service: "get_entry"
     get_exit_service: "get_exit"
-    world_frame_id: "map"
-    base_link_frame_id: "base_link"
+    world_frame_id: "odom_enu"
+    base_link_frame_id: "uav2/base_link"
     fft_timer_period: 0.5
     required_density: 0.8
     virtual_sampling_rate: 10.0
-    max_association_radius: 0.5
+    max_association_radius: 2.0
     dbscan_min_samples: 5
     track_timeout: 60.0
     butterworth_cutoff_freq: 3.0
     butterworth_order: 4
-    target_freq_min: 0.8
-    target_freq_max: 1.2
+    target_freq: 0.5
+    target_freq_tol: 0.1
     duty_cycle_min: 0.1
     duty_cycle_max: 0.85
     consistent_threshold: 0.6
-    fft_min_magnitude: 0.2
-    max_gate_width: 1.0
+    fft_min_magnitude: 0.15
+    max_gate_width: 10.0
     vehicle_encasing_radius: 0.8
     waypoint_pass_tol: 1.0
+    visualize_candidates: true
 /**/lifecycle_manager_node:
   ros__parameters:
     node_names:
