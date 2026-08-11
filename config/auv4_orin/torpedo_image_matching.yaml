@@ -1,0 +1,36 @@
+# Image-matching pose pipeline for the torpedo task (RoboSub 2026 "Tagging").
+#
+# Pipeline: rectified front_cam image -> brighten -> XFeat template match ->
+# point-correspondence PnP pose. The matcher is enabled per-template at runtime
+# via its toggle_template service (e.g. enable "Task04_Tagging_01.png").
+#
+# Templates: simple_matcher_node defaults templates_dir to the package's
+# templates/robosub26 directory, which holds the Task04 tagging templates, so no
+# templates_dir override is needed here.
+
+/**/image_brighten_node:
+  ros__parameters:
+    brightness_factor: 2.0
+    input_image_topic: /auv4/front_cam/color/rect/image
+    output_image_topic: /auv4/front_cam/color/brighten/image
+
+/**/simple_matcher_node:
+  ros__parameters:
+    input_image_topic: /auv4/front_cam/color/brighten/image
+    output_annotations_topic: image_matching/annotations
+    # Debug: overlay every region's matches (colour + "<region>: <#matches>" label)
+    # on image_matching/region_annotations, independent of the toggled template.
+    annotate_all_regions: true
+
+/**/points_pose_estimator_node:
+  ros__parameters:
+    camera_info_topic: /auv4/front_cam/color/camera_info
+    is_image_rectified: true
+    input_points_topic: image_matching/point_correspondences
+
+# Visualization: compress the brightened image for Foxglove.
+/**/brighten_compression_node:
+  ros__parameters:
+    in_transport: raw
+    out_transport: compressed
+    .out.jpeg_quality: 50

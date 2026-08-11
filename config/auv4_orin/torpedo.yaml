@@ -1,24 +1,42 @@
-# YOLO nodes
-/**/torpedo_yolo_node:
+# Single multi-model YOLO node: one subscription + one decode feeding both
+# models. `symbols` runs in track mode and emits the `torpedo` (board) and
+# `hole` classes; `board` runs in plain predict mode. Output topics are
+# unchanged from the old two-node setup, so the pose estimators below are
+# untouched. display_tracker_id is shared across models but only affects
+# `symbols` (predict-mode detections carry no track IDs).
+/**/torpedo_vision_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_torpedo_combined_20260516.engine
-    conf: 0.25
-    iou: 0.7
-    agnostic_nms: true
     input_image_topic: /auv4/front_cam/color/image
-    output_detections_topic: torpedo/yolo/detections
-    output_annotations_topic: torpedo/yolo/annotations
-/**/torpedo_hole_yolo_node:
-  ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_torpedo_combined_20260516.engine
-    conf: 0.25
-    iou: 0.7
-    agnostic_nms: true
-    input_image_topic: /auv4/front_cam/color/image
-    output_detections_topic: torpedo/hole/yolo/detections
-    output_annotations_topic: torpedo/hole/yolo/annotations
     display_tracker_id: true
-    tracker_config: botsort.yaml
+    models:
+      - symbols
+      - board
+    symbols.model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_torpedo_symbols_20260704.engine
+    symbols.conf: 0.25
+    symbols.iou: 0.7
+    symbols.agnostic_nms: true
+    symbols.detections_topic: torpedo/symbols/yolo/detections
+    symbols.annotations_topic: torpedo/symbols/yolo/annotations
+    symbols.mode: track
+    symbols.tracker: bytetrack.yaml
+    board.model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_torpedo_board_20260716.engine
+    board.conf: 0.25
+    board.iou: 0.7
+    board.agnostic_nms: true
+    board.detections_topic: torpedo/yolo/detections
+    board.annotations_topic: torpedo/yolo/annotations
+
+# /**/image_brighten_node:
+#   ros__parameters:
+#     brightness_factor: 1.5
+#     input_image_topic: /auv4/front_cam/color/rect/image
+#     output_image_topic: /auv4/front_cam/color/brighten/image
+
+# /**/brighten_compression_node:
+#   ros__parameters:
+#     in_transport: raw
+#     out_transport: compressed
+#     .out.jpeg_quality: 50
 
 /**/torpedo_pose_estimator_node:
   ros__parameters:
@@ -28,20 +46,62 @@
 /**/torpedo_hole_pose_estimator_node:
   ros__parameters:
     camera_info_topic: /auv4/front_cam/color/camera_info
-    input_detections_topic: torpedo/hole/yolo/detections
+    input_detections_topic: torpedo/symbols/yolo/detections
     top_left_frame_id: torpedo/hole/top_left
     top_right_frame_id: torpedo/hole/top_right
     bottom_left_frame_id: torpedo/hole/bottom_left
     bottom_right_frame_id: torpedo/hole/bottom_right
 
+# Shared-shift board-pose variant (one rigid board pose from all visible holes).
+# Distinct frame_ids so it can run alongside the per-hole node for A/B.
+/**/torpedo_hole_board_pose_estimator_node:
+  ros__parameters:
+    camera_info_topic: /auv4/front_cam/color/camera_info
+    input_detections_topic: torpedo/symbols/yolo/detections
+    top_left_frame_id: torpedo/hole_board/top_left
+    top_right_frame_id: torpedo/hole_board/top_right
+    bottom_left_frame_id: torpedo/hole_board/bottom_left
+    bottom_right_frame_id: torpedo/hole_board/bottom_right
+    # --- detection front-end ---
+    # Ellipse fit method for hole rims ("direct" | "ransac" ...); matches the
+    # per-hole node's front-end.
+    ellipse_fit_method: direct
+    # --- full 6-DoF joint solve knobs (>=2 full, or 1 full + partial) ---
+    # n_slots = angular binning resolution (360/n deg per slot) for rim<->ring
+    # correspondence; 72 (5 deg/slot) avoids the clocking-quantization aliasing
+    # that made 36 erratic at a few degrees of roll.
+    n_slots: 90
+    # max_rms_px = prev-pose track-accept + warn threshold (NOT a publish gate;
+    # the joint solve publishes whatever its rms).
+    max_rms_px: 6.0
+    # one_full_max_rms_px = acceptance gate on the 1-full translation-only
+    one_full_max_rms_px: 20.0
+    # joint_max_rms_px = acceptance gate on EVERY joint 6-DoF solve (>=2-full
+    # and 1-full+partial alike). Above it the joint pose is discarded (hold
+    # cached, or skip at cold start) rather than cached -- catches both a
+    # mislabeled lone hole sliding meters onto the wrong quadrant AND a
+    # mislabeled/fake-hole 4-hole frame "solving" at 100px+ and poisoning the
+    # cache. Honest joint solves run <10px on real masks.
+    joint_max_rms_px: 15.0
+    # icp_iters = correspondence-refinement iterations after the IPPE estimate.
+    icp_iters: 7
+    # --- ternary visibility gate (on arc_frac, the per-hole node's metric) ---
+    # >= full_arc_frac -> "full" (rim shape -> tilt); between the two (sane fit)
+    # -> "partial" (center only -> yaw); below partial_arc_frac -> skipped.
+    full_arc_frac: 0.7
+    partial_arc_frac: 0.4
+    # --- output ---
+    # publish_full_rotation: true = real pitch/roll/yaw; false = yaw-only snap.
+    # 1-full frames hold the last rotation and update translation only.
+    publish_full_rotation: false
+    publish_twin_debug: false
+
 /**/lifecycle_manager_node:
   ros__parameters:
     node_names:
-      - torpedo_yolo_node
-      - torpedo_hole_yolo_node
+      - torpedo_vision_node
     wait_timeout_sec: 1.0
 
-      # - torpedo_far_yolo_node
 # Image matching nodes
 # /**/image_brighten_node:
 #   ros__parameters:
