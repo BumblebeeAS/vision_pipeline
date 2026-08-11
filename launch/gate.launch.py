@@ -10,48 +10,40 @@ def generate_launch_description():
     config = os.path.join(
         get_package_share_directory("vision_pipeline"),
         "config",
-        "auv5",
+        "auv4_orin",
         "gate.yaml",
     )
 
-    launch_objects = [PushRosNamespace("/auv5/gate")]
+    launch_objects = [PushRosNamespace("/auv4/gate")]
 
     pipeline_nodes = [
-        # gate + symbol share front_cam/color/image; run them in ONE node so the
-        # debayer publishes to a single reader and the 9.4 MB frame is decoded
-        # once (instead of one yolo_node + one decode per model). They are always
-        # activated together by the lifecycle manager, so merging them does not
-        # change the activation API -- node_names below now lists this one node.
+        # Single gate model on auv4 -- the symbol model was dropped here, so this
+        # is a plain yolo_node rather than the multi_yolo_node auv5 uses. See
+        # gate.auv5.launch.py for the two-model variant.
         Node(
             package="yolo_ros_trt",
-            executable="multi_yolo_node",
+            executable="yolo_node",
             name="gate_vision_node",
             parameters=[config],
         ),
-        # Node(
-        #     package="pose_estimator",
-        #     executable="gate_pose_estimator_node",
-        #     name="gate_front_pose_estimator_node",
-        #     parameters=[config],
-        # ),
+        Node(
+            package="pose_estimator",
+            executable="gate_pose_estimator_node",
+            name="gate_front_pose_estimator_node",
+            parameters=[config],
+        ),
         Node(
             package="pose_estimator",
             executable="gate_pose_estimator_node",
             name="gate_back_pose_estimator_node",
             parameters=[config],
         ),
-        Node(
-            package="pose_estimator",
-            executable="gate_structure_pose_estimator_node",
-            name="gate_structure_pose_estimator_node",
-            parameters=[config],
-        ),
-        Node(
-            package="pose_estimator",
-            executable="sos_repair_estimator_node",
-            name="sos_repair_estimator_node",
-            parameters=[config],
-        ),
+        # Node(
+        #     package="pose_estimator",
+        #     executable="sos_repair_estimator_node",
+        #     name="sos_repair_estimator_node",
+        #     parameters=[config],
+        # ),
         Node(
             package="vision_pipeline",
             executable="lifecycle_manager_node",

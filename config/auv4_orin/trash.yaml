@@ -1,76 +1,135 @@
 # Pipeline nodes
-/**/trash_tracking_node:
+# Single multi-model YOLO node on bot_cam: one subscription + one decode for
+# both models. `items` runs in track mode (replacing trash_tracking_node);
+# `table` runs plain predict (replacing trash_table_yolo_node). Output topics
+# are unchanged, so the downstream estimators are untouched.
+/**/trash_bot_vision_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_trash_20250816_0.engine
+    input_image_topic: /auv4/bot_cam/color/image
+    display_tracker_id: true
+    font_size: 30.0
+    models:
+      - items
+      - table
+    items.model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_octagon_symbols_20260716.engine
+    items.conf: 0.25
+    items.iou: 0.7
+    items.agnostic_nms: false
+    items.detections_topic: trash/yolo/detections
+    items.annotations_topic: trash/yolo/annotations
+    items.mode: track
+    items.tracker: bytetrack.yaml
+    table.model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_octagon_table_20260715.engine
+    table.conf: 0.25
+    table.iou: 0.7
+    table.agnostic_nms: false
+    table.detections_topic: trash_table/yolo/detections
+    table.annotations_topic: trash_table/yolo/annotations
+/**/trash_claw_tracking_node:
+  ros__parameters:
+    # Same trash item engine as trash_tracking_node, run on the claw camera.
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_octagon_symbols_20260716.engine
     conf: 0.25
     iou: 0.7
     agnostic_nms: false
-    input_image_topic: /auv4/bot_cam/color/image
-    output_detections_topic: trash/yolo/detections
-    output_annotations_topic: trash/yolo/annotations
+    mode: track
+    tracker: bytetrack.yaml
+    input_image_topic: /auv4/claw_cam/color/image
+    output_detections_topic: trash/claw/yolo/detections
+    output_annotations_topic: trash/claw/yolo/annotations
     display_tracker_id: true
     font_size: 30.0
-/**/symbol_yolo_node:
+/**/trash_image_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_symbol_20250624_0.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_octagon_ring_20260704.engine
     conf: 0.25
     iou: 0.7
-    agnostic_nms: true
+    agnostic_nms: false
     input_image_topic: /auv4/front_cam/color/image
-    output_detections_topic: symbol/yolo/detections
-    output_annotations_topic: symbol/yolo/annotations
+    output_detections_topic: trash/image/yolo/detections
+    output_annotations_topic: trash/image/yolo/annotations
+
+/**/trash_image_pose_estimator_node:
+  ros__parameters:
+    camera_info_topic: /auv4/front_cam/color/camera_info
+    input_detections_topic: trash/image/yolo/detections
 /**/trash_detections_processor_node:
   ros__parameters:
-    input_detections_topic: trash/yolo/detections
+    # Table + generic basket come from the table model; items come from the track stream.
+    input_detections_topic: trash_table/yolo/detections
+    input_track_detections_topic: trash/yolo/detections
     IoA_threshold: 0.6
+    time_sync_slop: 0.2
 /**/trash_table_pose_estimator_node:
   ros__parameters:
     camera_info_topic: /auv4/bot_cam/color/camera_info
-    input_detections_topic: trash/yolo/detections
+    input_detections_topic: trash_table/yolo/detections
+    input_symbol_detections_topic: trash/yolo/detections
     output_pose_topic: table/pose
-/**/trash_tracker_node:
-  ros__parameters:
-    track_object_names: [bottle, ladle]
-    camera_info_topic: /auv4/bot_cam/color/camera_info
-    input_detections_topic: trash/yolo/detections/uncollected
-    output_detections_topic: trash/track/yolo/detections
-    num_last_centroids: 100
-    init_centroid: [1024.0, 768.0] # Center of 2048 x 1536 image
-    keep_track_alive_time: 3.0
+    # Independent heading source (FOG, DVL-free) for the directed-yaw lock that
+    # resolves the PnP 180 deg ambiguity, so the published table yaw stays
+    # directed after the warning/helmet symbols vanish.
+    fog_heading_topic: /auv4/fog/ang_enu
+
 /**/trash_object_in_grabber_node:
   ros__parameters:
-    camera_info_topic: /auv4/bot_cam/color/camera_info
-    input_detections_topic: trash/yolo/detections
+    # Object-in-grabber is determined ONLY from the claw camera: it is rigid
+    # above the arms looking down, so a grasped item sits in a fixed image ROI.
+    camera_info_topic: /auv4/claw_cam/color/camera_info
+    input_detections_topic: trash/claw/yolo/detections
     output_detections_in_grabber_topic: trash/in_grabber/yolo/detections
     output_annotations_topic: trash/in_grabber/yolo/annotations
-    bottle_roi_polygon: [0.600, 0.0603, 0.602, 0.595, 0.829, 0.608, 0.829, 0.0587]
-    ladle_roi_polygon: [0.600, 0.0603, 0.602, 0.595, 0.829, 0.608, 0.829, 0.0587]
-    bottle_grab_area_threshold: 0.8
-    ladle_grab_area_threshold: 0.8
+    # Class-agnostic: any item filling the ROI counts as held, so no class list.
+    # Normalized [x0,y0,x1,y1,...] grab ROI in the claw image. PLACEHOLDER centred
+    # box -- TUNE by viewing the claw feed with an item grasped (the in_grabber
+    # annotations overlay the ROI + detections) and the threshold to taste.
+    grab_roi_polygon: [0.30, 0.30, 0.30, 0.90, 0.70, 0.90, 0.70, 0.30]
+    grab_area_threshold: 0.4
 /**/trash_pose_estimator_depth_from_table_node:
   ros__parameters:
+    # Front camera (bot_cam) is preferred; the claw camera supplements items the
+    # front misses. Baskets stay front-only.
     camera_info_topic: /auv4/bot_cam/color/camera_info
-    input_detections_topic: trash/yolo/detections
-    input_track_detections_topic: trash/track/yolo/detections
+    input_detections_topic: trash_table/yolo/detections
+    input_track_detections_topic: trash/yolo/detections
     table_pose_topic: table/pose
+    # Claw camera (optional; degrades to front-only if absent). Items only.
+    claw_camera_info_topic: /auv4/claw_cam/color/camera_info
+    claw_camera_frame: auv4/claw_cam_optical
+    claw_input_track_detections_topic: trash/claw/yolo/detections
+    claw_required: false
+    # Seconds a front item publish suppresses the claw supplement for that class.
+    freshness_timeout: 0.5
 /**/trash_pose_estimator_depth_from_odom_node:
   ros__parameters:
+    # Claw camera is preferred (items leave the front FOV on descent); the front
+    # camera (bot_cam) is the per-class fallback and the only basket source.
     camera_info_topic: /auv4/bot_cam/color/camera_info
-    input_detections_topic: trash/yolo/detections
-    input_track_detections_topic: trash/track/yolo/detections
+    input_detections_topic: trash_table/yolo/detections
+    input_track_detections_topic: trash/yolo/detections
     input_odom_topic: /auv4/nav/odom_ned
     odom_frame: auv4/base_link_ned
     camera_frame: auv4/bot_cam_optical
-    trash_frame_clustered: bottle_0/clustered
+    # Baskets are labelled from the mission target (set_target_basket service) +
+    # image-x (target on the left), so no table pose is needed here.
+    # trash_frame_clustered: bottle_0/clustered
     time_sync_slop: 0.2
-/**/shark_fish_pose_estimator_node:
-  ros__parameters:
-    camera_info_topic: /auv4/front_cam/color/camera_info
-    input_detections_topic: symbol/yolo/detections
+    # Claw camera (optional; degrades to front-only if absent). Items only.
+    claw_camera_info_topic: /auv4/claw_cam/color/camera_info
+    claw_camera_frame: auv4/claw_cam_optical
+    claw_input_track_detections_topic: trash/claw/yolo/detections
+    claw_required: false
+    # Seconds a claw item publish suppresses the front fallback for that class.
+    freshness_timeout: 0.5
+
+# /**/shark_fish_pose_estimator_node:
+#   ros__parameters:
+#     camera_info_topic: /auv4/front_cam/color/camera_info
+#     input_detections_topic: symbol/yolo/detections
 /**/trash_lifecycle_manager_node:
   ros__parameters:
     node_names:
-      - trash_tracking_node
-      - symbol_yolo_node
+      - trash_bot_vision_node
+      - trash_claw_tracking_node
     wait_timeout_sec: 1.0
 # Visualization nodes
