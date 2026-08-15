@@ -1,0 +1,33 @@
+/**/led_yolo_node:
+  ros__parameters:
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolo_rx26_segment/red_green_dock_led.engine
+    conf: 0.25
+    iou: 0.7
+    agnostic_nms: true
+    input_image_topic: /asv5/oakd/color/image_raw
+    output_detections_topic: /asv5/dock_led/yolo/detections
+    output_annotations_topic: /asv5/dock_led/yolo/annotations
+
+
+/**/dock_window_yolo_node:
+  ros__parameters:
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolo_rx26_segment/window_frame.engine
+    conf: 0.25
+    iou: 0.7
+    agnostic_nms: true
+    input_image_topic: /asv5/oakd/color/image_raw
+    output_detections_topic: /asv5/dock_window/yolo/detections
+    output_annotations_topic: /asv5/dock_window/yolo/annotations
+
+/**/dock_pnp_pose_estimator_node:
+  ros__parameters:
+    camera_info_topic: /asv5/oakd/camera_info
+    object_frame_id: pnp
+    input_detections_topic: /asv5/dock_window/yolo/detections
+
+/**/lifecycle_manager_node:
+  ros__parameters:
+    node_names:
+      - led_yolo_node
+      - dock_window_yolo_node
+    wait_timeout_sec: 1.0

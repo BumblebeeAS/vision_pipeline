@@ -33,6 +33,10 @@ setup(
             glob(os.path.join("config", "uav2", "*.yaml")),
         ),
         (
+            os.path.join("share", package_name, "config", "asv5"),
+            glob(os.path.join("config", "asv5", "*.yaml")),
+        ),
+        (
             os.path.join("share", package_name, "config", "uav2", "calib"),
             glob(os.path.join("config", "uav2", "calib", "*.yaml")),
         ),
