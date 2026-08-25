@@ -1,20 +1,33 @@
-# YOLO nodes
 /**/dockwin_yolo_node:
   ros__parameters:
-    model_path: /workspaces/common_ws/src/ml_models/dockwin/kieran_window_frame.engine
+    model_path: /workspaces/common_ws/src/ml_models/dockwin/dockwin_220826.engine
     conf: 0.1
     iou: 0.7
     agnostic_nms: true
     input_image_topic: /asv5/oakd/color/image_raw
     output_detections_topic: dockwin/yolo/detections
     output_annotations_topic: dockwin/yolo/annotations
+
 /**/dockwin_pose_estimator_node:
   ros__parameters:
-    camera_info_topic: /asv5/oakd/camera_info
+    camera_info_topic: /asv5/oakd/color/camera_info
+    is_image_rectified: false
     object_frame_id: dockwin/yolo
     input_detections_topic: dockwin/yolo/detections
+    input_depth_image_topic: /asv5/oakd/depth/image_raw
+    use_depth_image: true
+    depth_sync_slop: 0.1
+    mask_erosion_iters: 2
+    min_depth: 0.2
+    max_depth: 15.0
+    estimation_method: improved
+    max_reprojection_error: 8.0
+    min_inliers: 4
+    depth_filter_alpha: 0.1
+
 /**/lifecycle_manager_node:
   ros__parameters:
     node_names:
       - dockwin_yolo_node
-    wait_timeout_sec: 1.0
+      - dockwin_pose_estimator_node
+    wait_timeout_sec: 10.0
