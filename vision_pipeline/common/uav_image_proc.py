@@ -1,4 +1,4 @@
-# Image proc nodes shared by the UAV2 Argus camera pipeline and the UAV2 sim pipeline.
+# Image proc nodes shared by the UAV Argus camera pipeline and the UAV sim pipeline.
 # These are inserted into the containers defined in their respective launch files
 # to take advantage of IPC.
 

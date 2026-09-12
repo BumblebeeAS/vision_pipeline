@@ -9,11 +9,11 @@ def generate_launch_description():
     config = os.path.join(
         get_package_share_directory("vision_pipeline"),
         "config",
-        "uav2",
+        "uav",
         "buoy.yaml",
     )
 
-    launch_objects = [PushRosNamespace("/uav2/buoy")]
+    launch_objects = [PushRosNamespace("/uav/buoy")]
 
     pipeline_nodes = [
         Node(

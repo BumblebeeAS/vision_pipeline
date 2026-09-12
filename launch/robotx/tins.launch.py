@@ -10,11 +10,11 @@ def generate_launch_description():
     config = os.path.join(
         get_package_share_directory("vision_pipeline"),
         "config",
-        "uav2",
+        "uav",
         "tins.yaml",
     )
 
-    launch_objects = [PushRosNamespace("/uav2/tins")]
+    launch_objects = [PushRosNamespace("/uav/tins")]
 
     pipeline_nodes = [
         Node(

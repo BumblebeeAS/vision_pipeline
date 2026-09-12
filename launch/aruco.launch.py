@@ -11,7 +11,7 @@ def generate_launch_description():
     config = os.path.join(
         get_package_share_directory("vision_pipeline"),
         "config",
-        "uav2",
+        "uav",
         "aruco.yaml",
     )
 
@@ -20,7 +20,7 @@ def generate_launch_description():
             "camera_name",
             default_value="",
         ),
-        PushRosNamespace(["/uav2/", LaunchConfiguration("camera_name")]),
+        PushRosNamespace(["/uav/", LaunchConfiguration("camera_name")]),
     ]
 
     pipeline_nodes = [

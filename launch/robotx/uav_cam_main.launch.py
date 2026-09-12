@@ -11,18 +11,19 @@ from launch_ros.substitutions import FindPackageShare
 config_file = os.path.join(
     get_package_share_directory("vision_pipeline"),
     "config",
-    "uav2",
+    "uav",
     "isaac_ros_argus_cam.yaml",
 )
 with open(config_file, "r") as f:
     config = yaml.safe_load(f)
     camera_names = config["camera_names"]
+    camera_mode = config["camera_mode"]
 
 
 def generate_launch_description():
     pipeline_groups = []
 
-    for camera_name in camera_names:
+    for camera_id, camera_name in enumerate(camera_names):
         pipeline_groups.append(
             GroupAction(
                 actions=[
@@ -31,15 +32,22 @@ def generate_launch_description():
                         PythonLaunchDescriptionSource(
                             [
                                 FindPackageShare("vision_pipeline"),
-                                "/launch/uav2_sim_image_proc.launch.py",
+                                "/launch/uav_cam_pipeline.launch.py",
                             ]
                         ),
+                        launch_arguments={
+                            "camera_name": camera_name,
+                            "camera_id": str(camera_id),
+                            "camera_mode": str(camera_mode),
+                            "camera_frame_id": f"uav/{camera_name}_optical",
+                            "camera_link_frame_name": f"uav/{camera_name}_link",
+                        }.items(),
                     ),
                 ]
             )
         )
 
-    return LaunchDescription([PushRosNamespace("uav2")] + pipeline_groups)
+    return LaunchDescription([PushRosNamespace("uav")] + pipeline_groups)
 
 
 if __name__ == "__main__":

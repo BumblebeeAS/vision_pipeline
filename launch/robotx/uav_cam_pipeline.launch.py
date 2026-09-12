@@ -7,7 +7,7 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 
-from vision_pipeline.common.uav2_image_proc import get_image_proc_nodes
+from vision_pipeline.common.uav_image_proc import get_image_proc_nodes
 
 
 def evaluate_launch(context, *args, **kwargs):
@@ -22,7 +22,7 @@ def evaluate_launch(context, *args, **kwargs):
     calibration_data_file = os.path.join(
         get_package_share_directory("vision_pipeline"),
         "config",
-        "uav2",
+        "uav",
         "calib",
         f"{camera_name}.yaml",
     )

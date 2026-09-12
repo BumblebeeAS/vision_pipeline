@@ -2,14 +2,14 @@ from launch import LaunchDescription
 from launch.actions import OpaqueFunction
 from launch_ros.actions import ComposableNodeContainer, Node
 
-from vision_pipeline.common.uav2_image_proc import get_image_proc_nodes
+from vision_pipeline.common.uav_image_proc import get_image_proc_nodes
 
 
 def evaluate_launch(context, *args, **kwargs):
     restamp_camera_node = Node(
         package="image_processing",
         executable="restamp_camera_node",
-        name="uav2_restamp_camera_node",
+        name="uav_restamp_camera_node",
         parameters=[
             {
                 "in_image": "unstamped/image",
