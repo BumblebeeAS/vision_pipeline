@@ -1,20 +1,21 @@
 /**/dockwin_yolo_node:
   ros__parameters:
-    model_path: /workspaces/common_ws/src/ml_models/dockwin/dockwin_220826.engine
+    model_path: /workspaces/common_ws/src/ml_models/dockwin/dockwin_real_120926-2.engine
     conf: 0.1
-    iou: 0.7
+    iou: 0.1
     agnostic_nms: true
-    input_image_topic: /asv5/oakd/color/image_raw
-    output_detections_topic: dockwin/yolo/detections
-    output_annotations_topic: dockwin/yolo/annotations
+    activate_on_start: true
+    input_image_topic: /oak/rgb/image_raw
+    output_detections_topic: yolo/detections
+    output_annotations_topic: yolo/annotations
 
 /**/dockwin_pose_estimator_node:
   ros__parameters:
-    camera_info_topic: /asv5/oakd/color/camera_info
+    camera_info_topic: /oak/rgb/camera_info
     is_image_rectified: false
     object_frame_id: dockwin/yolo
-    input_detections_topic: dockwin/yolo/detections
-    input_depth_image_topic: /asv5/oakd/depth/image_raw
+    input_detections_topic: yolo/detections
+    input_depth_image_topic: /oak/stereo/image_raw
     use_depth_image: true
     depth_sync_slop: 0.1
     mask_erosion_iters: 2
@@ -29,5 +30,5 @@
   ros__parameters:
     node_names:
       - dockwin_yolo_node
-      - dockwin_pose_estimator_node
-    wait_timeout_sec: 10.0
+      # - dockwin_pose_estimator_node
+    wait_timeout_sec: 1.0
