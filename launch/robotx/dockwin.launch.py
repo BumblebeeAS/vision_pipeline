@@ -2,6 +2,9 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node, PushRosNamespace
 
 
@@ -13,7 +16,16 @@ def generate_launch_description():
 		"dockwin.yaml",
 	)
 
-	launch_objects = [PushRosNamespace("/asv5/dockwin")]
+	enable_decoder_arg = DeclareLaunchArgument(
+		"enable_decoder",
+		default_value="false",
+		description="Whether to run the dockwin sequence decoder node",
+	)
+
+	launch_objects = [
+		enable_decoder_arg,
+		PushRosNamespace("/asv5/dockwin"),
+	]
 
 	pipeline_nodes = [
 		Node(
@@ -27,6 +39,13 @@ def generate_launch_description():
 			executable="dockwin_pose_estimator_node",
 			name="dockwin_pose_estimator_node",
 			parameters=[config],
+		),
+		Node(
+			package="dockwin_sequence_decoder",
+			executable="dockwin_sequence_decoder_node",
+			name="dockwin_sequence_decoder_node",
+			parameters=[config],
+			condition=IfCondition(LaunchConfiguration("enable_decoder")),
 		),
 		Node(
 			package="vision_pipeline",
