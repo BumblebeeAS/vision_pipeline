@@ -6,6 +6,8 @@ from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node, PushRosNamespace
 
+from vision_pipeline.common.image_transport import republisher_parameters
+
 
 def generate_launch_description():
     config = os.path.join(
@@ -46,10 +48,17 @@ def generate_launch_description():
 
     repub_nodes = [
         Node(
-            package="custom_image_republisher",
+            package="image_transport",
             executable="republish",
             name="brighten_compression_node",
             output="screen",
+            parameters=[
+                config,
+                republisher_parameters(
+                    "color/brighten/image",
+                    "color/brighten/image/compressed",
+                ),
+            ],
             remappings=[
                 ("in", "color/brighten/image"),
                 ("out/compressed", "color/brighten/image/compressed"),

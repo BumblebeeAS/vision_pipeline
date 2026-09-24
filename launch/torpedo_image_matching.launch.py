@@ -4,6 +4,8 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node, PushRosNamespace
 
+from vision_pipeline.common.image_transport import republisher_parameters
+
 
 def generate_launch_description():
     config = os.path.join(
@@ -42,11 +44,17 @@ def generate_launch_description():
 
     vis_nodes = [
         Node(
-            package="custom_image_republisher",
+            package="image_transport",
             executable="republish",
             name="brighten_compression_node",
             output="screen",
-            parameters=[config],
+            parameters=[
+                config,
+                republisher_parameters(
+                    "/auv4/front_cam/color/brighten/image",
+                    "/auv4/front_cam/color/brighten/image/compressed",
+                ),
+            ],
             remappings=[
                 ("in", "/auv4/front_cam/color/brighten/image"),
                 ("out/compressed", "/auv4/front_cam/color/brighten/image/compressed"),

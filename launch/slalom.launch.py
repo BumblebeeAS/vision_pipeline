@@ -5,6 +5,8 @@ from launch_ros.actions import ComposableNodeContainer, Node, PushRosNamespace
 
 from launch import LaunchDescription
 
+from vision_pipeline.common.image_transport import republisher_parameters
+
 
 def generate_launch_description():
     config = os.path.join(
@@ -77,11 +79,17 @@ def generate_launch_description():
             parameters=[config],
         ),
         Node(
-            package="custom_image_republisher",
+            package="image_transport",
             executable="republish",
             name="slalom_depth_compression_node",
             output="screen",
-            parameters=[config],
+            parameters=[
+                config,
+                republisher_parameters(
+                    "depth/color/image",
+                    "depth/color/image/compressed",
+                ),
+            ],
             remappings=[
                 ("in", "depth/color/image"),
                 ("out/compressed", "depth/color/image/compressed"),

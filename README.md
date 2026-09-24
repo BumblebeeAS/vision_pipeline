@@ -56,12 +56,17 @@ To reduce network load, the images are compressed before being passed. However, 
 
 ### ROS QoS Profiles
 
-The QoS profiles for all nodes in vision pipelines are set to "sensor data", which uses "best effort" reliability. Note that "reliable" subscribers are **incompatible** with "best effort" publishers.
+Republishers use upstream `image_transport` with sensor-data QoS: best effort, volatile, keep last, depth 5. Override keys follow the final remapped topics and launch namespace. Reliable subscribers are incompatible with best-effort publishers.
+
+The AUV front-camera rectifier uses `image_proc::RectifyNode` with raw input and reliable output. Components subscribe lazily, so attach an output subscriber before checking input delivery. JPEG quality uses `.out.compressed.jpeg_quality` in namespaced republishers (`out.compressed.jpeg_quality` at the root namespace); retain the `out/compressed` remapping.
+
+Use image_transport 5.1.8, image_proc 5.0.13 and compressed_image_transport 4.0.7 or newer. `vision_pipeline` no longer requires `custom_image_republisher`.
 
 ## Related Repositories
 
 - [Aruco Localization](https://github.com/bumblebeeAS/aruco_loco)
-- [Custom Image Republisher](https://github.com/bumblebeeAS/custom_image_republisher)
+- [ROS image_transport](https://github.com/ros-perception/image_common)
+- [ROS image_proc](https://github.com/ros-perception/image_pipeline)
 - [Depth Anything ROS2 TensorRT](https://github.com/BumblebeeAS/depth_anything_ros2_trt)
 - [Image matching](https://github.com/BumblebeeAS/image_matching)
 - [Image processing](https://github.com/BumblebeeAS/image_processing)

@@ -36,7 +36,7 @@
 #   ros__parameters:
 #     in_transport: raw
 #     out_transport: compressed
-#     .out.jpeg_quality: 50
+#     .out.compressed.jpeg_quality: 50
 
 /**/torpedo_pose_estimator_node:
   ros__parameters:

@@ -8,37 +8,17 @@ def generate_launch_description():
     repub_nodes = []
 
     for cam_name in ["front_cam", "bot_cam"]:
-        cam_container_nodes = [
-            # TODO: seems like dont need this compression for viz
-            # Lossy compression for visualization
-            # (SBC -> Orin is at default 95% quality)
-            # ComposableNode(
-            #     package="custom_image_republisher",
-            #     plugin="custom_image_republisher::Republisher",
-            #     name="orin_compression_node",
-            #     parameters=[
-            #         {
-            #             "in_transport": "raw",
-            #             "out_transport": "compressed",
-            #             ".out.jpeg_quality": 60,
-            #         }
-            #     ],
-            #     namespace=f"auv4/{cam_name}/",
-            #     remappings=[
-            #         ("in", "color/image"),
-            #         ("out/compressed", "color/vis/image/compressed"),
-            #     ],
-            # ),
-        ]
+        cam_container_nodes = []
 
         if cam_name == "front_cam":
             cam_container_nodes.extend(
                 [
                     ComposableNode(
-                        package="custom_image_republisher",
-                        plugin="custom_image_republisher::Rectifier",
+                        package="image_proc",
+                        plugin="image_proc::RectifyNode",
                         name="front_cam_rectify_node",
                         namespace=f"auv4/{cam_name}/",
+                        parameters=[{"image_transport": "raw"}],
                         remappings=[
                             ("image", "color/image"),
                             ("camera_info", "color/camera_info"),
@@ -46,25 +26,6 @@ def generate_launch_description():
                             ("image_rect/compressed", "color/rect/image/compressed"),
                         ],
                     ),
-                    # Lossy compression for visualization
-                    # (SBC -> Orin is at default 95% quality)
-                    # ComposableNode(
-                    #     package="custom_image_republisher",
-                    #     plugin="custom_image_republisher::Republisher",
-                    #     name="front_cam_rectify_compression_node",
-                    #     parameters=[
-                    #         {
-                    #             "in_transport": "raw",
-                    #             "out_transport": "compressed",
-                    #             ".out.jpeg_quality": 60,
-                    #         }
-                    #     ],
-                    #     namespace=f"auv4/{cam_name}/",
-                    #     remappings=[
-                    #         ("in", "color/rect/image"),
-                    #         ("out/compressed", "color/rect/vis/image/compressed"),
-                    #     ],
-                    # ),
                 ]
             )
 

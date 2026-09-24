@@ -14,8 +14,8 @@
     input_points_topic: image_matching/point_correspondences
 
 # Visualization nodes
-/**/image_brighten_compression_node:
+/**/brighten_compression_node:
   ros__parameters:
     in_transport: raw
     out_transport: compressed
-    .out.jpeg_quality: 50
+    .out.compressed.jpeg_quality: 50

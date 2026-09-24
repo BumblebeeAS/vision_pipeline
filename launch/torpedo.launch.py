@@ -85,19 +85,6 @@ def generate_launch_description():
     #         parameters=[config],
     #     ),
     # ]
-    # vis_nodes = [
-    #     Node(
-    #         package="custom_image_republisher",
-    #         executable="republish",
-    #         name="brighten_compression_node",
-    #         output="screen",
-    #         parameters=[config],
-    #         remappings=[
-    #             ("in", "/auv4/front_cam/color/brighten/image"),
-    #             ("out/compressed", "/auv4/front_cam/color/brighten/image/compressed"),
-    #         ],
-    #     ),
-    # ]
 
     vis_nodes = []
 

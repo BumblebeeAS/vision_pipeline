@@ -4,6 +4,8 @@
 
 from launch_ros.descriptions import ComposableNode
 
+from vision_pipeline.common.image_transport import republisher_parameters
+
 
 def get_image_proc_nodes():
     """
@@ -39,28 +41,17 @@ def get_image_proc_nodes():
                 ("camera_info_rect", "rect/camera_info"),
             ],
         ),
-        # # High quality compression for bagging
-        # ComposableNode(
-        #     package="custom_image_republisher",
-        #     plugin="custom_image_republisher::Republisher",
-        #     name="orin_compression_node",
-        #     parameters=[{"in_transport": "raw", "out_transport": "compressed"}],
-        #     remappings=[
-        #         ("in", "rect/image"),
-        #         ("out/compressed", "rect/image/compressed"),
-        #     ],
-        # ),
         # Low quality compression for visualization over RF comms
         ComposableNode(
-            package="custom_image_republisher",
-            plugin="custom_image_republisher::Republisher",
+            # JPEG compression needs CPU data; DDS materializes CUDA output on the host.
+            extra_arguments=[{"use_intra_process_comms": False}],
+            package="image_transport",
+            plugin="image_transport::Republisher",
             name="vis_compression_node",
             parameters=[
-                {
-                    "in_transport": "raw",
-                    "out_transport": "compressed",
-                    ".out.jpeg_quality": 10,
-                }
+                republisher_parameters("rect/image", "rect/image/compressed"),
+                # image_transport uses a leading dot in non-root namespaces.
+                {"out.compressed.jpeg_quality": 10, ".out.compressed.jpeg_quality": 10},
             ],
             remappings=[
                 ("in", "rect/image"),
