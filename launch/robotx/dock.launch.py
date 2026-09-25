@@ -30,12 +30,24 @@ def generate_launch_description():
                 parameters=[config],
                 namespace="",
             ),
-            Node(
-                package="pose_estimator",
-                executable="dock_pnp_pose_estimator_node",
-                name="dock_pnp_pose_estimator_node",
+            
+            LifecycleNode(
+                package="yolo_ros_trt",
+                executable="yolo_node",
+                name="dock_beacon_yolo_node",
                 parameters=[config],
+                namespace="",
             ),
+            
+            LifecycleNode(
+                package="yolo_ros_trt",
+                executable="yolo_node",
+                name="dock_window_plane_yolo_node",
+                parameters=[config],
+                namespace="",
+            ),
+            
+
             Node(
                 package="vision_pipeline",
                 executable="lifecycle_manager_node",
