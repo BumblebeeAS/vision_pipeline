@@ -1,0 +1,129 @@
+/**/sonar_yolo_node:
+  ros__parameters:
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_sonar_20260924.engine
+    conf: 0.1
+    iou: 0.7
+    agnostic_nms: true
+    input_image_topic: /oculus/image
+    output_detections_topic: pipeline/yolo/detections
+    output_annotations_topic: pipeline/yolo/annotations
+/**/sonar_lifecycle_manager_node:
+  ros__parameters:
+    node_names:
+      - sonar_yolo_node
+    wait_timeout_sec: 1.0
+/**/sonar_pipe_pose_estimator_node:
+  ros__parameters:
+    input_detections_topic: pipeline/yolo/detections
+    object_frame_id: pipeline/pipe # publishes on pipeline/pipe/pose
+    class_name: pipe
+    selection_mode: score # score | area | closest
+    min_score: 0.3
+    target_frame: "" # sonar frame, like the camera estimators; or e.g. world_ned
+    sonar_frame: auv5/sonar # fallback if the detection header has no frame_id
+    # Must match blueprint_oculus_sonar config/default.yaml: `range` and
+    # frequency_mode (1 = low freq, 65 deg half aperture; 2 = high freq, 40 deg)
+    sonar_range_m: 10.0
+    half_aperture_deg: 65.0
+    min_elongation: 1.5
+    tf_timeout_s: 0.1
+/**/sonar_pipe_trace_node:
+  ros__parameters:
+    input_detections_topic: pipeline/yolo/detections
+    # image: the fan image YOLO runs on (same rate + geometry as the masks).
+    # pointcloud: /oculus/pointcloud, ~5 MB/ping, arrives at ~1 Hz over DDS.
+    point_source: image
+    input_image_topic: /oculus/image
+    input_pointcloud_topic: /oculus/pointcloud
+    object_frame_id: pipeline/pipe # publishes pipeline/pipe/vertices (PoseArray) + pipeline/pipe/trace (Path)
+    class_name: pipe
+    selection_mode: score # score | area | closest
+    min_score: 0.3
+    target_frame: world_ned # the _nw pose clustering expects world-frame arrays
+    sonar_frame: auv5/sonar # fallback if the point cloud header has no frame_id
+    # Same as sonar_pipe_pose_estimator_node; must match the oculus driver config
+    sonar_range_m: 10.0
+    half_aperture_deg: 65.0
+    n_segments: 5 # 6 vertices; the _nw clustering takes at most 6 poses per array
+    mask_pad_m: 0.15
+    # TUNE: ~80% of the real pipe (5 segments x ~1 m). Shorter traces are a
+    # partial view of the pipe and are dropped so vertex i stays the same corner.
+    min_full_length_m: 3.0
+    order_margin_m: 0.5 # both ends at ~same range (vehicle abeam) -> frame dropped
+    sync_slop_s: 0.05
+    tf_timeout_s: 0.1
+
+# ---- Bottom-camera pipe following ----------------------------------------
+# yolo segmentation -> pipeline_projection_node (tracking + metric path)
+# -> pipeline_follow_node (PID force control, action /auv5/pipeline/follow).
+# pipe_yolo_node starts inactive: the mission activates it through
+# /auv5/pipeline/cam/manage_nodes (its own lifecycle manager, separate from
+# the sonar one so sonar and camera models are switched independently).
+/**/pipe_yolo_node:
+  ros__parameters:
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_pipe_20260927.engine
+    conf: 0.25
+    iou: 0.7
+    agnostic_nms: true
+    input_image_topic: /auv5/bot_cam/color/image
+    output_detections_topic: /auv5/pipeline/cam/yolo/detections
+    output_annotations_topic: /auv5/pipeline/cam/yolo/annotations
+/**/pipe_lifecycle_manager_node:
+  ros__parameters:
+    node_names:
+      - pipe_yolo_node
+    wait_timeout_sec: 1.0
+/**/pipeline_projection_node:
+  ros__parameters:
+    detections_topic: /auv5/pipeline/cam/yolo/detections
+    camera_info_topic: /auv5/bot_cam/color/camera_info
+    track_topic: /auv5/pipeline/track
+    path_topic: /auv5/pipeline/path
+    base_frame: auv5/base_link_ned
+    pipe_class_names: ["pipe"] # must match the model's class name(s)
+    min_detection_score: 0.25
+    # Physical pipe diameter: 3.5 in. This sets the metric scale -- camera
+    # distance = fx * pipe_diameter_m / pipe width in pixels.
+    pipe_diameter_m: 0.0889
+    min_camera_distance_m: 0.2
+    max_camera_distance_m: 6.0
+    lookahead_m: 0.5 # heading target: path tangent this far ahead
+    min_confidence: 0.30
+/**/pipeline_follow_node:
+  ros__parameters:
+    control_rate: 10.0
+    odom_topic: /auv5/nav/odom_ned
+    force_topic: /auv5/controls/teleop/force
+    track_topic: /auv5/pipeline/track
+    # TUNE: surge feed-forward (N); scaled to 0 at these errors.
+    forward_force: 6.0
+    slowdown_heading_rad: 0.6
+    slowdown_cross_track_m: 0.3
+    min_confidence: 0.30
+    track_timeout_s: 0.5
+    end_reached_m: 0.15
+    end_seen_distance_m: 0.8
+    lost_after_end_s: 1.5
+    lost_debounce_s: 0.5
+    lost_timeout_s: 8.0
+    # Starting gains copied from trash controlled_spin_node (auv5). TUNE y/yaw.
+    kp_x: 35.0
+    ki_x: 3.0
+    kd_x: 40.0
+    kp_y: 35.0
+    ki_y: 3.5
+    kd_y: 40.0
+    kp_z: 30.0
+    ki_z: 5.0
+    kd_z: 45.0
+    kp_roll: 2.0
+    ki_roll: 0.0
+    kd_roll: 4.0
+    kp_pitch: 2.0
+    ki_pitch: 0.0
+    kd_pitch: 4.0
+    kp_yaw: 2.0
+    ki_yaw: 0.0
+    kd_yaw: 2.5
+    integral_max: 15.0
+    integral_band: 0.15
