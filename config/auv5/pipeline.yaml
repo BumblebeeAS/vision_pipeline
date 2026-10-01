@@ -82,6 +82,7 @@
     base_frame: auv5/base_link_ned
     pipe_class_names: ["pipe"] # must match the model's class name(s)
     min_detection_score: 0.25
+    ignore_top_fraction: 0.15 # drop detections fully in this top band (vehicle parts)
     # Physical pipe diameter: 3.5 in. This sets the metric scale -- camera
     # distance = fx * pipe_diameter_m / pipe width in pixels.
     pipe_diameter_m: 0.0889
@@ -89,6 +90,9 @@
     max_camera_distance_m: 6.0
     lookahead_m: 0.5 # heading target: path tangent this far ahead
     min_confidence: 0.30
+    reset_after_gap_s: 2.0 # detection gap that resets tracks + travel direction
+    max_processing_height: 240 # geometry runs on a mask this tall (speed)
+    min_processing_width_px: 30.0 # ...while the pipe stays this wide in it (accuracy)
 /**/pipeline_follow_node:
   ros__parameters:
     control_rate: 10.0
@@ -101,11 +105,11 @@
     slowdown_cross_track_m: 0.3
     min_confidence: 0.30
     track_timeout_s: 0.5
-    end_reached_m: 0.15
-    end_seen_distance_m: 0.8
-    lost_after_end_s: 1.5
-    lost_debounce_s: 0.5
+    end_reached_m: 0.15 # done when the line ends within this of the bot-cam centre
+    end_confirm_s: 1.0 # end must hold this long
+    min_follow_s: 3.0 # no end before this much following
     lost_timeout_s: 8.0
+    acquire_timeout_s: 20.0 # first track after the model activates (TensorRT warm-up)
     # Starting gains copied from trash controlled_spin_node (auv5). TUNE y/yaw.
     kp_x: 35.0
     ki_x: 3.0
