@@ -4,7 +4,7 @@
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
-    input_image_topic: /asv5/oakd/color/image_raw
+    input_image_topic: /asv5/oakd/rgb/image_raw
     output_detections_topic: /asv5/dock_led/yolo/detections
     output_annotations_topic: /asv5/dock_led/yolo/annotations
 
