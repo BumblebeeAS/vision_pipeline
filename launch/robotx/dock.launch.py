@@ -23,29 +23,7 @@ def generate_launch_description():
                 parameters=[config],
                 namespace="",
             ),
-            LifecycleNode(
-                package="yolo_ros_trt",
-                executable="yolo_node",
-                name="dock_window_yolo_node",
-                parameters=[config],
-                namespace="",
-            ),
             
-            LifecycleNode(
-                package="yolo_ros_trt",
-                executable="yolo_node",
-                name="dock_beacon_yolo_node",
-                parameters=[config],
-                namespace="",
-            ),
-            
-            LifecycleNode(
-                package="yolo_ros_trt",
-                executable="yolo_node",
-                name="dock_window_plane_yolo_node",
-                parameters=[config],
-                namespace="",
-            ),
             
 
             Node(
