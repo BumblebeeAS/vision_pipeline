@@ -35,7 +35,7 @@
 
 /**/dockwin_sequence_decoder_node:
   ros__parameters:
-    input_detections_topic: dockwin/yolo/detections
+    input_detections_topic: yolo/detections
     output_sequence_topic: dockwin/light_sequence
     service_name: /asv5/task_status_update
     min_confidence: 0.25
