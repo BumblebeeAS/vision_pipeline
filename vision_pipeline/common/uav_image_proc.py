@@ -1,4 +1,4 @@
-# Image proc nodes shared by the UAV Argus camera pipeline and the UAV sim pipeline.
+# Image proc nodes shared by the UAV GSCam camera pipeline and the UAV sim pipeline.
 # These are inserted into the containers defined in their respective launch files
 # to take advantage of IPC.
 
@@ -7,7 +7,7 @@ from launch_ros.descriptions import ComposableNode
 from vision_pipeline.common.image_transport import republisher_parameters
 
 
-def get_image_proc_nodes():
+def get_image_proc_nodes(use_intra_process_comms=False):
     """
     Get image processing composable nodes.
 
@@ -18,25 +18,27 @@ def get_image_proc_nodes():
         List of ComposableNode objects
     """
     return [
-        # ComposableNode(
-        #     name="resize_node",
-        #     package="isaac_ros_image_proc",
-        #     plugin="nvidia::isaac_ros::image_proc::ResizeNode",
-        #     parameters=[
-        #         {"input_width": 1280},
-        #         {"input_height": 720},
-        #         {"output_width": 640},
-        #         {"output_height": 360},
-        #         {"keep_aspect_ratio": True},
-        #     ],
-        # ),
+        # Scale the image and calibration together before rectification.
         ComposableNode(
+            extra_arguments=[{"use_intra_process_comms": use_intra_process_comms}],
+            name="resize_node",
+            package="isaac_ros_image_proc",
+            plugin="nvidia::isaac_ros::image_proc::ResizeNode",
+            parameters=[
+                {"output_width": 640},
+                {"output_height": 360},
+                {"keep_aspect_ratio": True},
+            ],
+        ),
+        ComposableNode(
+            extra_arguments=[{"use_intra_process_comms": use_intra_process_comms}],
             name="rectify_node",
             package="isaac_ros_image_proc",
             plugin="nvidia::isaac_ros::image_proc::RectifyNode",
             parameters=[{"output_height": 360}, {"output_width": 640}],
             remappings=[
-                ("image_raw", "image"),
+                ("image_raw", "resize/image"),
+                ("camera_info", "resize/camera_info"),
                 ("image_rect", "rect/image"),
                 ("camera_info_rect", "rect/camera_info"),
             ],
