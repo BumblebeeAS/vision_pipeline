@@ -1,12 +1,13 @@
-/**/led_yolo_node:
+/**/dock_beacon_yolo_node:
   ros__parameters:
-    model_path: /home/admin/workspaces/common_ws/src/ml_models/yolo_rx26_segment/rg_dock_led_sim.engine
-    conf: 0.25
+    model_path: /home/admin/workspaces/common_ws/src/ml_models/dockwin/red_green_dock_beacon_sim.engine
+    conf: 0.5
     iou: 0.7
     agnostic_nms: true
     input_image_topic: /asv5/oakd/rgb/image_raw
     output_detections_topic: /asv5/dock_led/yolo/detections
     output_annotations_topic: /asv5/dock_led/yolo/annotations
+
 
 # fix this for sim, need something for irl
 
@@ -14,6 +15,6 @@
 /**/lifecycle_manager_node:
   ros__parameters:
     node_names:
-      - led_yolo_node
+      - dock_beacon_yolo_node
       
     wait_timeout_sec: 1.0
