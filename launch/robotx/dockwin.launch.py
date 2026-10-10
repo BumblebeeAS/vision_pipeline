@@ -7,6 +7,9 @@ from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import LifecycleNode, Node, PushRosNamespace
 
+# colcon installs Python nodes with a /usr/bin/python3 shebang, which lacks supervision/cv2
+VENV_PYTHON = "/opt/venv/bin/python3"
+
 
 def generate_launch_description():
 	dock_config = os.path.join(
@@ -54,12 +57,14 @@ def generate_launch_description():
 		Node(
 			package="yolo_ros_trt",
 			executable="yolo_node",
+			prefix=VENV_PYTHON,
 			name="dockwin_yolo_node",
 			parameters=[dockwin_config],
 		),
 		Node(
 			package="pose_estimator",
 			executable="dockwin_pose_estimator_node",
+			prefix=VENV_PYTHON,
 			name="dockwin_pose_estimator_node",
 			parameters=[dockwin_config],
 		),
