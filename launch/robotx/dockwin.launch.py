@@ -92,7 +92,16 @@ def generate_launch_description():
 		name="dock_lidar_pose_estimator_node",
 		namespace="/asv5",
 		output="screen",
-		parameters=[{"use_sim": True}],
+		parameters=[
+			{
+				"use_sim": False,
+				"bev_scale": 0.04,
+				# BEV is an orthographic metric projection, so dock pixel size is
+				# fixed by dock dims / bev_scale; only search 1.0-1.05x.
+				"min_template_scale": 1.0,
+				"max_template_scale": 1.05,
+			}
+		],
 	)
 
 	return LaunchDescription(
