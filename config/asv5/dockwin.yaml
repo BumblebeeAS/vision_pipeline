@@ -25,6 +25,7 @@
     max_reprojection_error: 8.0
     min_inliers: 4
     depth_filter_alpha: 1.0
+    min_confidence: 0.35
 
 /**/lifecycle_manager_node:
   ros__parameters:
