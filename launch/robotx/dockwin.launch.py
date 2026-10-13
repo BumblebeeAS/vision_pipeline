@@ -69,7 +69,7 @@ def generate_launch_description():
 			parameters=[dockwin_config],
 		),
 		Node(
-			package="dockwin_sequence_decoder",
+			package="rx_light_sequence_decoder",
 			executable="dockwin_sequence_decoder_node",
 			name="dockwin_sequence_decoder_node",
 			parameters=[dockwin_config],
