@@ -49,6 +49,7 @@
     min_tolerance_px: 15.0
     aspect_ratio_min: 0.45
     aspect_ratio_max: 1.15
+    activate_on_start: false
 
 
 
