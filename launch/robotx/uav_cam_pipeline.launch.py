@@ -58,16 +58,15 @@ def evaluate_launch(context, *args, **kwargs):
             extra_arguments=[{"use_intra_process_comms": True}],
         ),
     ]
-    camera_env = {}
     cam_container_nodes.extend(get_image_proc_nodes(use_intra_process_comms=True))
     # CUDA IPC dispatcher threads outlive component dlclose in Isaac ROS 5.0.
     # Keep their code mapped until process exit.
     lib_dir = os.path.join(get_package_prefix("isaac_ros_image_proc"), "lib")
-    camera_env["LD_PRELOAD"] = " ".join(filter(None, [
+    camera_env = {"LD_PRELOAD": " ".join(filter(None, [
         os.path.join(lib_dir, "libresize_node.so"),
         os.path.join(lib_dir, "librectify_node.so"),
         os.environ.get("LD_PRELOAD", ""),
-    ]))
+    ]))}
 
     camera_container = ComposableNodeContainer(
         name="camera_container",

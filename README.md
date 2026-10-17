@@ -72,7 +72,7 @@ To reduce network load, the images are compressed before being passed. However, 
 
 Republishers use upstream `image_transport` with sensor-data QoS: best effort, volatile, keep last, depth 5. Override keys follow the final remapped topics and launch namespace. Reliable subscribers are incompatible with best-effort publishers; the UAV camera exceptions are described above.
 
-The AUV front-camera rectifier uses `image_proc::RectifyNode` with raw input and reliable output. Components subscribe lazily, so attach an output subscriber before checking input delivery. JPEG quality uses `.out.compressed.jpeg_quality` in namespaced republishers (`out.compressed.jpeg_quality` at the root namespace); retain the `out/compressed` remapping.
+The AUV front-camera rectifier uses `image_proc::RectifyNode` with raw input and reliable output. Only the front-camera container is started. Components subscribe lazily, so attach an output subscriber before checking input delivery. JPEG quality uses `.out.compressed.jpeg_quality` in namespaced republishers (`out.compressed.jpeg_quality` at the root namespace); retain the `out/compressed` remapping.
 
 Use image_transport 5.1.8, image_proc 5.0.13 and compressed_image_transport 4.0.7 or newer. `vision_pipeline` no longer requires `custom_image_republisher`.
 
