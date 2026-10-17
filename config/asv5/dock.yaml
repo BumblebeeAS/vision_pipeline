@@ -1,6 +1,6 @@
 /**/dock_beacon_yolo_node:
   ros__parameters:
-    model_path: /home/admin/workspaces/common_ws/src/ml_models/dockwin/red_green_dock_beacon_sim.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/dockwin/red_green_dock_beacon_sim.engine
     conf: 0.5
     iou: 0.7
     agnostic_nms: true
