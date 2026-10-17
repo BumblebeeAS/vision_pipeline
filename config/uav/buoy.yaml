@@ -1,7 +1,7 @@
 # YOLO nodes
 /**/buoy_yolo_node:
   ros__parameters:
-    model_path: /workspaces/common_ws/src/ml_models/yolov26_segment/yolov26_channel_buoy_20260802.onnx
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_channel_buoy_20260802.onnx
     conf: 0.1
     iou: 0.7
     agnostic_nms: true
