@@ -20,6 +20,10 @@ def get_image_proc_nodes(use_intra_process_comms=False):
                 "output_width": 640,
                 "output_height": 360,
                 "keep_aspect_ratio": True,
+                "input_qos": "SENSOR_DATA",
+                "output_qos": "DEFAULT",
+                "input_queue_size": 3,
+                "output_queue_size": 3,
             }],
         ),
         ComposableNode(
@@ -27,7 +31,14 @@ def get_image_proc_nodes(use_intra_process_comms=False):
             name="rectify_node",
             package="isaac_ros_image_proc",
             plugin="nvidia::isaac_ros::image_proc::RectifyNode",
-            parameters=[{"output_height": 360, "output_width": 640}],
+            parameters=[{
+                "output_height": 360,
+                "output_width": 640,
+                "input_qos": "SENSOR_DATA",
+                "output_qos": "DEFAULT",
+                "input_queue_size": 3,
+                "output_queue_size": 3,
+            }],
             remappings=[
                 ("image_raw", "resize/image"),
                 ("camera_info", "resize/camera_info"),
