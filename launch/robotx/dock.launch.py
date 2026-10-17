@@ -19,7 +19,7 @@ def generate_launch_description():
             LifecycleNode(
                 package="yolo_ros_trt",
                 executable="yolo_node",
-                name="led_yolo_node",
+                name="dock_beacon_yolo_node",
                 parameters=[config],
                 namespace="",
             ),
