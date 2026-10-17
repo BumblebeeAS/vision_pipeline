@@ -42,7 +42,9 @@ ros2 launch vision_pipeline uav_cam_main.launch.py
 
 Replace the files in `config/uav/calib` with your camera calibration.
 
-Each camera has its own composed capture/processing pipeline. Capture and GPU processing publish reliable images; JPEG output uses sensor-data QoS.
+Each camera has its own composed capture/processing pipeline. Capture and GPU processing publish reliable images; the upstream `image_transport` JPEG republisher uses best effort, volatile, keep last, depth 5. QoS overrides follow the final remapped topics and camera namespace. The UAV pipeline no longer uses `custom_image_republisher` but AUV pipelines still require it.
+
+Use image_transport 5.1.8 and compressed_image_transport 4.0.7 or newer. The namespaced JPEG republisher uses `.out.compressed.jpeg_quality` (`out.compressed.jpeg_quality` at the root namespace).
 
 ## Issues
 
@@ -70,17 +72,12 @@ To reduce network load, the images are compressed before being passed. However, 
 
 ### ROS QoS Profiles
 
-Republishers use upstream `image_transport` with sensor-data QoS: best effort, volatile, keep last, depth 5. Override keys follow the final remapped topics and launch namespace. Reliable subscribers are incompatible with best-effort publishers; the UAV camera exceptions are described above.
-
-The AUV front-camera rectifier uses `image_proc::RectifyNode` with raw input and reliable output. Only the front-camera container is started. Components subscribe lazily, so attach an output subscriber before checking input delivery. JPEG quality uses `.out.compressed.jpeg_quality` in namespaced republishers (`out.compressed.jpeg_quality` at the root namespace); retain the `out/compressed` remapping.
-
-Use image_transport 5.1.8, image_proc 5.0.13 and compressed_image_transport 4.0.7 or newer. `vision_pipeline` no longer requires `custom_image_republisher`.
+Most vision nodes use "sensor data" QoS with "best effort" reliability. The UAV camera and GPU-processing exceptions are described above. Note that "reliable" subscribers are **incompatible** with "best effort" publishers.
 
 ## Related Repositories
 
 - [Aruco Localization](https://github.com/bumblebeeAS/aruco_loco)
-- [ROS image_transport](https://github.com/ros-perception/image_common)
-- [ROS image_proc](https://github.com/ros-perception/image_pipeline)
+- [Custom Image Republisher](https://github.com/bumblebeeAS/custom_image_republisher)
 - [Depth Anything ROS2 TensorRT](https://github.com/BumblebeeAS/depth_anything_ros2_trt)
 - [Image matching](https://github.com/BumblebeeAS/image_matching)
 - [Image processing](https://github.com/BumblebeeAS/image_processing)

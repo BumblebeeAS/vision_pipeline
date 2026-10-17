@@ -9,6 +9,7 @@
 
   <!-- Bumblebee's Packages -->
   <!-- <exec_depend>aruco_loco</exec_depend> -->
+  <exec_depend>custom_image_republisher</exec_depend>
   <!-- <exec_depend>depth_anything_ros2_trt</exec_depend> -->
   <exec_depend>image_matching</exec_depend>
   <exec_depend>image_processing</exec_depend>
@@ -26,7 +27,6 @@
   <exec_depend>gscam</exec_depend>
   <exec_depend>isaac_ros_image_proc</exec_depend>
   <exec_depend version_gte="5.1.8">image_transport</exec_depend>
-  <exec_depend version_gte="5.0.13">image_proc</exec_depend>
   <exec_depend version_gte="4.0.7">compressed_image_transport</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
