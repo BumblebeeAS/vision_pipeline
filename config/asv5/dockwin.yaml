@@ -11,7 +11,7 @@
 
 /**/dockwin_pose_estimator_node:
   ros__parameters:
-    camera_info_topic: /asv5/oakd/rgb/camera_info
+    camera_info_topic: /asv5/oakd/camera_info
     is_image_rectified: false
     object_frame_id: dockwin/yolo
     input_detections_topic: yolo/detections
@@ -35,7 +35,7 @@
 
 /**/dockwin_sequence_decoder_node:
   ros__parameters:
-    input_detections_topic: dockwin/yolo/detections
+    input_detections_topic: yolo/detections
     output_sequence_topic: dockwin/light_sequence
     service_name: /asv5/task_status_update
     min_confidence: 0.25

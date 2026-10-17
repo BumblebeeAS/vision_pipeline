@@ -51,7 +51,6 @@ setup(
     maintainer_email="todo@todo.com",
     description="Collection of launch files for vision-related nodes.",
     license="todo",
-    tests_require=["pytest"],
     entry_points={
         "console_scripts": [
             "lifecycle_manager_node = vision_pipeline.lifecycle_manager_node:main",
