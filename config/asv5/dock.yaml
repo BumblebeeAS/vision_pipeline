@@ -1,22 +1,35 @@
-/**/dock_beacon_yolo_node:
-  ros__parameters:
-    model_path: /home/admin/workspaces/common_ws/src/ml_models/dockwin/red_green_dock_beacon_sim.engine
-    conf: 0.5
-    iou: 0.7
-    agnostic_nms: true
-    input_image_topic: /asv5/oakd/rgb/image_raw
-    output_detections_topic: /asv5/dock_led/yolo/detections
-    output_annotations_topic: /asv5/dock_led/yolo/annotations
+# /**/dock_beacon_yolo_node:
+#   ros__parameters:
+#     model_path: /home/admin/workspaces/common_ws/src/ml_models/dockwin/red_green_dock_beacon_sim.engine
+#     conf: 0.5
+#     iou: 0.7
+#     agnostic_nms: true
+#     input_image_topic: /asv5/oakd/rgb/image_raw
+#     output_detections_topic: /asv5/dock_led/yolo/detections
+#     output_annotations_topic: /asv5/dock_led/yolo/annotations
 
 
 # fix this for sim, need something for irl
 
+/**/dock_bev:
+  ros__parameters:
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/dock_bev_better.engine
+    conf: 0.5
+    iou: 0.7
+    agnostic_nms: true
+    activate_on_start: true
+    input_image_topic: /asv5/bev
+    output_detections_topic: /asv5/bev/yolo/detections
+    output_annotations_topic: /asv5/bev/yolo/annotations
 
 /**/lifecycle_manager_node:
   ros__parameters:
     node_names:
       - dock_beacon_yolo_node
-      
+      # Absolute: dock_bev runs in /asv5, not the manager's /asv5/dock
+      # namespace, so a relative name would resolve to the wrong service.
+      - /asv5/dock_bev
+
     wait_timeout_sec: 1.0
 
 
@@ -26,6 +39,8 @@
     # Frames / topics (defaults match the node).
     target_frame_id: asv5/base_link
     input_bev_topic: /asv5/bev
+    # YOLO detections on the BEV; their box is the template search region.
+    input_detections_topic: /asv5/bev/yolo/detections
     camera_info_topic: /asv5/bev/camera_info
     debug_image_topic: /asv5/bev_detections/image
     pose_topic: /asv5/dock/pose
@@ -35,12 +50,12 @@
     use_sim: false
     dock_length_m: 2.5
     dock_width_m: 2.5
-    # Must equal the bev_node scale (0.025 m/px here; camera_info
-    # fx = 50/scale = 2000). If this is wrong the nominal template size and
-    # the pixel->metre pose conversion are both wrong.
-    bev_scale: 0.04
+    # Must equal the bev_node scale (0.02 m/px; camera_info fx = 50/scale
+    # = 2500). If this is wrong the nominal template size and the
+    # pixel->metre pose conversion are both wrong.
+    bev_scale: 0.02
+    # TM_CCORR_NORMED correlation, range 0..1.
     match_threshold: 0.40
-    search_downsample: 0.25
     # BEV is an orthographic metric projection, so dock pixel size is fixed by
     # dock dims / bev_scale. Measured best fit on the recorded dock BEV sits at
     # ~1.10-1.15x, so search wide enough to cover dock-size error instead of
@@ -50,12 +65,13 @@
     template_scale_step: 0.05
     coarse_angle_step_deg: 15.0
     fine_angle_step_deg: 0.5
-    entry_offset_dist: 0.0
-    # Local tracking search around the previous match.
-    track_search_radius_m: 5.0
-    track_angle_window_deg: 20.0
-    track_scale_window: 0.1
-    # Penalty for BEV structure overlapping the inverted template's key
-    # regions (inverted_template_path defaults next to template_path and is
-    # derived from use_sim).
-    square_penalty_weight: 0.3
+    # Slack around the YOLO box the template centre may settle into.
+    roi_padding_m: 1.0
+    # Angle window searched once a match has been accepted. The first frame
+    # after startup or a loss sweeps all 360 deg, since an axis-aligned YOLO
+    # box carries no orientation.
+    angle_search_window_deg: 20.0
+    # Detections older than this (vs the BEV stamp) are ignored.
+    detection_timeout_sec: 1.0
+    # Empty accepts any class.
+    detection_class_name: ""
