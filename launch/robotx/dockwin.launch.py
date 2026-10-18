@@ -39,8 +39,10 @@ def generate_launch_description():
 		LifecycleNode(
 			package="yolo_ros_trt",
 			executable="yolo_node",
+			prefix=VENV_PYTHON,
 			name="dock_beacon_yolo_node",
 			namespace="",
+			output="screen",
 			parameters=[dock_config],
 		),
 		Node(
@@ -54,11 +56,13 @@ def generate_launch_description():
 
 	dockwin_nodes = [
 		PushRosNamespace("/asv5/dockwin"),
-		Node(
+		LifecycleNode(
 			package="yolo_ros_trt",
 			executable="yolo_node",
 			prefix=VENV_PYTHON,
 			name="dockwin_yolo_node",
+			namespace="",
+			output="screen",
 			parameters=[dockwin_config],
 		),
 		Node(
@@ -95,11 +99,23 @@ def generate_launch_description():
 		parameters=[dock_config],
 	)
 
+	# BEV YOLO — detects dock in the bird's-eye-view image, publishes to
+	# /asv5/bev/yolo/detections and /asv5/bev/yolo/annotations.
+	dock_bev_node = LifecycleNode(
+		package="yolo_ros_trt",
+		executable="yolo_node",
+		prefix=VENV_PYTHON,
+		name="dock_bev",
+		namespace="/asv5",
+		output="screen",
+		parameters=[dock_config],
+	)
+
 	return LaunchDescription(
 		[enable_decoder_arg]
 		+ dock_vision_nodes
 		+ dockwin_nodes
-		+ [dock_lidar_pose_estimator]
+		+ [dock_lidar_pose_estimator, dock_bev_node]
 	)
 
 
