@@ -10,6 +10,7 @@
   ros__parameters:
     node_names:
       - dock_lidar_pose_estimator_node
+      - dock_beacon_yolo_node
     wait_timeout_sec: 1.0
 
 /asv5/dockwin/lifecycle_manager_node:
@@ -75,6 +76,19 @@
     output_detections_topic: /asv5/bev/yolo/detections
     output_annotations_topic: /asv5/bev/yolo/annotations
 
+# Dock beacon (LED pattern) YOLO on OAK-D RGB camera.
+/**/dock_beacon_yolo_node:
+  ros__parameters:
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/dockwin/red_green_dock_beacon_sim.engine
+    conf: 0.5
+    iou: 0.7
+    agnostic_nms: true
+    activate_on_start: false
+    input_image_topic: /asv5/oakd/rgb/image_raw
+    output_detections_topic: /asv5/dock_led/yolo/detections
+    output_annotations_topic: /asv5/dock_led/yolo/annotations
+
+
 
 # Dock window (light tower) detection, pose and light sequence.
 /**/dockwin_yolo_node:
@@ -122,4 +136,5 @@
     min_tolerance_px: 15.0
     aspect_ratio_min: 0.45
     aspect_ratio_max: 1.15
+    min_confirming_cycles: 1
     activate_on_start: false

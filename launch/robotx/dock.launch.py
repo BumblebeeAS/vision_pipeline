@@ -59,6 +59,17 @@ def generate_launch_description():
                 output="screen",
                 parameters=[config],
             ),
+            # Dock beacon (LED pattern) YOLO on OAK-D RGB camera, managed by
+            # /asv5/dock_bev/manage_nodes for dock bay selection.
+            LifecycleNode(
+                package="yolo_ros_trt",
+                executable="yolo_node",
+                prefix=VENV_PYTHON,
+                name="dock_beacon_yolo_node",
+                namespace="",
+                output="screen",
+                parameters=[config],
+            ),
             Node(
                 package="vision_pipeline",
                 executable="lifecycle_manager_node",
