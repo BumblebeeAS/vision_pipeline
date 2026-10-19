@@ -9,7 +9,10 @@ from lifecycle_msgs.msg import State, TransitionDescription
 from lifecycle_msgs.srv import ChangeState, GetAvailableTransitions, GetState
 from rclpy.executors import MultiThreadedExecutor
 
-from vision_pipeline.utils.lifecycle_manager import lifecycle_transitions
+from vision_pipeline.utils.lifecycle_manager import (
+    lifecycle_transitions,
+    transition_goal_states,
+)
 from vision_pipeline.utils.service_caller_node import ServiceCallerNode
 
 
@@ -99,7 +102,7 @@ class LifecycleManager(ServiceCallerNode):
                 return response
             state = get_state_response.current_state
             self.get_logger().info(f"Current state: {state.label} (id: {state.id})")
-            if state.id == request.transition.id:
+            if state.id == transition_goal_states.get(request.transition.id):
                 self.get_logger().info(f"{node_name} already in state: {state.label}")
                 continue
 
