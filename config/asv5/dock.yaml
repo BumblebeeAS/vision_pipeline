@@ -10,6 +10,7 @@
   ros__parameters:
     node_names:
       - dock_lidar_pose_estimator_node
+      - dock_planar_window_yolo_node
       - dock_beacon_yolo_node
     wait_timeout_sec: 1.0
 
@@ -18,6 +19,7 @@
     node_names:
       - dockwin_yolo_node
     wait_timeout_sec: 1.0
+
 
 
 # 2D lidar BEV dock pose (dock_lidar_pose_estimator_node).
@@ -29,13 +31,13 @@
     # Template match directly on the BEV (no YOLO): full search every frame.
     camera_info_topic: /asv5/bev/camera_info
     debug_image_topic: /asv5/bev_detections/image
-    pose_topic: /asv5/dock/pose
+    pose_topic: /asv5/dock_bev/pose
     pose_frame_id: asv5/base_link
     # Sim selects the RX26 template/dims; these are the real dock_single
     # defaults. template_path is left to the node so it follows use_sim.
-    use_sim: false
+    use_sim: False
     # Starts inactive; activate via /asv5/dock_bev/manage_nodes.
-    activate_on_start: false
+    activate_on_start: True
     dock_length_m: 2.5
     dock_width_m: 2.5
     # Must equal the bev_node scale (0.02 m/px; camera_info fx = 50/scale
@@ -63,30 +65,68 @@
     bev_z_max: 0.5
     template_marker_stride: 2
 
+# Dock panel x, y, yaw from dock_planar_window_yolo_node OBB + stereo depth
+# (or planar PnP when use_stereo_depth is false).
+/**/dock_planar_pose_estimator_node:
+  ros__parameters:
+    input_detections_topic: /asv5/dock_planar_window/yolo/detections
+    input_depth_image_topic: /asv5/oakd/stereo/image_raw
+    camera_info_topic: /asv5/oakd/rgb/camera_info
+    is_image_rectified: false
+    output_pose_topic: /asv5/dock/depth_planar/pose
+    target_frame: asv5/base_link
+    min_confidence: 0.5
+    depth_sync_slop: 0.1
+    use_stereo_depth: false
+    obb_shrink: 0.8
+    pixel_stride: 2
+    min_depth: 0.2
+    max_depth: 15.0
+    min_points: 50
+    plane_distance_threshold: 0.05
+    max_plane_tilt_deg: 10.0
+    min_inlier_ratio: 0.6
+    max_plane_rmse: 0.05
+    ransac_iterations: 200
+
 # BEV dock YOLO (dock_bev_yolo_node). Off by default and not in the dock_bev
 # manager's node_names; activate directly with ros2 lifecycle set.
-/**/dock_bev_yolo_node:
-  ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/dock_bev_better.engine
-    conf: 0.5
-    iou: 0.7
-    agnostic_nms: true
-    activate_on_start: false
-    input_image_topic: /asv5/bev
-    output_detections_topic: /asv5/bev/yolo/detections
-    output_annotations_topic: /asv5/bev/yolo/annotations
+# /**/dock_bev_yolo_node:
+#   ros__parameters:
+#     model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/dock_bev_better.engine
+#     conf: 0.5
+#     iou: 0.7
+#     agnostic_nms: true
+#     activate_on_start: false
+#     input_image_topic: /asv5/bev
+#     output_detections_topic: /asv5/bev/yolo/detections
+#     output_annotations_topic: /asv5/bev/yolo/annotations
 
-# Dock beacon (LED pattern) YOLO on OAK-D RGB camera.
+# # Dock beacon (LED pattern) YOLO on OAK-D RGB camera.
 /**/dock_beacon_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/dockwin/red_green_dock_beacon_sim.engine
-    conf: 0.5
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/red_green_beacon_real.engine
+    conf: 0.1
     iou: 0.7
     agnostic_nms: true
     activate_on_start: false
     input_image_topic: /asv5/oakd/rgb/image_raw
+
     output_detections_topic: /asv5/dock_led/yolo/detections
     output_annotations_topic: /asv5/dock_led/yolo/annotations
+
+
+/**/dock_planar_window_yolo_node:
+  ros__parameters:
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/yolov26_dock_window_plane_20261019.engine
+    conf: 0.5
+    iou: 0.1
+    agnostic_nms: true
+    activate_on_start: false
+    input_image_topic: /asv5/oakd/rgb/image_raw
+    output_detections_topic: /asv5/dock_planar_window/yolo/detections
+    output_annotations_topic: /asv5/dock_planar_window/yolo/annotations
+
 
 
 
