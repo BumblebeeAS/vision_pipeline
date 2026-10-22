@@ -91,16 +91,16 @@
 
 # BEV dock YOLO (dock_bev_yolo_node). Off by default and not in the dock_bev
 # manager's node_names; activate directly with ros2 lifecycle set.
-# /**/dock_bev_yolo_node:
-#   ros__parameters:
-#     model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/dock_bev_better.engine
-#     conf: 0.5
-#     iou: 0.7
-#     agnostic_nms: true
-#     activate_on_start: false
-#     input_image_topic: /asv5/bev
-#     output_detections_topic: /asv5/bev/yolo/detections
-#     output_annotations_topic: /asv5/bev/yolo/annotations
+/**/dock_bev_yolo_node:
+  ros__parameters:
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/dock_bev_better.engine
+    conf: 0.3
+    iou: 0.7
+    agnostic_nms: true
+    activate_on_start: true # testing: run without the lifecycle manager
+    input_image_topic: /asv5/bev
+    output_detections_topic: /asv5/bev/yolo/detections
+    output_annotations_topic: /asv5/bev/yolo/annotations
 
 # # Dock beacon (LED pattern) YOLO on OAK-D RGB camera.
 /**/dock_beacon_yolo_node:

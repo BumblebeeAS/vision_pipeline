@@ -51,15 +51,15 @@ def generate_launch_description():
             # BEV dock YOLO. Not managed by /asv5/dock_bev/manage_nodes (the
             # estimator does not use its detections); toggle it directly with
             # ros2 lifecycle set /asv5/dock_bev/dock_bev_yolo_node activate.
-            # LifecycleNode(
-            #     package="yolo_ros_trt",
-            #     executable="yolo_node",
-            #     prefix=VENV_PYTHON,
-            #     name="dock_bev_yolo_node",
-            #     namespace="",
-            #     output="screen",
-            #     parameters=[config],
-            # ),
+            LifecycleNode(
+                package="yolo_ros_trt",
+                executable="yolo_node",
+                prefix=VENV_PYTHON,
+                name="dock_bev_yolo_node",
+                namespace="",
+                output="screen",
+                parameters=[config],
+            ),
             # Dock beacon (LED pattern) YOLO on OAK-D RGB camera, managed by
             # /asv5/dock_bev/manage_nodes for dock bay selection.
             LifecycleNode(
