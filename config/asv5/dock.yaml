@@ -58,6 +58,13 @@
     # Full search runs on the BEV resized by this factor (0..1]; lower is
     # faster but coarser.
     search_downsample: 0.5
+    # Search only around the best dock_bev_yolo_node box ("" = whole BEV).
+    input_detections_topic: /asv5/bev/yolo/detections
+    roi_padding_m: 0.5
+    detection_timeout_sec: 1.0
+    detection_class_name: ""
+    # No fresh detection: true = search the whole BEV, false = skip the frame.
+    full_search_without_detection: false
     # 3D template marker on <pose_topic>/template_marker (CUBE_LIST in
     # pose_frame_id). Must match bev_node's bev_z_min / bev_z_max (os0_filter
     # min_height / max_height) so template grey levels map to true heights.
