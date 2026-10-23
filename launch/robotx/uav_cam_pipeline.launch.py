@@ -83,7 +83,7 @@ def evaluate_launch(context, *args, **kwargs):
                 "image_encoding": "rgb8",
                 "sync_sink": False,
                 "use_gst_timestamps": True,
-                "use_sensor_data_qos": False,
+                "use_sensor_data_qos": True,
             }],
             remappings=[
                 ("camera/image_raw", "image"),
