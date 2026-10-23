@@ -42,7 +42,7 @@ ros2 launch vision_pipeline uav_cam_main.launch.py
 
 Replace the files in `config/uav/calib` with your camera calibration.
 
-Each camera has its own composed capture/processing pipeline. Capture and GPU processing publish reliable images. Resize and rectification subscribe with best effort and use depth-3 input/output queues, including CameraInfo and image synchronization, to limit queued frames. ArUco and YOLO already use sensor-data subscriptions. The upstream `image_transport` JPEG republisher uses best effort, volatile, keep last, depth 5. Its QoS overrides follow the final remapped topics and camera namespace. The UAV pipeline no longer uses `custom_image_republisher` but AUV pipelines still require it.
+Each camera has its own composed capture/processing pipeline. Capture and GPU processing use best-effort image delivery. Resize and rectification use depth-3 input/output queues, including CameraInfo and image synchronization, to limit queued frames. ArUco and YOLO already use sensor-data subscriptions. The upstream `image_transport` JPEG republisher uses best effort, volatile, keep last, depth 5. Its QoS overrides follow the final remapped topics and camera namespace. The UAV pipeline no longer uses `custom_image_republisher` but AUV pipelines still require it.
 
 The namespaced JPEG republisher uses `.out.compressed.jpeg_quality` (`out.compressed.jpeg_quality` at the root namespace).
 
@@ -72,7 +72,7 @@ To reduce network load, the images are compressed before being passed. However, 
 
 ### ROS QoS Profiles
 
-Most vision nodes use "sensor data" QoS with "best effort" reliability. The UAV camera and GPU-processing exceptions are described above. Note that "reliable" subscribers are **incompatible** with "best effort" publishers.
+Most vision nodes use "sensor data" QoS with "best effort" reliability. Note that "reliable" subscribers are **incompatible** with "best effort" publishers.
 
 ## Related Repositories
 
