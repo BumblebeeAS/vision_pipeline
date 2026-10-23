@@ -44,7 +44,7 @@ Replace the files in `config/uav/calib` with your camera calibration. Color corr
 
 Each camera has its own composed capture/processing pipeline. Capture and GPU processing publish reliable images. Resize and rectification subscribe with best effort and use depth-3 input/output queues, including CameraInfo and image synchronization, to limit queued frames. ArUco and YOLO already use sensor-data subscriptions. The upstream `image_transport` JPEG republisher uses best effort, volatile, keep last, depth 5. Its QoS overrides follow the final remapped topics and camera namespace. The UAV pipeline no longer uses `custom_image_republisher` but AUV pipelines still require it.
 
-Use image_transport 5.1.8 and compressed_image_transport 4.0.7 or newer. The namespaced JPEG republisher uses `.out.compressed.jpeg_quality` (`out.compressed.jpeg_quality` at the root namespace).
+The namespaced JPEG republisher uses `.out.compressed.jpeg_quality` (`out.compressed.jpeg_quality` at the root namespace).
 
 ## Issues
 
