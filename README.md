@@ -40,7 +40,7 @@ source install/setup.bash
 ros2 launch vision_pipeline uav_cam_main.launch.py
 ```
 
-Replace the files in `config/uav/calib` with your camera calibration.
+Replace the files in `config/uav/calib` with your camera calibration. Color correction lives in `config/uav/camera_color.yaml`; recheck it after changing the cameras, lenses, or lighting. Use the stock host ISP profile with the old downloaded override disabled.
 
 Each camera has its own composed capture/processing pipeline. Capture and GPU processing use best-effort image delivery. Resize and rectification use depth-3 input/output queues, including CameraInfo and image synchronization, to limit queued frames. ArUco and YOLO already use sensor-data subscriptions. The upstream `image_transport` JPEG republisher uses best effort, volatile, keep last, depth 5. Its QoS overrides follow the final remapped topics and camera namespace. The UAV pipeline no longer uses `custom_image_republisher` but AUV pipelines still require it.
 

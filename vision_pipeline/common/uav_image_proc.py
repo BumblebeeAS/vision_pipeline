@@ -3,6 +3,7 @@
 # to take advantage of IPC.
 
 from launch_ros.descriptions import ComposableNode
+from launch_ros.actions import Node
 
 from vision_pipeline.common.image_transport import republisher_parameters
 
@@ -43,7 +44,7 @@ def get_image_proc_nodes(use_intra_process_comms=False):
                 ("image_raw", "resize/image"),
                 ("camera_info", "resize/camera_info"),
                 ("image_rect", "rect/image"),
-                ("camera_info_rect", "rect/camera_info"),
+                ("camera_info_rect", "rect/camera_info_internal"),
             ],
         ),
         # Low quality compression for visualization over RF comms
@@ -64,3 +65,14 @@ def get_image_proc_nodes(use_intra_process_comms=False):
             ],
         ),
     ]
+
+
+def get_rectified_camera_info_node():
+    # Isaac may retain the fisheye model with a five-element zero D array.
+    # Describe the rectified image as a pinhole camera for downstream clients.
+    return Node(
+        package="image_processing",
+        executable="rectified_camera_info_node",
+        name="rectified_camera_info_node",
+        output="screen",
+    )
