@@ -30,6 +30,22 @@ Launch files may not have all the above node types and thus some services may no
 
 See [vision_pipeline/README.md](vision_pipeline/README.md) for more details.
 
+## UAV IMX219 on JetPack 7.2
+
+Use the Isaac ROS 5.0 / Lyrical UAV image and install the host camera workaround from `bring-up/etc/uav`. Build in a clean Lyrical workspace without reusing Jazzy build/install artifacts.
+
+```bash
+python3 -m colcon build --symlink-install --packages-select vision_pipeline
+source install/setup.bash
+ros2 launch vision_pipeline uav_cam_main.launch.py
+```
+
+Replace the files in `config/uav/calib` with your camera calibration.
+
+Each camera has its own composed capture/processing pipeline. Capture and GPU processing use best-effort image delivery. Resize and rectification use depth-3 input/output queues, including CameraInfo and image synchronization, to limit queued frames. ArUco and YOLO already use sensor-data subscriptions. The upstream `image_transport` JPEG republisher uses best effort, volatile, keep last, depth 5. Its QoS overrides follow the final remapped topics and camera namespace. The UAV pipeline no longer uses `custom_image_republisher` but AUV pipelines still require it.
+
+The namespaced JPEG republisher uses `.out.compressed.jpeg_quality` (`out.compressed.jpeg_quality` at the root namespace).
+
 ## Issues
 
 **1. LLVM Out of Memory**
@@ -56,7 +72,7 @@ To reduce network load, the images are compressed before being passed. However, 
 
 ### ROS QoS Profiles
 
-The QoS profiles for all nodes in vision pipelines are set to "sensor data", which uses "best effort" reliability. Note that "reliable" subscribers are **incompatible** with "best effort" publishers.
+Most vision nodes use "sensor data" QoS with "best effort" reliability. Note that "reliable" subscribers are **incompatible** with "best effort" publishers.
 
 ## Related Repositories
 
