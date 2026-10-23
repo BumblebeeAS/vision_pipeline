@@ -100,7 +100,7 @@
 # manager's node_names; activate directly with ros2 lifecycle set.
 /**/dock_bev_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/dock_bev_better.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/dock_bev_greyscale.engine
     conf: 0.3
     iou: 0.7
     agnostic_nms: true
@@ -122,10 +122,37 @@
     output_detections_topic: /asv5/dock_led/yolo/detections
     output_annotations_topic: /asv5/dock_led/yolo/annotations
 
+/**/dock_beacon_yolo_node_left:
+  ros__parameters:
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/red_green_beacon_real.engine
+    conf: 0.1
+    iou: 0.7
+    agnostic_nms: true
+    activate_on_start: true
+    input_image_topic: /asv5/left_asv_cam/color/image
+
+    output_detections_topic: /asv5/dock_led/left/yolo/detections
+    output_annotations_topic: /asv5/dock_led/left/yolo/annotations
+
+
+
+/**/dock_beacon_yolo_node_right:
+  ros__parameters:
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/red_green_beacon_real.engine
+    conf: 0.1
+    iou: 0.7
+    agnostic_nms: true
+    activate_on_start: true
+    input_image_topic: /asv5/right_asv_cam/color/image
+
+    output_detections_topic: /asv5/dock_led/right/yolo/detections
+    output_annotations_topic: /asv5/dock_led/right/yolo/annotations
+
+
 
 /**/dock_planar_window_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/yolov26_dock_window_plane_20261019.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/yolov26_dock_window_plane_20261022.engine
     conf: 0.5
     iou: 0.1
     agnostic_nms: true

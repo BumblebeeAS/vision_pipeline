@@ -71,8 +71,27 @@ def generate_launch_description():
                 output="screen",
                 parameters=[config],
             ),
-            
-            
+            # Same beacon model on the left/right ASV cameras. Not in the
+            # lifecycle manager's node_names; both activate on start.
+            LifecycleNode(
+                package="yolo_ros_trt",
+                executable="yolo_node",
+                prefix=VENV_PYTHON,
+                name="dock_beacon_yolo_node_left",
+                namespace="",
+                output="screen",
+                parameters=[config],
+            ),
+            LifecycleNode(
+                package="yolo_ros_trt",
+                executable="yolo_node",
+                prefix=VENV_PYTHON,
+                name="dock_beacon_yolo_node_right",
+                namespace="",
+                output="screen",
+                parameters=[config],
+            ),
+
              LifecycleNode(
                 package="yolo_ros_trt",
                 executable="yolo_node",
