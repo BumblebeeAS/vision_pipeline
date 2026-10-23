@@ -2,3 +2,6 @@ camera_names: [narrow_a, wide_a] # narrow = 0, wide = 1
 
 # Use nvgstcapture to see the available modes for the camera
 camera_mode: 4  # 1280 x 720 FR = 60
+
+# Hardware color calibration is installed by ros2-docker at
+# /etc/ros/uav/camera_color.yaml (override with UAV_CAMERA_COLOR_CONFIG).
