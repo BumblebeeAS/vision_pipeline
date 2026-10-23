@@ -36,8 +36,8 @@ def evaluate_launch(context, *args, **kwargs):
         f"{camera_name}.yaml",
     )
 
-    color_config_path = os.environ.get(
-        "UAV_CAMERA_COLOR_CONFIG", "/etc/ros/uav/camera_color.yaml"
+    color_config_path = os.path.join(
+        get_package_share_directory("vision_pipeline"), "config", "uav", "camera_color.yaml"
     )
     with open(color_config_path) as camera_config_file:
         camera_config = yaml.safe_load(camera_config_file)
