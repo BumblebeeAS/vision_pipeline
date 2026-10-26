@@ -12,7 +12,7 @@ config_file = os.path.join(
     get_package_share_directory("vision_pipeline"),
     "config",
     "uav",
-    "isaac_ros_argus_cam.yaml",
+    "cameras.yaml",
 )
 with open(config_file, "r") as f:
     config = yaml.safe_load(f)
@@ -40,7 +40,6 @@ def generate_launch_description():
                             "camera_id": str(camera_id),
                             "camera_mode": str(camera_mode),
                             "camera_frame_id": f"uav/{camera_name}_optical",
-                            "camera_link_frame_name": f"uav/{camera_name}_link",
                         }.items(),
                     ),
                 ]

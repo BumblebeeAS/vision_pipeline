@@ -56,7 +56,7 @@ To reduce network load, the images are compressed before being passed. However, 
 
 ### ROS QoS Profiles
 
-The QoS profiles for all nodes in vision pipelines are set to "sensor data", which uses "best effort" reliability. Note that "reliable" subscribers are **incompatible** with "best effort" publishers.
+Most vision nodes use "sensor data" QoS with "best effort" reliability. Note that "reliable" subscribers are **incompatible** with "best effort" publishers.
 
 ## Related Repositories
 
