@@ -22,8 +22,6 @@ def get_image_proc_nodes(use_intra_process_comms=False):
                 "keep_aspect_ratio": True,
                 "input_qos": "SENSOR_DATA",
                 "output_qos": "SENSOR_DATA",
-                "input_queue_size": 3,
-                "output_queue_size": 3,
             }],
         ),
         ComposableNode(
@@ -36,8 +34,6 @@ def get_image_proc_nodes(use_intra_process_comms=False):
                 "output_width": 640,
                 "input_qos": "SENSOR_DATA",
                 "output_qos": "SENSOR_DATA",
-                "input_queue_size": 3,
-                "output_queue_size": 3,
             }],
             remappings=[
                 ("image_raw", "resize/image"),
