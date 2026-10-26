@@ -30,10 +30,6 @@ Launch files may not have all the above node types and thus some services may no
 
 See [vision_pipeline/README.md](vision_pipeline/README.md) for more details.
 
-## UAV IMX219 on JetPack 7.2
-
-Each UAV camera runs its own capture and processing pipeline. Image streams use sensor-data QoS.
-
 ## Issues
 
 **1. LLVM Out of Memory**
