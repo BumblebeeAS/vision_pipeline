@@ -1,5 +1,7 @@
 import os
 
+import yaml
+
 from ament_index_python.packages import get_package_prefix, get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import (
@@ -12,7 +14,11 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 
-from vision_pipeline.common.uav_image_proc import get_image_proc_nodes
+from vision_pipeline.common.color_shading import color_correction_filter
+from vision_pipeline.common.uav_image_proc import (
+    get_image_proc_nodes,
+    get_rectified_camera_info_node,
+)
 
 
 def evaluate_launch(context, *args, **kwargs):
@@ -21,22 +27,27 @@ def evaluate_launch(context, *args, **kwargs):
     camera_mode = LaunchConfiguration("camera_mode").perform(context)
     camera_frame_id = LaunchConfiguration("camera_frame_id").perform(context)
 
-    calibration_data_file = os.path.join(
-        get_package_share_directory("vision_pipeline"),
-        "config",
-        "uav",
-        "calib",
-        f"{camera_name}.yaml",
+    config_dir = os.path.join(
+        get_package_share_directory("vision_pipeline"), "config", "uav"
     )
+    calibration_data_file = os.path.join(config_dir, "calib", f"{camera_name}.yaml")
+    color_config_path = os.path.join(config_dir, "camera_color.yaml")
+    with open(color_config_path) as camera_config_file:
+        camera_config = yaml.safe_load(camera_config_file)
+    rgb_gains = camera_config.get("color_balance_rgb", {}).get(camera_name)
+    shading = camera_config.get("color_shading", {}).get(camera_name)
+    color_conversion = color_correction_filter(rgb_gains, shading)
 
     gscam_config = (
         f"nvarguscamerasrc sensor-id={int(camera_id)} "
         f"sensor-mode={int(camera_mode)} do-timestamp=true ! "
         "video/x-raw(memory:NVMM),width=1280,height=720,format=NV12,framerate=30/1 ! "
-        "nvvidconv ! video/x-raw,format=BGRx ! "
+        f"{color_conversion}"
         "videoconvert ! video/x-raw,format=RGB"
     )
-    cam_container_nodes = [
+    # Prepare the full processing chain before GSCam starts producing frames.
+    cam_container_nodes = get_image_proc_nodes(use_intra_process_comms=True)
+    cam_container_nodes.append(
         ComposableNode(
             name="gscam",
             package="gscam",
@@ -56,17 +67,29 @@ def evaluate_launch(context, *args, **kwargs):
                 ("camera/camera_info", "camera_info"),
             ],
             extra_arguments=[{"use_intra_process_comms": True}],
-        ),
-    ]
-    cam_container_nodes.extend(get_image_proc_nodes(use_intra_process_comms=True))
+        )
+    )
     # CUDA IPC dispatcher threads outlive component dlclose in Isaac ROS 5.0.
     # Keep their code mapped until process exit.
     lib_dir = os.path.join(get_package_prefix("isaac_ros_image_proc"), "lib")
-    camera_env = {"LD_PRELOAD": " ".join(filter(None, [
-        os.path.join(lib_dir, "libresize_node.so"),
-        os.path.join(lib_dir, "librectify_node.so"),
-        os.environ.get("LD_PRELOAD", ""),
-    ]))}
+    camera_env = {
+        # Allow more time for component-loading service replies.
+        "FASTDDS_DEFAULT_PROFILES_FILE": os.path.join(
+            get_package_share_directory("vision_pipeline"),
+            "config", "uav", "camera_fastdds.xml",
+        ),
+        "LD_PRELOAD": " ".join(filter(None, [
+            os.path.join(lib_dir, "libresize_node.so"),
+            os.path.join(lib_dir, "librectify_node.so"),
+            os.environ.get("LD_PRELOAD", ""),
+        ])),
+    }
+    if shading is not None:
+        camera_env.update({
+            "GST_GL_WINDOW": "surfaceless",
+            "GST_GL_PLATFORM": "egl",
+            "GST_GL_API": "gles2",
+        })
 
     camera_container = ComposableNodeContainer(
         name="camera_container",
@@ -80,7 +103,11 @@ def evaluate_launch(context, *args, **kwargs):
     )
 
     # EGL needs DISPLAY absent, not empty, for headless CSI capture.
-    return [GroupAction([UnsetEnvironmentVariable("DISPLAY"), camera_container])]
+    return [GroupAction([
+        UnsetEnvironmentVariable("DISPLAY"),
+        camera_container,
+        get_rectified_camera_info_node(),
+    ])]
 
 
 def generate_launch_description():

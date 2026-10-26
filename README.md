@@ -30,6 +30,8 @@ Launch files may not have all the above node types and thus some services may no
 
 See [vision_pipeline/README.md](vision_pipeline/README.md) for more details.
 
+Software color correction is disabled by default in `config/uav/camera_color.yaml` pending ISP recalibration.
+
 ## Issues
 
 **1. LLVM Out of Memory**
