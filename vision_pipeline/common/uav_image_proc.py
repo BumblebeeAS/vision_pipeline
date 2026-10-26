@@ -49,12 +49,12 @@ def get_image_proc_nodes(use_intra_process_comms=False):
         #     plugin="image_transport::Republisher",
         #     name="bag_compression_node",
         #     parameters=[
-        #         republisher_parameters("rect/image", "rect/image/bag/compressed"),
+        #         republisher_parameters("rect/image", "rect/image/compressed"),
         #         {"out.compressed.jpeg_quality": 95, ".out.compressed.jpeg_quality": 95},
         #     ],
         #     remappings=[
         #         ("in", "rect/image"),
-        #         ("out/compressed", "rect/image/bag/compressed"),
+        #         ("out/compressed", "rect/image/compressed"),
         #     ],
         # ),
         # Low quality compression for visualization over RF comms
@@ -65,13 +65,13 @@ def get_image_proc_nodes(use_intra_process_comms=False):
             plugin="image_transport::Republisher",
             name="vis_compression_node",
             parameters=[
-                republisher_parameters("rect/image", "rect/image/compressed"),
+                republisher_parameters("rect/image", "rect/image/vis/compressed"),
                 # image_transport uses a leading dot in non-root namespaces.
                 {"out.compressed.jpeg_quality": 10, ".out.compressed.jpeg_quality": 10},
             ],
             remappings=[
                 ("in", "rect/image"),
-                ("out/compressed", "rect/image/compressed"),
+                ("out/compressed", "rect/image/vis/compressed"),
             ],
         ),
     ]
