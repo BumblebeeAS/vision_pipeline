@@ -32,7 +32,7 @@ See [vision_pipeline/README.md](vision_pipeline/README.md) for more details.
 
 ## UAV IMX219 on JetPack 7.2
 
-Each camera has its own composed capture/processing pipeline. Capture and GPU processing use best-effort image delivery. The upstream `image_transport` JPEG republisher uses best effort, volatile, keep last, depth 5. Its QoS overrides follow the final remapped topics and camera namespace.
+Each UAV camera runs its own capture and processing pipeline. Image streams use sensor-data QoS.
 
 ## Issues
 
