@@ -42,6 +42,21 @@ def get_image_proc_nodes(use_intra_process_comms=False):
                 ("camera_info_rect", "rect/camera_info"),
             ],
         ),
+        # High quality compression for bagging
+        # ComposableNode(
+        #     extra_arguments=[{"use_intra_process_comms": False}],
+        #     package="image_transport",
+        #     plugin="image_transport::Republisher",
+        #     name="bag_compression_node",
+        #     parameters=[
+        #         republisher_parameters("rect/image", "rect/image/bag/compressed"),
+        #         {"out.compressed.jpeg_quality": 95, ".out.compressed.jpeg_quality": 95},
+        #     ],
+        #     remappings=[
+        #         ("in", "rect/image"),
+        #         ("out/compressed", "rect/image/bag/compressed"),
+        #     ],
+        # ),
         # Low quality compression for visualization over RF comms
         ComposableNode(
             # JPEG compression needs CPU data; DDS materializes CUDA output on the host.
