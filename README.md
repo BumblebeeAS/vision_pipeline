@@ -32,7 +32,7 @@ See [vision_pipeline/README.md](vision_pipeline/README.md) for more details.
 
 ## UAV IMX219 on JetPack 7.2
 
-Use the Isaac ROS 5.0 / Lyrical UAV image and install the host camera workaround from `bring-up/etc/uav`. Build in a clean Lyrical workspace without reusing Jazzy build/install artifacts.
+Use the Isaac ROS 5.0 / Lyrical UAV image. Build in a clean Lyrical workspace without reusing Jazzy build/install artifacts.
 
 ```bash
 python3 -m colcon build --symlink-install --packages-select vision_pipeline
@@ -42,7 +42,7 @@ ros2 launch vision_pipeline uav_cam_main.launch.py
 
 Replace the files in `config/uav/calib` with your camera calibration.
 
-Each camera has its own composed capture/processing pipeline. Capture and GPU processing use best-effort image delivery. ArUco and YOLO already use sensor-data subscriptions. The upstream `image_transport` JPEG republisher uses best effort, volatile, keep last, depth 5. Its QoS overrides follow the final remapped topics and camera namespace. The UAV pipeline no longer uses `custom_image_republisher` but AUV pipelines still require it.
+Each camera has its own composed capture/processing pipeline. Capture and GPU processing use best-effort image delivery. The upstream `image_transport` JPEG republisher uses best effort, volatile, keep last, depth 5. Its QoS overrides follow the final remapped topics and camera namespace.
 
 The namespaced JPEG republisher uses `.out.compressed.jpeg_quality` (`out.compressed.jpeg_quality` at the root namespace).
 
