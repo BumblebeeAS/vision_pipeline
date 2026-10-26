@@ -44,6 +44,7 @@ def get_image_proc_nodes(use_intra_process_comms=False):
         ),
         # High quality compression for bagging
         # ComposableNode(
+        #     # JPEG compression needs CPU data; DDS materializes CUDA output on the host.
         #     extra_arguments=[{"use_intra_process_comms": False}],
         #     package="image_transport",
         #     plugin="image_transport::Republisher",
