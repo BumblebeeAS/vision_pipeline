@@ -1,7 +1,5 @@
 import os
 
-import yaml
-
 from ament_index_python.packages import get_package_prefix, get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import (
@@ -14,7 +12,6 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 
-from vision_pipeline.common.color_shading import color_correction_filter
 from vision_pipeline.common.uav_image_proc import (
     get_image_proc_nodes,
     get_rectified_camera_info_node,
@@ -31,18 +28,11 @@ def evaluate_launch(context, *args, **kwargs):
         get_package_share_directory("vision_pipeline"), "config", "uav"
     )
     calibration_data_file = os.path.join(config_dir, "calib", f"{camera_name}.yaml")
-    color_config_path = os.path.join(config_dir, "camera_color.yaml")
-    with open(color_config_path) as camera_config_file:
-        camera_config = yaml.safe_load(camera_config_file)
-    rgb_gains = camera_config.get("color_balance_rgb", {}).get(camera_name)
-    shading = camera_config.get("color_shading", {}).get(camera_name)
-    color_conversion = color_correction_filter(rgb_gains, shading)
-
     gscam_config = (
         f"nvarguscamerasrc sensor-id={int(camera_id)} "
         f"sensor-mode={int(camera_mode)} do-timestamp=true ! "
         "video/x-raw(memory:NVMM),width=1280,height=720,format=NV12,framerate=30/1 ! "
-        f"{color_conversion}"
+        "nvvidconv ! video/x-raw,format=BGRx ! "
         "videoconvert ! video/x-raw,format=RGB"
     )
     # Prepare the full processing chain before GSCam starts producing frames.
@@ -84,13 +74,6 @@ def evaluate_launch(context, *args, **kwargs):
             os.environ.get("LD_PRELOAD", ""),
         ])),
     }
-    if shading is not None:
-        camera_env.update({
-            "GST_GL_WINDOW": "surfaceless",
-            "GST_GL_PLATFORM": "egl",
-            "GST_GL_API": "gles2",
-        })
-
     camera_container = ComposableNodeContainer(
         name="camera_container",
         package="rclcpp_components",
