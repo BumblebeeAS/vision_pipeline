@@ -1,14 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <dds xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
   <profiles>
     <!-- Component load replies can exceed the default 100 ms during GPU startup. -->
     <publisher profile_name="service">
       <qos>
         <reliability>
-          <kind>RELIABLE</kind>
           <max_blocking_time>
             <sec>10</sec>
-            <nanosec>0</nanosec>
           </max_blocking_time>
         </reliability>
       </qos>
