@@ -59,8 +59,6 @@ def evaluate_launch(context, *args, **kwargs):
             extra_arguments=[{"use_intra_process_comms": True}],
         )
     )
-    # CUDA IPC dispatcher threads outlive component dlclose in Isaac ROS 5.0.
-    # Keep their code mapped until process exit.
     lib_dir = os.path.join(get_package_prefix("isaac_ros_image_proc"), "lib")
     camera_env = {
         # Allow more time for component-loading service replies.
@@ -68,6 +66,7 @@ def evaluate_launch(context, *args, **kwargs):
             get_package_share_directory("vision_pipeline"),
             "config", "uav", "camera_fastdds.xml",
         ),
+        # Keep component libraries loaded until exit to avoid CUDA shutdown crashes.
         "LD_PRELOAD": " ".join(filter(None, [
             os.path.join(lib_dir, "libresize_node.so"),
             os.path.join(lib_dir, "librectify_node.so"),
