@@ -36,8 +36,8 @@ def evaluate_launch(context, *args, **kwargs):
         "videoconvert ! video/x-raw,format=RGB"
     )
     # Prepare the full processing chain before GSCam starts producing frames.
-    cam_container_nodes = get_image_proc_nodes(use_intra_process_comms=True)
-    cam_container_nodes.append(
+    cam_container_nodes = [
+        *get_image_proc_nodes(use_intra_process_comms=True),
         ComposableNode(
             name="gscam",
             package="gscam",
@@ -57,8 +57,8 @@ def evaluate_launch(context, *args, **kwargs):
                 ("camera/camera_info", "camera_info"),
             ],
             extra_arguments=[{"use_intra_process_comms": True}],
-        )
-    )
+        ),
+    ]
     lib_dir = os.path.join(get_package_prefix("isaac_ros_image_proc"), "lib")
     camera_env = {
         # Allow more time for component-loading service replies.
