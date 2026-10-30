@@ -1,6 +1,8 @@
 /**/sonar_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_sonar_20260924.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_sonar_pipeline_rsyc_20261023.engine
+    # model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_sonar_pipeline_rsyc_20261020.engine
+    # model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_sonar_20260924.engine
     conf: 0.1
     iou: 0.7
     agnostic_nms: true
@@ -61,7 +63,9 @@
 # the sonar one so sonar and camera models are switched independently).
 /**/pipe_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_pipe_20260927.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_pipeline_rsyc_20261028.engine
+    # model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_pipeline_rsyc_20261020.engine
+    # model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_pipeline_20261005.engine
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
@@ -73,6 +77,115 @@
     node_names:
       - pipe_yolo_node
     wait_timeout_sec: 1.0
+# ---- Bottom-camera red light box (leg 2 of the follow only) ---------------
+# light_box_yolo_node starts inactive under its own lifecycle manager
+# (/auv5/pipeline/light_box/manage_nodes) so the mission runs it only on the
+# leg after the end-of-pipe turn. The pose estimator publishes
+# /auv5/pipeline/light_box/final/pose for the trigger and the clustering.
+/**/light_box_yolo_node:
+  ros__parameters:
+    # model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_lightbox_20261023.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_lightbox_rsyc_20261028.engine
+    # model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_lightbox_20261014.engine
+    conf: 0.25
+    iou: 0.7
+    agnostic_nms: true
+    input_image_topic: /auv5/bot_cam/color/image
+    output_detections_topic: /auv5/pipeline/light_box/yolo/detections
+    output_annotations_topic: /auv5/pipeline/light_box/yolo/annotations
+    # While any track is live, ultralytics publishes only tracked boxes, so a red
+    # that can't start a track vanishes whenever a green is tracked in frame.
+    tracker_config: bytetrack_light_box.yaml
+    display_tracker_id: true
+/**/light_box_lifecycle_manager_node:
+  ros__parameters:
+    node_names:
+      - light_box_yolo_node
+    wait_timeout_sec: 1.0
+/**/light_box_pose_estimator_node:
+  ros__parameters:
+    camera_info_topic: /auv5/bot_cam/color/camera_info
+    input_detections_topic: /auv5/pipeline/light_box/yolo/detections
+    # Greens are only counted: the dock clusters these poses and must stay on red.
+    ignored_classes: [green_faceplate]
+# Multi-view light box (light_box_multiview tree): mask-centroid rays from
+# the bottom cam, intersected in the odom frame as the vehicle moves.
+# Publishes /auv5/pipeline/light_box/triangulated/pose (PoseArray, odom frame).
+/**/light_box_triangulation_pose_estimator_node:
+  ros__parameters:
+    camera_info_topic: /auv5/bot_cam/color/camera_info
+    input_detections_topic: /auv5/pipeline/light_box/yolo/detections
+    input_odom_topic: /auv5/nav/odom_ned
+    light_box_frame_id: light_box/triangulated
+    # Every colour the box shows is the same box.
+    class_names: [red_faceplate, green_faceplate, blue_faceplate, off_faceplate]
+    max_objects: 2
+    # Confirmed once it has min_rays inliers and enough parallax (smallest
+    # eigenvalue of sum(I - d d^T)). Roughly N * spread^2 of the ray angles:
+    # ~100 rays over a 1 m creep at 3 m height clears 0.5. TUNE.
+    min_rays: 15
+    min_information: 0.5
+    inlier_gate: 0.3
+    association_gate: 1.0
+    tentative_association_gate: 0.3
+    merge_gate: 0.5
+    min_ray_depth: 0.5
+    max_tracks: 8
+    # Long enough for the yaw-toward turn and the box leaving view mid-creep.
+    tentative_track_timeout: 15.0
+    # Skip frames while spinning faster than this (rad/s). TUNE.
+    max_yaw_rate: 0.15
+    time_sync_slop: 0.1
+# Light sequence after the dock (rx_light_sequence_decoder). Publishes
+# /auv5/pipeline/light_box/light_sequence_str ("RED BLUE") once locked.
+/**/lightbox_sequence_decoder_node:
+  ros__parameters:
+    input_detections_topic: /auv5/pipeline/light_box/yolo/detections
+    output_sequence_topic: light_box/light_sequence
+    activate_on_start: false
+    enable_service_call: false
+    filter_aspect_ratio: false
+    sequence_length: 2
+    # Lock only after this many identical cycles in a row (one cycle ~5 s).
+    min_confirming_cycles: 2
+    # Latch the box under the vehicle, not a steady green neighbour.
+    target_selection_mode: closest_to_center
+    image_center_x: 1024.0 # bot_cam is 2048x1536
+    image_center_y: 768.0
+    min_confidence: 0.25
+    pulse_duration_min: 0.5
+    pulse_duration_max: 1.5
+    delimiter_duration_min: 1.5
+    debounce_duration: 0.15
+    spatial_tolerance_px: 150.0
+    adaptive_tolerance_factor: 0.70
+    min_tolerance_px: 15.0
+# Classical (no-YOLO) light box detector (pose_estimator
+# light_box_classical_node): same topic and class names as
+# light_box_yolo_node, toggled by /auv5/pipeline/light_box_classical/manage_nodes.
+# Keep only one of the two models active. ~1-3 s per frame on the Orin.
+/**/light_box_classical_node:
+  ros__parameters:
+    input_image_topic: /auv5/bot_cam/color/image
+    output_detections_topic: /auv5/pipeline/light_box/yolo/detections
+    output_annotations_topic: /auv5/pipeline/light_box/yolo/annotations
+    class_name_format: "{color}_faceplate"
+    target_long_edge: 512 # working resolution; lower = faster, misses tiny far lights
+    tau: 0.5 # superpixel threshold for the box mask; -1.0 = per-blob Otsu
+    # Glow-ring color: score = chroma / (2 * min_color_chroma); weaker = dropped.
+    min_color_chroma: 6.0
+    hue_red_deg: 30.0
+    hue_green_deg: -155.0
+    hue_blue_deg: -80.0 # TUNE: guess, no blue sample measured yet
+    # Track ids (the mission counts distinct green tracks)
+    track_gate_factor: 2.0
+    track_min_gate_px: 40.0
+    track_max_age_s: 3.0 # > a few frames at ~0.5 Hz
+/**/light_box_classical_lifecycle_manager_node:
+  ros__parameters:
+    node_names:
+      - light_box_classical_node
+    wait_timeout_sec: 1.0
 /**/pipeline_projection_node:
   ros__parameters:
     detections_topic: /auv5/pipeline/cam/yolo/detections
@@ -83,6 +196,7 @@
     pipe_class_names: ["pipe"] # must match the model's class name(s)
     min_detection_score: 0.25
     ignore_top_fraction: 0.15 # drop detections fully in this top band (vehicle parts)
+    ignore_corner_fraction: 0.12 # drop detections centred this close to a corner (lens vignette)
     # Physical pipe diameter: 3.5 in. This sets the metric scale -- camera
     # distance = fx * pipe_diameter_m / pipe width in pixels.
     pipe_diameter_m: 0.0889
@@ -99,6 +213,7 @@
     odom_topic: /auv5/nav/odom_ned
     force_topic: /auv5/controls/teleop/force
     track_topic: /auv5/pipeline/track
+    heading_topic: /auv5/pipeline/follow/heading # pipe heading (world NED yaw, rad) while following
     # TUNE: surge feed-forward (N); scaled to 0 at these errors.
     forward_force: 6.0
     slowdown_heading_rad: 0.6
@@ -109,6 +224,18 @@
     end_confirm_s: 1.0 # end must hold this long
     min_follow_s: 3.0 # no end before this much following
     lost_timeout_s: 8.0
+    # Depth while following:
+    #   fixed       -> hold the depth sent in the action goal (PIPELINE_DEPTH
+    #                  from the mission's pipeline_clean config/*.yaml); a goal
+    #                  without one holds the depth at goal start
+    #   pipe_offset -> keep the bottom cam target_pipe_distance_m above the
+    #                  pipe (track camera_to_pipe_m), low-passed by
+    #                  pipe_distance_alpha, setpoint moved at most
+    #                  max_depth_rate m/s; last setpoint held when the track drops
+    depth_mode: fixed
+    target_pipe_distance_m: 0.5
+    pipe_distance_alpha: 0.2
+    max_depth_rate: 0.1
     acquire_timeout_s: 20.0 # first track after the model activates (TensorRT warm-up)
     # Starting gains copied from trash controlled_spin_node (auv5). TUNE y/yaw.
     kp_x: 35.0
@@ -131,3 +258,8 @@
     kd_yaw: 2.5
     integral_max: 15.0
     integral_band: 0.15
+    # Buoyancy feedforward (N, world-down, +z NED): net buoyancy from controls
+    # params_auv5.yml (33 kg * 9.81 * 0.04 = 12.9 N). The teleop path bypasses the
+    # main controller's compensation; without this P alone parks the vehicle
+    # ~0.4 m high, outside integral_band, so the integrator never engages. TUNE.
+    buoyancy_comp: 13.0

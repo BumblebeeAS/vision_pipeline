@@ -78,6 +78,71 @@ def generate_launch_description():
         ),
     ]
 
+    # Bottom-camera red light box, run only on the follow leg after the
+    # end-of-pipe turn. Own lifecycle manager, remapped to
+    # /auv5/pipeline/light_box/manage_nodes, so the pipe model can run alone.
+    # tracking_node (ByteTrack) fills Detection.id so the mission can count
+    # distinct green light boxes.
+    light_box_nodes = [
+        LifecycleNode(
+            package="yolo_ros_trt",
+            executable="tracking_node",
+            name="light_box_yolo_node",
+            parameters=[config],
+            namespace="",
+        ),
+        Node(
+            package="vision_pipeline",
+            executable="lifecycle_manager_node",
+            name="light_box_lifecycle_manager_node",
+            parameters=[config],
+            remappings=[("manage_nodes", "light_box/manage_nodes")],
+        ),
+        Node(
+            package="pose_estimator",
+            executable="light_box_pose_estimator_node",
+            name="light_box_pose_estimator_node",
+            parameters=[config],
+        ),
+        # Multi-view light box position (world-fixed, odom frame) from mask
+        # centroid rays gathered while the vehicle moves; publishes
+        # /auv5/pipeline/light_box/triangulated/pose (PoseArray). Only sees
+        # rays while a light box model is active. ~/reset clears its tracks.
+        # Node(
+        #     package="pose_estimator",
+        #     executable="light_box_triangulation_pose_estimator_node",
+        #     name="light_box_triangulation_pose_estimator_node",
+        #     parameters=[config],
+        # ),
+        # Idle until the mission calls ~/start_decoding after the dock.
+        # Node(
+        #     package="rx_light_sequence_decoder",
+        #     executable="lightbox_sequence_decoder_node",
+        #     name="lightbox_sequence_decoder_node",
+        #     parameters=[config],
+        # ),
+        # Classical (no-YOLO) alternative to light_box_yolo_node: publishes the
+        # same red/green/blue_faceplate detections on the same topic. Toggled
+        # by its own manager at /auv5/pipeline/light_box_classical/manage_nodes;
+        # activate only one of the two.
+        # LifecycleNode(
+        #     package="pose_estimator",
+        #     executable="light_box_classical_node",
+        #     name="light_box_classical_node",
+        #     parameters=[config],
+        #     namespace="",
+        # ),
+        # Node(
+        #     package="vision_pipeline",
+        #     executable="lifecycle_manager_node",
+        #     name="light_box_classical_lifecycle_manager_node",
+        #     parameters=[config],
+        #     remappings=[("manage_nodes", "light_box_classical/manage_nodes")],
+        # ),
+    ]
+
     vis_nodes = []
 
-    return LaunchDescription(launch_objects + pipeline_nodes + camera_nodes + vis_nodes)
+    return LaunchDescription(
+        launch_objects + pipeline_nodes + camera_nodes + light_box_nodes + vis_nodes
+    )
