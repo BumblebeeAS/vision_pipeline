@@ -93,9 +93,7 @@
     input_image_topic: /auv5/bot_cam/color/image
     output_detections_topic: /auv5/pipeline/light_box/yolo/detections
     output_annotations_topic: /auv5/pipeline/light_box/yolo/annotations
-    # While any track is live, ultralytics publishes only tracked boxes, so a red
-    # that can't start a track vanishes whenever a green is tracked in frame.
-    tracker_config: bytetrack_light_box.yaml
+    tracker_config: bytetrack.yaml
     display_tracker_id: true
 /**/light_box_lifecycle_manager_node:
   ros__parameters:
@@ -106,8 +104,6 @@
   ros__parameters:
     camera_info_topic: /auv5/bot_cam/color/camera_info
     input_detections_topic: /auv5/pipeline/light_box/yolo/detections
-    # Greens are only counted: the dock clusters these poses and must stay on red.
-    ignored_classes: [green_faceplate]
 # Multi-view light box (light_box_multiview tree): mask-centroid rays from
 # the bottom cam, intersected in the odom frame as the vehicle moves.
 # Publishes /auv5/pipeline/light_box/triangulated/pose (PoseArray, odom frame).
