@@ -90,11 +90,14 @@
     min_depth: 0.2
     max_depth: 15.0
     min_points: 50
+    use_lidar: true
+    input_lidar_topic: /asv5/os0/filtered_bev
     plane_distance_threshold: 0.05
     max_plane_tilt_deg: 10.0
     min_inlier_ratio: 0.6
     max_plane_rmse: 0.05
     ransac_iterations: 200
+
 
 # BEV dock YOLO (dock_bev_yolo_node). Off by default and not in the dock_bev
 # manager's node_names; activate directly with ros2 lifecycle set.
