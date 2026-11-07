@@ -68,14 +68,8 @@ def generate_launch_description():
             name="pipeline_projection_node",
             parameters=[config],
         ),
-        # Action server /auv5/pipeline/follow (node-relative name "follow").
-        Node(
-            package="pipeline_vision_tracker",
-            executable="pipeline_follow_node",
-            name="pipeline_follow_node",
-            parameters=[config],
-            output="screen",
-        ),
+        # pipeline_follow_node runs from pipeline_follow.launch.py so it can be
+        # relaunched on its own.
     ]
 
     # Bottom-camera red light box, run only on the follow leg after the
@@ -104,23 +98,13 @@ def generate_launch_description():
             name="light_box_pose_estimator_node",
             parameters=[config],
         ),
-        # Multi-view light box position (world-fixed, odom frame) from mask
-        # centroid rays gathered while the vehicle moves; publishes
-        # /auv5/pipeline/light_box/triangulated/pose (PoseArray). Only sees
-        # rays while a light box model is active. ~/reset clears its tracks.
-        # Node(
-        #     package="pose_estimator",
-        #     executable="light_box_triangulation_pose_estimator_node",
-        #     name="light_box_triangulation_pose_estimator_node",
-        #     parameters=[config],
-        # ),
         # Idle until the mission calls ~/start_decoding after the dock.
-        # Node(
-        #     package="rx_light_sequence_decoder",
-        #     executable="lightbox_sequence_decoder_node",
-        #     name="lightbox_sequence_decoder_node",
-        #     parameters=[config],
-        # ),
+        Node(
+            package="rx_light_sequence_decoder",
+            executable="lightbox_sequence_decoder_node",
+            name="lightbox_sequence_decoder_node",
+            parameters=[config],
+        ),
         # Classical (no-YOLO) alternative to light_box_yolo_node: publishes the
         # same red/green/blue_faceplate detections on the same topic. Toggled
         # by its own manager at /auv5/pipeline/light_box_classical/manage_nodes;

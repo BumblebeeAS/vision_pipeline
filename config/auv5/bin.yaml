@@ -44,12 +44,6 @@
   ros__parameters:
     camera_info_topic: /auv5/bot_cam/color/camera_info
     input_detections_topic: /auv5/bin/light_box/face_plate/yolo/detections
-# /**/light_box_triangulation_pose_estimator_node:
-#   ros__parameters:
-#     camera_info_topic: /auv5/bot_cam/color/camera_info
-#     input_detections_topic: bin/yolo/detections
-#     input_odom_topic: /auv5/nav/odom_ned
-#     light_box_frame_id: bin/light_box/triangulated
 /**/bin_structure_pf_node:
   ros__parameters:
     camera_info_topic: /auv5/bot_cam/color/camera_info

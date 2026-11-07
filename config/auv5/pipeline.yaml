@@ -1,6 +1,7 @@
 /**/sonar_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_sonar_pipeline_rsyc_20261023.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_sonar_pipeline_rsyc_20261103.engine
+    # model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_sonar_pipeline_rsyc_20261023.engine
     # model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_sonar_pipeline_rsyc_20261020.engine
     # model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_sonar_20260924.engine
     conf: 0.1
@@ -63,13 +64,15 @@
 # the sonar one so sonar and camera models are switched independently).
 /**/pipe_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_pipeline_rsyc_20261028.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_pipeline_rsyc_20261103.engine
+    # model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_pipeline_rsyc_20261028.engine
     # model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_pipeline_rsyc_20261020.engine
     # model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_pipeline_20261005.engine
     conf: 0.25
     iou: 0.7
     agnostic_nms: true
     input_image_topic: /auv5/bot_cam/color/image
+    # input_image_topic: /camera1/image_raw
     output_detections_topic: /auv5/pipeline/cam/yolo/detections
     output_annotations_topic: /auv5/pipeline/cam/yolo/annotations
 /**/pipe_lifecycle_manager_node:
@@ -85,9 +88,10 @@
 /**/light_box_yolo_node:
   ros__parameters:
     # model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_lightbox_20261023.engine
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_lightbox_rsyc_20261028.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_lightbox_rsyc_20261102.engine
+    # model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_lightbox_rsyc_20261028.engine
     # model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_lightbox_20261014.engine
-    conf: 0.25
+    conf: 0.7
     iou: 0.7
     agnostic_nms: true
     input_image_topic: /auv5/bot_cam/color/image
@@ -104,34 +108,6 @@
   ros__parameters:
     camera_info_topic: /auv5/bot_cam/color/camera_info
     input_detections_topic: /auv5/pipeline/light_box/yolo/detections
-# Multi-view light box (light_box_multiview tree): mask-centroid rays from
-# the bottom cam, intersected in the odom frame as the vehicle moves.
-# Publishes /auv5/pipeline/light_box/triangulated/pose (PoseArray, odom frame).
-/**/light_box_triangulation_pose_estimator_node:
-  ros__parameters:
-    camera_info_topic: /auv5/bot_cam/color/camera_info
-    input_detections_topic: /auv5/pipeline/light_box/yolo/detections
-    input_odom_topic: /auv5/nav/odom_ned
-    light_box_frame_id: light_box/triangulated
-    # Every colour the box shows is the same box.
-    class_names: [red_faceplate, green_faceplate, blue_faceplate, off_faceplate]
-    max_objects: 2
-    # Confirmed once it has min_rays inliers and enough parallax (smallest
-    # eigenvalue of sum(I - d d^T)). Roughly N * spread^2 of the ray angles:
-    # ~100 rays over a 1 m creep at 3 m height clears 0.5. TUNE.
-    min_rays: 15
-    min_information: 0.5
-    inlier_gate: 0.3
-    association_gate: 1.0
-    tentative_association_gate: 0.3
-    merge_gate: 0.5
-    min_ray_depth: 0.5
-    max_tracks: 8
-    # Long enough for the yaw-toward turn and the box leaving view mid-creep.
-    tentative_track_timeout: 15.0
-    # Skip frames while spinning faster than this (rad/s). TUNE.
-    max_yaw_rate: 0.15
-    time_sync_slop: 0.1
 # Light sequence after the dock (rx_light_sequence_decoder). Publishes
 # /auv5/pipeline/light_box/light_sequence_str ("RED BLUE") once locked.
 /**/lightbox_sequence_decoder_node:
@@ -199,10 +175,164 @@
     min_camera_distance_m: 0.2
     max_camera_distance_m: 6.0
     lookahead_m: 0.5 # heading target: path tangent this far ahead
+    # Same, but from the bottom-cam footprint (cross_track_cam_m /
+    # heading_error_cam_rad, used by pipeline_follow_node control_point:
+    # camera). The view reaches only ~0.24 m ahead of the camera at 0.45 m;
+    # smaller = turn later, closer to the elbow. TUNE.
+    camera_lookahead_m: 0.2
     min_confidence: 0.30
     reset_after_gap_s: 2.0 # detection gap that resets tracks + travel direction
     max_processing_height: 240 # geometry runs on a mask this tall (speed)
     min_processing_width_px: 30.0 # ...while the pipe stays this wide in it (accuracy)
+/**/light_box_dock_node:
+  ros__parameters:
+    control_rate: 10.0
+    odom_topic: /auv5/nav/odom_ned
+    force_topic: /auv5/controls/teleop/force
+    detections_topic: /auv5/pipeline/light_box/yolo/detections
+    camera_info_topic: /auv5/bot_cam/color/camera_info
+    pnp_pose_topic: /auv5/pipeline/light_box/red/pose # red only: a green next to it is ignored
+    dvl_topic: /auv5/waterlinked_dvl_driver/odom
+    state_topic: /auv5/pipeline/light_box/dock/state # JSON every tick, bag this
+    camera_frame: auv5/bot_cam_optical
+    magnet_frame: auv5/magnet
+    box_frame: light_box/flat/center
+    min_score: 0.4
+    target_gate_m: 0.08 # a detection this near the locked box is the box, any class
+    target_gate_min_px: 60.0
+    # Test stages: 0.0 = full dock. 1.0 = hold the start depth and align only, no
+    # descent. 0.10 = descend but stop 10 cm above the box. Both end on the
+    # goal timeout, then rise.
+    test_min_height_m: 0.0
+    max_xy_force: 15.0 # N, lower this for the first water test
+    max_upward_force: 28.0 # N
+    # Alignment gate. All TUNE.
+    xy_gate_m: 0.015
+    xy_gate_hold_s: 1.0
+    xy_gate_release_m: 0.025
+    depth_rate: 0.1 # m, setpoint offset below the vehicle while descending
+    min_reprojection_z_m: 0.05
+    # Box dropouts: x/y force zero after frame_timeout_s, the descent carries on,
+    # and the dock fails after dropout_timeout_s above the final zone.
+    frame_timeout_s: 0.5
+    dropout_timeout_s: 2.5
+    # Below final_zone_m x/y force is zero; press on to overdrive_m past the
+    # estimated contact, or a stall below stall_arm_m.
+    final_zone_m: 0.05
+    final_timeout_s: 15.0
+    stall_arm_m: 0.15
+    stall_seconds: 2.5
+    stall_depth_epsilon: 0.03
+    overdrive_m: 0.10
+    max_extra_depth_m: 0.25 # hard limit past the first estimated contact
+    press_s: 5.0
+    # No green: rise on depth only, look, re-estimate depth from PnP, go again.
+    look_rise_m: 0.10
+    look_rise_timeout_s: 10.0
+    look_s: 2.0
+    max_attempts: 3
+    reestimate_s: 2.0
+    reestimate_min_samples: 5
+    green_frames: 5
+    # Rise on teleop with x/y force zero. Not rising for stuck_seconds ramps the
+    # upward error by stuck_ramp_per_s, up to max_upward_force (magnet stuck on).
+    rise_rate: 0.15
+    rise_tolerance_m: 0.05
+    rise_timeout_s: 30.0
+    stuck_seconds: 3.0
+    stuck_progress_m: 0.01
+    stuck_ramp_per_s: 0.1
+    # Handback: DVL arriving and odom x/y under this speed for settle_s. After
+    # settle_timeout_s it hands back regardless, so controls always return.
+    dvl_timeout_s: 0.5
+    settle_s: 1.5
+    settle_timeout_s: 15.0
+    settle_max_speed_mps: 0.3
+    # Starting gains copied from pipeline_follow_node. TUNE: the magnet is 18 cm
+    # ahead of base_link, so yaw wobble reads as x/y error and may need more kp_yaw.
+    kp_x: 35.0
+    ki_x: 3.0
+    kd_x: 40.0
+    kp_y: 35.0
+    ki_y: 3.5
+    kd_y: 40.0
+    kp_z: 30.0
+    ki_z: 5.0
+    kd_z: 45.0
+    kp_roll: 2.0
+    ki_roll: 0.0
+    kd_roll: 4.0
+    kp_pitch: 2.0
+    ki_pitch: 0.0
+    kd_pitch: 4.0
+    kp_yaw: 2.0
+    ki_yaw: 0.0
+    kd_yaw: 2.5
+    integral_max: 15.0
+    integral_band: 0.15
+    buoyancy_comp: 3.0 # same as pipeline_follow_node
+# Find-pipe fallback (pipe_search_clean): same executable, mode centre. Locks any
+# box colour, centres the bottom cam over it on teleop force and descends while
+# centred, never closer than min_clearance_m. The box depth starts from the
+# mission's light box cluster (box_frame TF, like the dock) and then follows the
+# PnP median. The mission cancels it when the pipe shows up; goal depth = max
+# descent below the start depth.
+/**/light_box_centre_node:
+  ros__parameters:
+    mode: centre
+    action_name: light_box/centre
+    control_rate: 10.0
+    odom_topic: /auv5/nav/odom_ned
+    force_topic: /auv5/controls/teleop/force
+    detections_topic: /auv5/pipeline/light_box/yolo/detections
+    camera_info_topic: /auv5/bot_cam/color/camera_info
+    pnp_pose_topic: /auv5/pipeline/light_box/final/pose # any colour
+    dvl_topic: /auv5/waterlinked_dvl_driver/odom
+    state_topic: /auv5/pipeline/light_box/centre/state # JSON every tick, bag this
+    camera_frame: auv5/bot_cam_optical
+    box_frame: light_box/flat/center # from the mission's any-colour cluster
+    lock_class: "" # any of box_classes
+    min_score: 0.4
+    target_gate_m: 0.3 # looser than the dock: further up, the box moves more per frame
+    target_gate_min_px: 60.0
+    max_xy_force: 15.0 # N
+    max_upward_force: 28.0 # N
+    # All TUNE. Gate is loose: from 2-3 m up the PnP depth is rough.
+    xy_gate_m: 0.10
+    xy_gate_hold_s: 1.0
+    xy_gate_release_m: 0.20
+    depth_rate: 0.1 # m, setpoint offset below the vehicle while descending
+    min_reprojection_z_m: 0.2
+    frame_timeout_s: 0.5 # no frame: x/y force zero
+    lost_timeout_s: 5.0 # no frame this long: fail (mission reports pipe not found)
+    range_guess_m: 2.0 # camera-to-box if the cluster failed, until min_pnp_samples PnP poses arrive
+    pnp_window: 15
+    min_pnp_samples: 3
+    min_pnp_z_m: 0.1
+    max_pnp_z_m: 8.0
+    min_clearance_m: 0.3 # camera never closer than this to the box
+    # Same gains as light_box_dock_node. TUNE.
+    kp_x: 35.0
+    ki_x: 3.0
+    kd_x: 40.0
+    kp_y: 35.0
+    ki_y: 3.5
+    kd_y: 40.0
+    kp_z: 30.0
+    ki_z: 5.0
+    kd_z: 45.0
+    kp_roll: 2.0
+    ki_roll: 0.0
+    kd_roll: 4.0
+    kp_pitch: 2.0
+    ki_pitch: 0.0
+    kd_pitch: 4.0
+    kp_yaw: 2.0
+    ki_yaw: 0.0
+    kd_yaw: 2.5
+    integral_max: 15.0
+    integral_band: 0.15
+    buoyancy_comp: 3.0
 /**/pipeline_follow_node:
   ros__parameters:
     control_rate: 10.0
@@ -228,11 +358,24 @@
     #                  pipe (track camera_to_pipe_m), low-passed by
     #                  pipe_distance_alpha, setpoint moved at most
     #                  max_depth_rate m/s; last setpoint held when the track drops
-    depth_mode: fixed
-    target_pipe_distance_m: 0.5
+    depth_mode: pipe_offset
+    # depth_mode: fixed
+    target_pipe_distance_m: 0.6
+    # target_pipe_distance_m: 0.5
     pipe_distance_alpha: 0.2
     max_depth_rate: 0.1
     acquire_timeout_s: 20.0 # first track after the model activates (TensorRT warm-up)
+    # Point steered onto the pipe: base_link | camera (bottom-cam footprint,
+    # 18 cm ahead; keeps the pipe mid-frame so both legs stay in view at a bend)
+    control_point: camera
+    # Pipe cut by the image border ("clipped"): hold yaw + depth, no surge,
+    # push x/y toward the pipe mask centroid until it has been fully in view
+    # for clip_exit_s. Gives up after recentre_timeout_s. false = old behaviour.
+    recentre_on_clip: true
+    clip_enter_frames: 2
+    clip_exit_s: 0.5
+    recentre_timeout_s: 5.0
+    recentre_max_error_m: 0.3 # cap on the x/y error while recentring
     # Starting gains copied from trash controlled_spin_node (auv5). TUNE y/yaw.
     kp_x: 35.0
     ki_x: 3.0
@@ -258,4 +401,4 @@
     # params_auv5.yml (33 kg * 9.81 * 0.04 = 12.9 N). The teleop path bypasses the
     # main controller's compensation; without this P alone parks the vehicle
     # ~0.4 m high, outside integral_band, so the integrator never engages. TUNE.
-    buoyancy_comp: 13.0
+    buoyancy_comp: 3.0

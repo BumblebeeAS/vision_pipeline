@@ -62,16 +62,6 @@ def launch_setup(context, *args, **kwargs):
         #     name="bin_pose_estimator_node",
         #     parameters=[config],
         # ),
-        # Ray-triangulation estimator for the light box: aggregates mask
-        # centroids across the search pattern into world-fixed (odom_ned)
-        # positions. Its PoseArray output is already aggregated/outlier-gated,
-        # so it does NOT go through the clustering stage.
-        # Node(
-        #     package="pose_estimator",
-        #     executable="light_box_triangulation_pose_estimator_node",
-        #     name="light_box_triangulation_pose_estimator_node",
-        #     parameters=[config],
-        # ),
         # Structure-level particle filter over the whole rigid bin setup:
         # one 4-DOF state (x, y, z, yaw) derives all 4 bins + 2 light boxes.
         # Dormant until enabled via its SetBool service (~/track/enable:

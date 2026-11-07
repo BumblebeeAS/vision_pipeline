@@ -1,0 +1,43 @@
+# Front-cam light sequence decoder test (front_decoder_test.launch.py).
+# Runs the bottom-cam light box model on /auv5/front_cam and feeds it to the
+# same rx_light_sequence_decoder used on the pipeline. Everything lives under
+# /auv5/front_decoder_test so it can run next to pipeline.launch.py.
+/**/front_light_box_yolo_node:
+  ros__parameters:
+    # Same engine as light_box_yolo_node in pipeline.yaml.
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_lightbox_rsyc_20261102.engine
+    # model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_lightbox_rsyc_20261028.engine
+    # Lower than the bottom cam's 0.7: the model was trained on bot_cam views. TUNE.
+    conf: 0.5
+    iou: 0.7
+    agnostic_nms: true
+    activate_on_start: true # no lifecycle manager in this test
+    input_image_topic: /auv5/front_cam/color/image
+    output_detections_topic: /auv5/front_decoder_test/yolo/detections
+    output_annotations_topic: /auv5/front_decoder_test/yolo/annotations
+/**/front_lightbox_sequence_decoder_node:
+  ros__parameters:
+    input_detections_topic: /auv5/front_decoder_test/yolo/detections
+    # -> /auv5/front_decoder_test/light_sequence (LightSequence)
+    #    /auv5/front_decoder_test/light_sequence_str ("RED BLUE")
+    output_sequence_topic: light_sequence
+    # Decode right away. Once locked it stays locked; call ~/start_decoding to
+    # clear and decode again.
+    activate_on_start: false
+    enable_service_call: false
+    filter_aspect_ratio: false
+    sequence_length: 2
+    min_confirming_cycles: 2 # same as the pipeline; one cycle ~5 s
+    # Front cam looks out at the box, so lock the biggest (nearest) light
+    # rather than the one under the image centre.
+    target_selection_mode: largest
+    image_center_x: 1024.0 # front_cam is 2048x1536
+    image_center_y: 768.0
+    min_confidence: 0.25
+    pulse_duration_min: 0.5
+    pulse_duration_max: 1.5
+    delimiter_duration_min: 1.5
+    debounce_duration: 0.15
+    spatial_tolerance_px: 150.0
+    adaptive_tolerance_factor: 0.70
+    min_tolerance_px: 15.0
