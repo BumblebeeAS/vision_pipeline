@@ -37,6 +37,12 @@ def generate_launch_description():
         description="Whether to run the dockwin sequence decoder node",
     )
 
+    output_sequence_raw_topic_arg = DeclareLaunchArgument(
+        "output_sequence_raw_topic",
+        default_value="dockwin/light_sequence_raw",
+        description="Topic for raw uint8 light sequence output",
+    )
+
     bev_nodes = GroupAction(
         [
             PushRosNamespace("/asv5/dock_bev"),
@@ -143,7 +149,14 @@ def generate_launch_description():
                 package="rx_light_sequence_decoder",
                 executable="dockwin_sequence_decoder_node",
                 name="dockwin_sequence_decoder_node",
-                parameters=[config],
+                parameters=[
+                    config,
+                    {
+                        "output_sequence_raw_topic": LaunchConfiguration(
+                            "output_sequence_raw_topic"
+                        )
+                    },
+                ],
                 condition=IfCondition(LaunchConfiguration("enable_decoder")),
             ),
             Node(
@@ -156,4 +169,9 @@ def generate_launch_description():
         ]
     )
 
-    return LaunchDescription([enable_decoder_arg, bev_nodes, dockwin_nodes])
+    return LaunchDescription([
+        enable_decoder_arg,
+        output_sequence_raw_topic_arg,
+        bev_nodes,
+        dockwin_nodes,
+    ])

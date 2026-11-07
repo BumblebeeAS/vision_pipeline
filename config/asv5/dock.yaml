@@ -202,6 +202,7 @@
   ros__parameters:
     input_detections_topic: yolo/detections
     output_sequence_topic: dockwin/light_sequence
+    output_sequence_raw_topic: dockwin/light_sequence_raw
     service_name: /asv5/task_status_update
     min_confidence: 0.25
     pulse_duration_min: 0.5
