@@ -218,3 +218,4 @@
     activate_on_start: false
     fallback_enabled: true      # no lock within fallback_timeout_s -> publish a RANDOM sequence (WARN logged)
     fallback_timeout_s: 15.0    # tree's decode window is 20 s (MAX_DECODE_DURATION)
+    post_stop_publish_duration_s: 10.0  # keep the locked sequence publishing after stop_decoding
