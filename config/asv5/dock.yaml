@@ -39,8 +39,8 @@
     use_sim: False
     # Starts inactive; activate via /asv5/dock_bev/manage_nodes.
     activate_on_start: False
-    dock_length_m: 2.5
-    dock_width_m: 2.5
+    dock_length_m: 3.048
+    dock_width_m: 6.604
     # Must equal the bev_node scale (0.02 m/px; camera_info fx = 50/scale
     # = 2500). If this is wrong the nominal template size and the
     # pixel->metre pose conversion are both wrong.
@@ -85,7 +85,7 @@
     target_frame: asv5/base_link
     min_confidence: 0.2
     depth_sync_slop: 0.1
-    use_stereo_depth: false
+    use_stereo_depth: true
     obb_shrink: 0.8
     pixel_stride: 2
     min_depth: 0.2
@@ -103,7 +103,7 @@
 # BEV dock YOLO (dock_bev_yolo_node). Managed with the dock BEV pose pipeline.
 /**/dock_bev_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/dock_bev_greyscale.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/dock_bev_better.engine
     conf: 0.3
     iou: 0.7
     agnostic_nms: true
@@ -115,7 +115,7 @@
 # # Dock beacon (LED pattern) YOLO on OAK-D RGB camera.
 /**/dock_beacon_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/red_green_beacon_real.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/yolo26_red_green_beacon_20263110.engine
     conf: 0.1
     iou: 0.7
     agnostic_nms: true
@@ -155,8 +155,8 @@
 
 /**/dock_planar_window_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/yolov26_dock_window_plane_20261022.engine
-    conf: 0.5
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/yolov26_dock_window_plane_20261019.engine
+    conf: 0.3
     iou: 0.1
     agnostic_nms: true
     activate_on_start: false
