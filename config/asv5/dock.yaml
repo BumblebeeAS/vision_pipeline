@@ -1,21 +1,25 @@
 # ASV5 dock vision pipeline (launch/robotx/dock.launch.py).
 #
-# Two independently toggled groups, each with its own lifecycle manager:
-#   /asv5/dock_bev/manage_nodes BEV dock pose, ROI YOLO, planar window and beacon YOLO
-#   /asv5/dockwin/manage_nodes  dock window YOLO (dockwin_yolo_node)
+# Independently toggled groups, each with its own lifecycle manager:
+#   /asv5/dock_bev/manage_nodes         BEV dock pose (BEV YOLO + lidar estimator)
+#   /asv5/dock_bev/manage_planar_nodes  dock window plane YOLO
+#   /asv5/dockwin/manage_nodes          dock window YOLO (dockwin_yolo_node)
+# The beacon YOLO is in no group (the dock tree counts LEDs with HSV); activate
+# it with its own change_state service to use the YOLO LED count method.
 # Call with lifecycle_msgs/srv/ChangeState, transition id 3 (activate) or 4
 # (deactivate).
 
 /asv5/dock_bev/lifecycle_manager_node:
   ros__parameters:
     node_names:
-      # Beacon YOLO first: the manager stops at the first failure, and the
-      # LED count (YOLO method) needs it.
-      - dock_beacon_yolo_node
       - dock_bev_yolo_node
       - dock_lidar_pose_estimator_node
+    wait_timeout_sec: 1.0
+
+/asv5/dock_bev/planar_lifecycle_manager_node:
+  ros__parameters:
+    node_names:
       - dock_planar_window_yolo_node
-      - dock_planar_pose_estimator_node
     wait_timeout_sec: 1.0
 
 /asv5/dockwin/lifecycle_manager_node:
@@ -85,9 +89,6 @@
     camera_info_topic: /asv5/oakd/rgb/camera_info
     is_image_rectified: false
     output_pose_topic: /asv5/dock/depth_planar/pose
-    # Starts inactive (launch arg activate_dock_pose:=true overrides);
-    # activate via /asv5/dock_bev/manage_nodes.
-    activate_on_start: False
     target_frame: asv5/base_link
     min_confidence: 0.2
     depth_sync_slop: 0.1
@@ -140,7 +141,7 @@
     iou: 0.1
     agnostic_nms: true
     # Starts inactive (launch arg activate_dock_pose:=true overrides);
-    # activate via /asv5/dock_bev/manage_nodes.
+    # activate via /asv5/dock_bev/manage_planar_nodes.
     activate_on_start: false
     input_image_topic: /asv5/oakd/rgb/image_raw
     output_detections_topic: /asv5/dock_planar_window/yolo/detections

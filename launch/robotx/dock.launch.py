@@ -3,9 +3,12 @@
 Each stage has its own lifecycle manager so it can be toggled independently
 (lifecycle_msgs/srv/ChangeState, transition 3 = activate, 4 = deactivate):
 
-- /asv5/dock_bev/manage_nodes: dock pose from the lidar BEV (template matching),
-  published to /asv5/dock_bev/pose, and the dock panel plane from the OAK-D
-  window YOLO + stereo depth, published to /asv5/dock/depth_planar/pose. The BEV itself comes from lidar_segmentation2.
+- /asv5/dock_bev/manage_nodes: dock pose from the lidar BEV (BEV YOLO ROI +
+  template matching), published to /asv5/dock_bev/pose. The BEV itself comes
+  from lidar_segmentation2.
+- /asv5/dock_bev/manage_planar_nodes: OAK-D dock window plane YOLO. The planar
+  pose estimator is a plain node and publishes /asv5/dock/depth_planar/pose
+  only while that YOLO is active.
 - /asv5/dockwin/manage_nodes: dock window YOLO on the OAK-D, feeding the
   dockwin pose estimator and (optionally) the light sequence decoder.
 
@@ -50,8 +53,8 @@ def generate_launch_description():
     activate_dock_pose_arg = DeclareLaunchArgument(
         "activate_dock_pose",
         default_value="false",
-        description="Activate both dock pose estimators and the YOLOs feeding "
-        "them (BEV, planar window) on start instead of via manage_nodes "
+        description="Activate the dock lidar pose estimator and the BEV and "
+        "planar window YOLOs on start instead of via manage_nodes "
         "(asv_main deactivates them again before the first tick)",
     )
     # Overrides dock.yaml activate_on_start for the dock pose pipeline. The
@@ -84,8 +87,8 @@ def generate_launch_description():
                 output="screen",
                 parameters=[config, activate_dock_pose],
             ),
-            # Dock beacon (LED pattern) YOLO on OAK-D RGB camera, managed by
-            # /asv5/dock_bev/manage_nodes for dock bay selection.
+            # Dock beacon (LED pattern) YOLO on OAK-D RGB camera. In no lifecycle
+            # group: only the YOLO LED count method needs it.
             LifecycleNode(
                 package="yolo_ros_trt",
                 executable="yolo_node",
@@ -104,14 +107,14 @@ def generate_launch_description():
                 output="screen",
                 parameters=[config, activate_dock_pose],
             ),
-            LifecycleNode(
+            # Plain node; publishes once the planar window YOLO is active.
+            Node(
                 package="pose_estimator",
                 executable="dock_planar_pose_estimator_node",
                 prefix=VENV_PYTHON,
                 name="dock_planar_pose_estimator_node",
-                namespace="",
                 output="screen",
-                parameters=[config, activate_dock_pose],
+                parameters=[config],
             ),
 
             Node(
@@ -120,6 +123,16 @@ def generate_launch_description():
                 name="lifecycle_manager_node",
                 output="screen",
                 parameters=[config],
+            ),
+            # Planar window YOLO is activated separately, after the
+            # observation pose (the window plane is not visible before).
+            Node(
+                package="vision_pipeline",
+                executable="lifecycle_manager_node",
+                name="planar_lifecycle_manager_node",
+                output="screen",
+                parameters=[config],
+                remappings=[("manage_nodes", "manage_planar_nodes")],
             ),
         ]
     )
