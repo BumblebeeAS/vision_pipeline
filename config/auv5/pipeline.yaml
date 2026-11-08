@@ -132,6 +132,14 @@
     spatial_tolerance_px: 150.0
     adaptive_tolerance_factor: 0.70
     min_tolerance_px: 15.0
+    # No lock within this long of start_decoding: publish the most frequent
+    # valid candidate seen, else a random one (WARN logged). Keep below the
+    # tree's LIGHT_SEQUENCE_DECODE_TIMEOUT_S (30 s, mission_planner_2
+    # pipeline_clean config/*.yaml).
+    fallback_enabled: true
+    fallback_timeout_s: 25.0
+    # After the tree's stop_decoding: keep republishing the lock this long.
+    post_stop_publish_duration_s: 10.0
 # Classical (no-YOLO) light box detector (pose_estimator
 # light_box_classical_node): same topic and class names as
 # light_box_yolo_node, toggled by /auv5/pipeline/light_box_classical/manage_nodes.
