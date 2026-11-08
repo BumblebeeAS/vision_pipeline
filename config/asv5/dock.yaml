@@ -1,7 +1,7 @@
 # ASV5 dock vision pipeline (launch/robotx/dock.launch.py).
 #
-# Two independently toggled stages, each with its own lifecycle manager:
-#   /asv5/dock_bev/manage_nodes BEV dock pose (dock_lidar_pose_estimator_node)
+# Two independently toggled groups, each with its own lifecycle manager:
+#   /asv5/dock_bev/manage_nodes BEV dock pose, ROI YOLO, planar window and beacon YOLO
 #   /asv5/dockwin/manage_nodes  dock window YOLO (dockwin_yolo_node)
 # Call with lifecycle_msgs/srv/ChangeState, transition id 3 (activate) or 4
 # (deactivate).
@@ -9,6 +9,7 @@
 /asv5/dock_bev/lifecycle_manager_node:
   ros__parameters:
     node_names:
+      - dock_bev_yolo_node
       - dock_lidar_pose_estimator_node
       - dock_planar_window_yolo_node
       - dock_beacon_yolo_node
@@ -37,7 +38,7 @@
     # defaults. template_path is left to the node so it follows use_sim.
     use_sim: False
     # Starts inactive; activate via /asv5/dock_bev/manage_nodes.
-    activate_on_start: True
+    activate_on_start: False
     dock_length_m: 2.5
     dock_width_m: 2.5
     # Must equal the bev_node scale (0.02 m/px; camera_info fx = 50/scale
@@ -99,15 +100,14 @@
     ransac_iterations: 200
 
 
-# BEV dock YOLO (dock_bev_yolo_node). Off by default and not in the dock_bev
-# manager's node_names; activate directly with ros2 lifecycle set.
+# BEV dock YOLO (dock_bev_yolo_node). Managed with the dock BEV pose pipeline.
 /**/dock_bev_yolo_node:
   ros__parameters:
     model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/dock_bev_greyscale.engine
     conf: 0.3
     iou: 0.7
     agnostic_nms: true
-    activate_on_start: true # testing: run without the lifecycle manager
+    activate_on_start: false
     input_image_topic: /asv5/bev
     output_detections_topic: /asv5/bev/yolo/detections
     output_annotations_topic: /asv5/bev/yolo/annotations
