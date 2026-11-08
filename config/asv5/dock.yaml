@@ -9,10 +9,13 @@
 /asv5/dock_bev/lifecycle_manager_node:
   ros__parameters:
     node_names:
+      # Beacon YOLO first: the manager stops at the first failure, and the
+      # LED count (YOLO method) needs it.
+      - dock_beacon_yolo_node
       - dock_bev_yolo_node
       - dock_lidar_pose_estimator_node
       - dock_planar_window_yolo_node
-      - dock_beacon_yolo_node
+      - dock_planar_pose_estimator_node
     wait_timeout_sec: 1.0
 
 /asv5/dockwin/lifecycle_manager_node:
@@ -29,7 +32,6 @@
     # Frames / topics (defaults match the node).
     target_frame_id: asv5/base_link
     input_bev_topic: /asv5/bev
-    # Template match directly on the BEV (no YOLO): full search every frame.
     camera_info_topic: /asv5/bev/camera_info
     debug_image_topic: /asv5/bev_detections/image
     pose_topic: /asv5/dock_bev/pose
@@ -37,7 +39,8 @@
     # Sim selects the RX26 template/dims; these are the real dock_single
     # defaults. template_path is left to the node so it follows use_sim.
     use_sim: False
-    # Starts inactive; activate via /asv5/dock_bev/manage_nodes.
+    # Starts inactive (launch arg activate_dock_pose:=true overrides);
+    # activate via /asv5/dock_bev/manage_nodes.
     activate_on_start: False
     dock_length_m: 3.048
     dock_width_m: 6.604
@@ -82,6 +85,9 @@
     camera_info_topic: /asv5/oakd/rgb/camera_info
     is_image_rectified: false
     output_pose_topic: /asv5/dock/depth_planar/pose
+    # Starts inactive (launch arg activate_dock_pose:=true overrides);
+    # activate via /asv5/dock_bev/manage_nodes.
+    activate_on_start: False
     target_frame: asv5/base_link
     min_confidence: 0.2
     depth_sync_slop: 0.1
@@ -107,6 +113,8 @@
     conf: 0.3
     iou: 0.7
     agnostic_nms: true
+    # Starts inactive (launch arg activate_dock_pose:=true overrides);
+    # activate via /asv5/dock_bev/manage_nodes.
     activate_on_start: false
     input_image_topic: /asv5/bev
     output_detections_topic: /asv5/bev/yolo/detections
@@ -125,40 +133,14 @@
     output_detections_topic: /asv5/dock_led/yolo/detections
     output_annotations_topic: /asv5/dock_led/yolo/annotations
 
-/**/dock_beacon_yolo_node_left:
-  ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/red_green_beacon_real.engine
-    conf: 0.1
-    iou: 0.7
-    agnostic_nms: true
-    activate_on_start: true
-    input_image_topic: /asv5/left_asv_cam/color/image
-
-    output_detections_topic: /asv5/dock_led/left/yolo/detections
-    output_annotations_topic: /asv5/dock_led/left/yolo/annotations
-
-
-
-/**/dock_beacon_yolo_node_right:
-  ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/red_green_beacon_real.engine
-    conf: 0.1
-    iou: 0.7
-    agnostic_nms: true
-    activate_on_start: true
-    input_image_topic: /asv5/right_asv_cam/color/image
-
-    output_detections_topic: /asv5/dock_led/right/yolo/detections
-    output_annotations_topic: /asv5/dock_led/right/yolo/annotations
-
-
-
 /**/dock_planar_window_yolo_node:
   ros__parameters:
     model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/yolov26_dock_window_plane_20261019.engine
     conf: 0.3
     iou: 0.1
     agnostic_nms: true
+    # Starts inactive (launch arg activate_dock_pose:=true overrides);
+    # activate via /asv5/dock_bev/manage_nodes.
     activate_on_start: false
     input_image_topic: /asv5/oakd/rgb/image_raw
     output_detections_topic: /asv5/dock_planar_window/yolo/detections
