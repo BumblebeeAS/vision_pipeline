@@ -67,7 +67,9 @@
     # faster but coarser.
     search_downsample: 0.5
     # Search only around the best dock_bev_yolo_node box ("" = whole BEV).
-    input_detections_topic: /asv5/bev/yolo/detections
+    # input_detections_topic: /asv5/bev/yolo/detections
+    input_detections_topic: ""
+
     roi_padding_m: 0.5
     detection_timeout_sec: 1.0
     detection_class_name: ""
