@@ -182,6 +182,10 @@
     min_inliers: 4
     depth_filter_alpha: 1.0
     min_confidence: 0.35
+    standoff_distance: 2.5
+    lower_window_y_threshold: 0.0
+    assume_single_visible_window_is_lower: true
+    standoff_pose_topic: dockwin/standoff_pose
 
 /**/dockwin_sequence_decoder_node:
   ros__parameters:
