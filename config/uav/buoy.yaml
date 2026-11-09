@@ -19,17 +19,19 @@
   ros__parameters:
     buoy_detections_topic: "buoy_detections"
     marker_topic: "gate_manager_markers"
-    # Absolute on purpose: navsat_transform_node runs in the root namespace, so these
-    # cannot be resolved relative to the pushed /uav/buoy namespace.
-    from_ll_service: "/fromLL"
-    to_ll_service: "/toLL"
+    local_axes: ned
+    reference_topic: /uav/home_lat_lon
+    reference_frame_id: odom_enu
+    global_position_topic: /fmu/out/vehicle_global_position
+    path_topic: /uav/buoy/safe_passage/path
     set_state_service: "set_gate_manager_state"
     reset_service: "reset_tracks"
     extract_goal_service: "extract_local_goal"
     get_entry_service: "get_entry"
     get_exit_service: "get_exit"
-    world_frame_id: "odom_enu"
-    base_link_frame_id: "uav/base_link"
+    world_frame_id: "odom_ned"
+    input_odom_topic: "/uav/odom_ned"
+    base_link_frame_id: "uav/base_link_frd"
     fft_timer_period: 0.5
     required_density: 0.8
     virtual_sampling_rate: 10.0
