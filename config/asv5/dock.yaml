@@ -121,16 +121,16 @@
     output_detections_topic: /asv5/bev/yolo/detections
     output_annotations_topic: /asv5/bev/yolo/annotations
 
-# # Dock beacon (LED pattern) YOLO on OAK-D RGB camera.
+# Dock beacon (LED pattern) YOLO on the enhanced OAK-D RGB image.
 /**/dock_beacon_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/yolo26_red_green_beacon_20263110.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/enhanced_dock_beacon.engine
     conf: 0.1
     iou: 0.7
     agnostic_nms: true
     activate_on_start: false
-    input_image_topic: /asv5/oakd/rgb/image_raw
-
+    # Overridden by dock.launch.py beacon_image_topic.
+    input_image_topic: /asv5/oakd/rgb_enhanced/image_raw
     output_detections_topic: /asv5/dock_led/yolo/detections
     output_annotations_topic: /asv5/dock_led/yolo/annotations
 

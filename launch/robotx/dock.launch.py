@@ -50,6 +50,13 @@ def generate_launch_description():
         description="Topic for raw uint8 light sequence output",
     )
 
+    beacon_image_topic_arg = DeclareLaunchArgument(
+        "beacon_image_topic",
+        default_value="/asv5/oakd/rgb_enhanced/image_raw",
+        description="Image topic for the dock beacon YOLO (needs the OAK-D "
+        "image enhancer running)",
+    )
+
     activate_dock_pose_arg = DeclareLaunchArgument(
         "activate_dock_pose",
         default_value="false",
@@ -87,8 +94,9 @@ def generate_launch_description():
                 output="screen",
                 parameters=[config, activate_dock_pose],
             ),
-            # Dock beacon (LED pattern) YOLO on OAK-D RGB camera. In no lifecycle
-            # group: only the YOLO LED count method needs it.
+            # Dock beacon (LED pattern) YOLO on the enhanced OAK-D RGB image
+            # (bb_oak_driver image_enhancer, oak.launch.py enhance:=true). In no
+            # lifecycle group: only the YOLO LED count method needs it.
             LifecycleNode(
                 package="yolo_ros_trt",
                 executable="yolo_node",
@@ -96,7 +104,10 @@ def generate_launch_description():
                 name="dock_beacon_yolo_node",
                 namespace="",
                 output="screen",
-                parameters=[config],
+                parameters=[
+                    config,
+                    {"input_image_topic": LaunchConfiguration("beacon_image_topic")},
+                ],
             ),
             LifecycleNode(
                 package="yolo_ros_trt",
@@ -181,6 +192,7 @@ def generate_launch_description():
     )
 
     # Not a lifecycle node: it only subscribes during a DockLedCount call.
+    # The HSV method reads the same enhanced image as the beacon YOLO.
     dock_led_count = Node(
         package="dock_led_counter",
         executable="dock_led_count_node",
@@ -188,11 +200,13 @@ def generate_launch_description():
         name="dock_led_count_node",
         namespace="/asv5",
         output="screen",
+        parameters=[{"hsv_topic": LaunchConfiguration("beacon_image_topic")}],
     )
 
     return LaunchDescription([
         enable_decoder_arg,
         output_sequence_raw_topic_arg,
+        beacon_image_topic_arg,
         activate_dock_pose_arg,
         bev_nodes,
         dockwin_nodes,
