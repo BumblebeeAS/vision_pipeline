@@ -11,8 +11,9 @@
 
 /asv5/dock_bev/lifecycle_manager_node:
   ros__parameters:
+    # Overridden by dock.launch.py: dock_bev_yolo_node is added only with
+    # use_bev_yolo:=true.
     node_names:
-      - dock_bev_yolo_node
       - dock_lidar_pose_estimator_node
     wait_timeout_sec: 1.0
 
@@ -67,6 +68,7 @@
     # faster but coarser.
     search_downsample: 0.5
     # Search only around the best dock_bev_yolo_node box ("" = whole BEV).
+    # Needs dock.launch.py use_bev_yolo:=true (and asv_main USE_BEV_YOLO).
     # input_detections_topic: /asv5/bev/yolo/detections
     input_detections_topic: ""
 

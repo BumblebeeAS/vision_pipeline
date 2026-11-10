@@ -21,7 +21,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, GroupAction
-from launch.conditions import IfCondition
+from launch.conditions import IfCondition, UnlessCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import LifecycleNode, Node, PushRosNamespace
 from launch_ros.parameter_descriptions import ParameterValue
@@ -64,6 +64,16 @@ def generate_launch_description():
         "planar window YOLOs on start instead of via manage_nodes "
         "(asv_main deactivates them again before the first tick)",
     )
+    use_bev_yolo_arg = DeclareLaunchArgument(
+        "use_bev_yolo",
+        default_value="false",
+        description="Launch the BEV dock YOLO and manage it with the BEV pose "
+        "pipeline (the estimator only reads it if dock.yaml "
+        "input_detections_topic is set). Must match asv_main USE_BEV_YOLO.",
+    )
+    use_bev_yolo = LaunchConfiguration("use_bev_yolo")
+    bev_managed_nodes = ["dock_lidar_pose_estimator_node"]
+
     # Overrides dock.yaml activate_on_start for the dock pose pipeline. The
     # lifecycle manager skips nodes already active.
     activate_dock_pose = {
@@ -84,7 +94,7 @@ def generate_launch_description():
                 parameters=[config, activate_dock_pose],
             ),
             # BEV dock YOLO, activated with the dock BEV pose pipeline by
-            # /asv5/dock_bev/manage_nodes.
+            # /asv5/dock_bev/manage_nodes. Only with use_bev_yolo.
             LifecycleNode(
                 package="yolo_ros_trt",
                 executable="yolo_node",
@@ -93,6 +103,7 @@ def generate_launch_description():
                 namespace="",
                 output="screen",
                 parameters=[config, activate_dock_pose],
+                condition=IfCondition(use_bev_yolo),
             ),
             # Dock beacon (LED pattern) YOLO on the enhanced OAK-D RGB image
             # (bb_oak_driver image_enhancer, oak.launch.py enhance:=true). In no
@@ -128,12 +139,25 @@ def generate_launch_description():
                 parameters=[config],
             ),
 
+            # node_names comes from use_bev_yolo, not dock.yaml.
             Node(
                 package="vision_pipeline",
                 executable="lifecycle_manager_node",
                 name="lifecycle_manager_node",
                 output="screen",
-                parameters=[config],
+                parameters=[
+                    config,
+                    {"node_names": bev_managed_nodes + ["dock_bev_yolo_node"]},
+                ],
+                condition=IfCondition(use_bev_yolo),
+            ),
+            Node(
+                package="vision_pipeline",
+                executable="lifecycle_manager_node",
+                name="lifecycle_manager_node",
+                output="screen",
+                parameters=[config, {"node_names": bev_managed_nodes}],
+                condition=UnlessCondition(use_bev_yolo),
             ),
             # Planar window YOLO is activated separately, after the
             # observation pose (the window plane is not visible before).
@@ -208,6 +232,7 @@ def generate_launch_description():
         output_sequence_raw_topic_arg,
         beacon_image_topic_arg,
         activate_dock_pose_arg,
+        use_bev_yolo_arg,
         bev_nodes,
         dockwin_nodes,
         dock_led_count,
