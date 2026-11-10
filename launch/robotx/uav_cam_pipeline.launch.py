@@ -61,11 +61,7 @@ def evaluate_launch(context, *args, **kwargs):
     ]
     lib_dir = os.path.join(get_package_prefix("isaac_ros_image_proc"), "lib")
     camera_env = {
-        # Allow more time for component-loading service replies.
-        "FASTDDS_DEFAULT_PROFILES_FILE": os.path.join(
-            get_package_share_directory("vision_pipeline"),
-            "config", "uav", "camera_fastdds.xml",
-        ),
+        # Inherit onboard discovery and component-service QoS from bring-up.
         # CUDA IPC dispatcher threads outlive component dlclose in Isaac ROS 5.0.
         # Keep their code mapped until process exit.
         "LD_PRELOAD": " ".join(filter(None, [

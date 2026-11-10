@@ -30,6 +30,27 @@ Launch files may not have all the above node types and thus some services may no
 
 See [vision_pipeline/README.md](vision_pipeline/README.md) for more details.
 
+## UAV DDS and ASV GPS
+
+UAV discovery profiles are maintained in the sibling `bring-up` checkout under
+`etc/uav/`. Configure its UAV DDS defaults before starting the camera pipeline;
+the camera launch inherits the profile, including the component-service timeout.
+The legacy `config/uav/camera_fastdds.xml` path is a compatibility symlink.
+
+Start the GPS-only bridge with:
+
+```bash
+ros2 launch vision_pipeline asv_gps_bridge.launch.py
+```
+
+This requires the updated `bb_localization` bridge and the bring-up profiles.
+Only the subscriber process uses the ASV discovery profile. Its parent publishes
+`/asv5/gps` locally in the UAV domain, preserving the original measurement fields.
+The ASV domain comes from `bring-up/etc/vehicle_domains.json` and can be overridden
+with `asv_domain_id:=2`. Do not start a second bridge if an application launch
+already provides it. See the [UAV bring-up instructions](https://github.com/BumblebeeAS/bring-up/blob/main/etc/uav/workspace-setup.md)
+for persistent Docker defaults and controlled rollout.
+
 ## Issues
 
 **1. LLVM Out of Memory**
