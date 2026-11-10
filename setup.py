@@ -31,7 +31,7 @@ setup(
         (
             os.path.join("share", package_name, "config", "uav"),
             glob(os.path.join("config", "uav", "*.yaml"))
-            # The legacy XML alias resolves only with a sibling bring-up checkout.
+            # The legacy XML alias resolves only with the runtime DDS mount.
             + [path for path in glob(os.path.join("config", "uav", "*.xml"))
                if os.path.isfile(path)],
         ),

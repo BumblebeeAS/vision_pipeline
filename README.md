@@ -32,10 +32,10 @@ See [vision_pipeline/README.md](vision_pipeline/README.md) for more details.
 
 ## UAV DDS and ASV GPS
 
-UAV discovery profiles are maintained in the sibling `bring-up` checkout under
-`etc/uav/`. Configure its UAV DDS defaults before starting the camera pipeline;
-the camera launch inherits the profile, including the component-service timeout.
-The legacy `config/uav/camera_fastdds.xml` path is a compatibility symlink.
+UAV discovery profiles are maintained in `ros2-docker/environments/uav/dds`
+and mounted read-only at `/etc/ros/dds`. The Docker environment selects the
+profile; the camera launch inherits it, including the component-service timeout.
+The legacy `config/uav/camera_fastdds.xml` path aliases the mounted local profile.
 
 Cross-domain forwarding is owned by bring-up: its generic launcher reads
 `etc/uav/domain_bridge.yaml` for domains, profiles, topic types, and QoS.

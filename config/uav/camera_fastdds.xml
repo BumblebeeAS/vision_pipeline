@@ -1,1 +1,1 @@
-../../../bring-up/etc/uav/fastdds_local.xml
+/etc/ros/dds/fastdds_local.xml
