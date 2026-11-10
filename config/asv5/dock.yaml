@@ -94,10 +94,11 @@
     # No fresh detection: true = search the whole BEV, false = skip the frame.
     full_search_without_detection: false
     # 3D template marker on <pose_topic>/template_marker (CUBE_LIST in
-    # pose_frame_id). Must match bev_node's bev_z_min / bev_z_max (os0_filter
-    # min_height / max_height) so template grey levels map to true heights.
-    bev_z_min: -0.65
-    bev_z_max: 0.5
+    # pose_frame_id). Must equal bev_node's bev_z_min / bev_z_max
+    # (software-asv-3 os0_params.yaml, z in asv5/base_link) so template grey
+    # levels map to true heights.
+    bev_z_min: 0.10
+    bev_z_max: 1.00
     template_marker_stride: 2
 
 # Dock panel x, y, yaw from dock_planar_window_yolo_node OBB + stereo depth
@@ -119,7 +120,8 @@
     max_depth: 15.0
     min_points: 50
     use_lidar: true
-    input_lidar_topic: /asv5/os0/filtered_bev
+    # software-asv-3 os0.launch.py cloud_filter (asv5/base_link, gravity-aligned).
+    input_lidar_topic: /asv5/os0/filtered
     plane_distance_threshold: 0.05
     max_plane_tilt_deg: 10.0
     min_inlier_ratio: 0.6

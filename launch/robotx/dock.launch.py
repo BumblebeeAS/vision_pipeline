@@ -5,7 +5,7 @@ Each stage has its own lifecycle manager so it can be toggled independently
 
 - /asv5/dock_bev/manage_nodes: dock pose from the lidar BEV (BEV YOLO ROI +
   template matching), published to /asv5/dock_bev/pose. The BEV itself comes
-  from lidar_segmentation2.
+  from software-asv-3 os0.launch.py (bev_node).
 - /asv5/dock_bev/manage_planar_nodes: OAK-D dock window plane YOLO. The planar
   pose estimator is a plain node and publishes /asv5/dock/depth_planar/pose
   only while that YOLO is active.
