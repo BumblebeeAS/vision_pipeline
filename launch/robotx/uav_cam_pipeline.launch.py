@@ -61,7 +61,7 @@ def evaluate_launch(context, *args, **kwargs):
     ]
     lib_dir = os.path.join(get_package_prefix("isaac_ros_image_proc"), "lib")
     camera_env = {
-        # Inherit onboard discovery and component-service QoS from bring-up.
+        # Inherit DDS settings from the Docker environment.
         # CUDA IPC dispatcher threads outlive component dlclose in Isaac ROS 5.0.
         # Keep their code mapped until process exit.
         "LD_PRELOAD": " ".join(filter(None, [
