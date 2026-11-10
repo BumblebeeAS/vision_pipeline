@@ -3,9 +3,8 @@
 # Independently toggled groups, each with its own lifecycle manager:
 #   /asv5/dock_bev/manage_nodes         BEV dock pose (BEV YOLO + lidar estimator)
 #   /asv5/dock_bev/manage_planar_nodes  dock window plane YOLO
+#   /asv5/dock_bev/manage_beacon_nodes  dock beacon (LED) YOLO
 #   /asv5/dockwin/manage_nodes          dock window YOLO (dockwin_yolo_node)
-# The beacon YOLO is in no group (the dock tree counts LEDs with HSV); activate
-# it with its own change_state service to use the YOLO LED count method.
 # Call with lifecycle_msgs/srv/ChangeState, transition id 3 (activate) or 4
 # (deactivate).
 
@@ -21,6 +20,12 @@
   ros__parameters:
     node_names:
       - dock_planar_window_yolo_node
+    wait_timeout_sec: 1.0
+
+/asv5/dock_bev/beacon_lifecycle_manager_node:
+  ros__parameters:
+    node_names:
+      - dock_beacon_yolo_node
     wait_timeout_sec: 1.0
 
 /asv5/dockwin/lifecycle_manager_node:
@@ -143,7 +148,7 @@
     output_detections_topic: /asv5/bev/yolo/detections
     output_annotations_topic: /asv5/bev/yolo/annotations
 
-# Dock beacon (LED pattern) YOLO on the enhanced OAK-D RGB image.
+# Dock beacon (LED pattern) YOLO on the OAK-D RGB image.
 /**/dock_beacon_yolo_node:
   ros__parameters:
     model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/enhanced_dock_beacon.engine
@@ -152,7 +157,7 @@
     agnostic_nms: true
     activate_on_start: false
     # Overridden by dock.launch.py beacon_image_topic.
-    input_image_topic: /asv5/oakd/rgb_enhanced/image_raw
+    input_image_topic: /asv5/oakd/rgb/image_raw
     output_detections_topic: /asv5/dock_led/yolo/detections
     output_annotations_topic: /asv5/dock_led/yolo/annotations
 

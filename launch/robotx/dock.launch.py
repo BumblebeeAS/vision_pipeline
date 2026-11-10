@@ -9,6 +9,8 @@ Each stage has its own lifecycle manager so it can be toggled independently
 - /asv5/dock_bev/manage_planar_nodes: OAK-D dock window plane YOLO. The planar
   pose estimator is a plain node and publishes /asv5/dock/depth_planar/pose
   only while that YOLO is active.
+- /asv5/dock_bev/manage_beacon_nodes: dock beacon (LED) YOLO, for the YOLO
+  LED count method.
 - /asv5/dockwin/manage_nodes: dock window YOLO on the OAK-D, feeding the
   dockwin pose estimator and (optionally) the light sequence decoder.
 
@@ -52,9 +54,8 @@ def generate_launch_description():
 
     beacon_image_topic_arg = DeclareLaunchArgument(
         "beacon_image_topic",
-        default_value="/asv5/oakd/rgb_enhanced/image_raw",
-        description="Image topic for the dock beacon YOLO (needs the OAK-D "
-        "image enhancer running)",
+        default_value="/asv5/oakd/rgb/image_raw",
+        description="Image topic for the dock beacon YOLO",
     )
 
     activate_dock_pose_arg = DeclareLaunchArgument(
@@ -105,9 +106,9 @@ def generate_launch_description():
                 parameters=[config, activate_dock_pose],
                 condition=IfCondition(use_bev_yolo),
             ),
-            # Dock beacon (LED pattern) YOLO on the enhanced OAK-D RGB image
-            # (bb_oak_driver image_enhancer, oak.launch.py enhance:=true). In no
-            # lifecycle group: only the YOLO LED count method needs it.
+            # Dock beacon (LED pattern) YOLO on the OAK-D RGB image.
+            # Activated by /asv5/dock_bev/manage_beacon_nodes for the YOLO LED
+            # count method.
             LifecycleNode(
                 package="yolo_ros_trt",
                 executable="yolo_node",
@@ -169,6 +170,14 @@ def generate_launch_description():
                 parameters=[config],
                 remappings=[("manage_nodes", "manage_planar_nodes")],
             ),
+            Node(
+                package="vision_pipeline",
+                executable="lifecycle_manager_node",
+                name="beacon_lifecycle_manager_node",
+                output="screen",
+                parameters=[config],
+                remappings=[("manage_nodes", "manage_beacon_nodes")],
+            ),
         ]
     )
 
@@ -216,7 +225,7 @@ def generate_launch_description():
     )
 
     # Not a lifecycle node: it only subscribes during a DockLedCount call.
-    # The HSV method reads the same enhanced image as the beacon YOLO.
+    # The HSV method reads the same image as the beacon YOLO.
     dock_led_count = Node(
         package="dock_led_counter",
         executable="dock_led_count_node",
