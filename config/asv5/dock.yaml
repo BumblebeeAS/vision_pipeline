@@ -210,6 +210,10 @@
     standoff_distance: 2.5
     lower_window_y_threshold: 0.0
     assume_single_visible_window_is_lower: true
+    target_window_classes: ["red_window", "green_window", "blue_window"]
+    # Rejects lower windows from adjacent dock bays (distance > 120px in 640x400 image).
+    # Same-bay window offsets are 35-55px; adjacent bays are >= 260px.
+    max_column_distance: 120.0
     standoff_pose_topic: dockwin/standoff_pose
 
 /**/dockwin_sequence_decoder_node:
