@@ -215,6 +215,8 @@
     # Same-bay window offsets are 35-55px; adjacent bays are >= 260px.
     max_column_distance: 120.0
     standoff_pose_topic: dockwin/standoff_pose
+    lower_window_pose_topic: dockwin/lower_window/pose
+    upper_window_pose_topic: dockwin/upper_window/pose
 
 /**/dockwin_sequence_decoder_node:
   ros__parameters:
