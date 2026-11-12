@@ -102,7 +102,7 @@
     # pose_frame_id). Must equal bev_node's bev_z_min / bev_z_max
     # (software-asv-3 os0_params.yaml, z in asv5/base_link) so template grey
     # levels map to true heights.
-    bev_z_min: 0.10
+    bev_z_min: 0.20
     bev_z_max: 1.00
     template_marker_stride: 2
 
@@ -136,7 +136,7 @@
 
 # BEV dock YOLO (dock_bev_yolo_node). Managed with the dock BEV pose pipeline.
 /**/dock_bev_yolo_node:
-  ros__parameters:
+  ros__parameters:  
     model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/dock_bev_better.engine
     conf: 0.3
     iou: 0.7
@@ -148,10 +148,15 @@
     output_detections_topic: /asv5/bev/yolo/detections
     output_annotations_topic: /asv5/bev/yolo/annotations
 
+
+# rx26_dock_beacon_11102026.engine is the first old model
+# 
+#
+
 # Dock beacon (LED pattern) YOLO on the OAK-D RGB image.
 /**/dock_beacon_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/enhanced_dock_beacon.engine
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/dock_beacon_rx26_unexposed.engine
     conf: 0.1
     iou: 0.7
     agnostic_nms: true
@@ -160,6 +165,20 @@
     input_image_topic: /asv5/oakd/rgb/image_raw
     output_detections_topic: /asv5/dock_led/yolo/detections
     output_annotations_topic: /asv5/dock_led/yolo/annotations
+
+# /**/dock_beacon_yolo_node:
+#   ros__parameters:
+#     model_path: /workspaces/isaac_ros-dev/src/ml_models/dock/dock_beacon_rx26_exposed.engine
+#     conf: 0.15
+#     iou: 0.7
+#     agnostic_nms: true
+#     activate_on_start: false
+#     # Overridden by dock.launch.py beacon_image_topic.
+#     input_image_topic: /asv5/oakd/rgb/image_raw
+#     output_detections_topic: /asv5/dock_led/yolo/detections
+#     output_annotations_topic: /asv5/dock_led/yolo/annotations
+
+
 
 /**/dock_planar_window_yolo_node:
   ros__parameters:
@@ -180,8 +199,8 @@
 # Dock window (light tower) detection, pose and light sequence.
 /**/dockwin_yolo_node:
   ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/dockwin/dockwin_real_051026.engine
-    conf: 0.4
+    model_path: /workspaces/isaac_ros-dev/src/ml_models/dockwin/dockwin_real_111126.engine
+    conf: 0.7
     iou: 0.6
     agnostic_nms: true
     # Starts inactive; activate via /asv5/dockwin/manage_nodes.
@@ -202,7 +221,7 @@
     mask_erosion_iters: 2
     min_depth: 0.2
     max_depth: 15.0
-    estimation_method: improved
+    estimation_method: improved # improved or best_fit_quad
     max_reprojection_error: 8.0
     min_inliers: 4
     depth_filter_alpha: 1.0
@@ -224,7 +243,7 @@
     output_sequence_topic: dockwin/light_sequence
     output_sequence_raw_topic: dockwin/light_sequence_raw
     service_name: /asv5/task_status_update
-    min_confidence: 0.25
+    min_confidence: 0.5
     pulse_duration_min: 0.5
     pulse_duration_max: 1.5
     delimiter_duration_min: 1.5
