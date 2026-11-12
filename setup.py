@@ -31,7 +31,9 @@ setup(
         (
             os.path.join("share", package_name, "config", "uav"),
             glob(os.path.join("config", "uav", "*.yaml"))
-            + glob(os.path.join("config", "uav", "*.xml")),
+            # Skip the XML alias when the DDS mount is absent.
+            + [path for path in glob(os.path.join("config", "uav", "*.xml"))
+               if os.path.isfile(path)],
         ),
         (
             os.path.join("share", package_name, "config", "asv5"),

@@ -30,6 +30,12 @@ Launch files may not have all the above node types and thus some services may no
 
 See [vision_pipeline/README.md](vision_pipeline/README.md) for more details.
 
+## UAV DDS and ASV GPS
+
+UAV profiles live in `ros2-docker/environments/uav/dds` and are mounted read-only at `/etc/ros/dds`. The camera launch inherits the Docker DDS settings. The legacy `config/uav/camera_fastdds.xml` path points to the mounted local profile.
+
+Bring-up manages the domain bridge through `etc/uav/domain_bridge.yaml`. Its whitelist currently allows only `/asv5/gps`. See the [UAV bring-up instructions](https://github.com/BumblebeeAS/bring-up/blob/main/etc/uav/workspace-setup.md) for configuration and startup.
+
 ## Issues
 
 **1. LLVM Out of Memory**
