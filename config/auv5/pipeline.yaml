@@ -64,9 +64,8 @@
 # the sonar one so sonar and camera models are switched independently).
 /**/pipe_yolo_node:
   ros__parameters:
+    # model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_pipeline_comp_20261112.engine
     model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_pipeline_rsyc_20261103.engine
-    # model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_pipeline_rsyc_20261028.engine
-    # model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_rx_pipeline_rsyc_20261020.engine
     # model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov26_segment/yolov26_pipeline_20261005.engine
     conf: 0.25
     iou: 0.7
@@ -104,6 +103,39 @@
     node_names:
       - light_box_yolo_node
     wait_timeout_sec: 1.0
+# Classical red light blob (pose_estimator red_blob_node), always on, one per
+# camera. Brightest blob >= peak_fraction x frame peak, kept if bright
+# (min_peak_l, LAB L 0-255), big enough and red (LAB a* of blob or ring >=
+# min_red_a; 128 = neutral). A jump > max_jump_px is dropped unless it holds
+# for reacquire_frames frames. All GUESS, tune on a bag.
+/**/red_blob_bot_cam_node:
+  ros__parameters:
+    image_topic: /auv5/bot_cam/color/image
+    output_detections_topic: /auv5/pipeline/red_blob/bot_cam/detections
+    class_name: red_blob
+    max_rate_hz: 10.0
+    peak_fraction: 0.9
+    min_peak_l: 200.0
+    min_area_px: 30
+    min_red_a: 150.0
+    ring_px: 6
+    max_jump_px: 80.0
+    reacquire_frames: 3
+    max_track_age_s: 1.0
+/**/red_blob_dwe_node:
+  ros__parameters:
+    image_topic: /camera1/image_raw
+    output_detections_topic: /auv5/pipeline/red_blob/dwe/detections
+    class_name: red_blob
+    max_rate_hz: 10.0
+    peak_fraction: 0.9
+    min_peak_l: 200.0
+    min_area_px: 30
+    min_red_a: 150.0
+    ring_px: 6
+    max_jump_px: 80.0
+    reacquire_frames: 3
+    max_track_age_s: 1.0
 /**/light_box_pose_estimator_node:
   ros__parameters:
     camera_info_topic: /auv5/bot_cam/color/camera_info
@@ -242,6 +274,10 @@
     reestimate_s: 2.0
     reestimate_min_samples: 5
     green_frames: 5
+    # Green hold (tree dock_green_hold): on green go this much deeper, then hold
+    # there for the light sequence decode; hold wherever it got to after the timeout.
+    green_extra_descent_m: 0.10 # was 0.05; 10 cm keeps the magnet pressed if the box or vehicle moves
+    green_descent_timeout_s: 4.0
     # Rise on teleop with x/y force zero. Not rising for stuck_seconds ramps the
     # upward error by stuck_ramp_per_s, up to max_upward_force (magnet stuck on).
     rise_rate: 0.15
@@ -279,6 +315,23 @@
     integral_max: 15.0
     integral_band: 0.15
     buoyancy_comp: 3.0 # same as pipeline_follow_node
+    # Fallback tiers when the model has no target for fallback_after_s: the
+    # classical bot-cam red blob, then the DWE red blob reprojected through TF
+    # (pose_estimator red_blob_node). "" = tier off.
+    fallback_detections_topic: /auv5/pipeline/red_blob/bot_cam/detections
+    dwe_detections_topic: /auv5/pipeline/red_blob/dwe/detections
+    dwe_camera_info_topic: /camera1/camera_info
+    dwe_camera_frame: auv5/dwe_cam_optical
+    fallback_after_s: 0.3 # GUESS, under frame_timeout_s
+    # Box height with no fresh cluster TF (model never saw the box): DVL
+    # altitude + DVL below the camera - fallback_box_height_m.
+    box_tf_max_age_s: 60.0 # older cluster TF = from an earlier run, ignored
+    dvl_altitude_topic: /auv5/waterlinked_dvl_driver/velocity_report
+    dvl_frame: auv5/dvl_link
+    fallback_box_height_m: 0.3 # AUDIT: height of the red target above the bottom
+    altitude_max_age_s: 2.0
+    # Green hold (goal yaw_amount > 0, RC dock tree only): any message here ends it.
+    hold_release_topic: /auv5/pipeline/light_box/light_sequence_str
 # Find-pipe fallback (pipe_search_clean): same executable, mode centre. Locks any
 # box colour, centres the bottom cam over it on teleop force and descends while
 # centred, never closer than min_clearance_m. The box depth starts from the
@@ -348,6 +401,7 @@
     force_topic: /auv5/controls/teleop/force
     track_topic: /auv5/pipeline/track
     heading_topic: /auv5/pipeline/follow/heading # pipe heading (world NED yaw, rad) while following
+    state_topic: /auv5/pipeline/follow/state # JSON every tick + one per goal end (follow and follow_bend), bag this
     # TUNE: surge feed-forward (N); scaled to 0 at these errors.
     forward_force: 6.0
     slowdown_heading_rad: 0.6
@@ -368,8 +422,8 @@
     #                  max_depth_rate m/s; last setpoint held when the track drops
     depth_mode: pipe_offset
     # depth_mode: fixed
-    target_pipe_distance_m: 0.6
-    # target_pipe_distance_m: 0.5
+    target_pipe_distance_m: 0.5
+    # target_pipe_distance_m: 0.6
     pipe_distance_alpha: 0.2
     max_depth_rate: 0.1
     acquire_timeout_s: 20.0 # first track after the model activates (TensorRT warm-up)
@@ -384,6 +438,26 @@
     clip_exit_s: 0.5
     recentre_timeout_s: 5.0
     recentre_max_error_m: 0.3 # cap on the x/y error while recentring
+    # Bend hold (action /auv5/pipeline/follow_bend, pipeline_clean pinger_ends):
+    # follow at bend_forward_force, stop on the first elbow and hold on it with
+    # no odom x/y; publishes true on bend_settled_topic once settled.
+    bend_action_name: follow_bend
+    bend_settled_topic: /auv5/pipeline/follow/bend_settled
+    bend_forward_force: 3.0 # TUNE: slow approach so it stops while both legs are in view (6 N ~ 0.11 m/s)
+    bend_confirm_frames: 2 # images in a row showing the elbow
+    bend_min_angle_deg: 20.0 # smaller turns are not an elbow (pipe split by a light box)
+    bend_min_leg_m: 0.1
+    bend_hold_ahead_m: 0.05 # hold the elbow this far ahead of the bot-cam centre
+    bend_hold_max_error_m: 0.3
+    bend_recover_error_m: 0.15 # x error used when only one leg is in view
+    bend_settle_tol_m: 0.08
+    bend_settle_yaw_deg: 10.0
+    bend_settle_s: 2.0
+    bend_settle_timeout_s: 10.0 # holding this long unsettled: report settled anyway
+    # Only the first elbow is held: abort if the elbow's incoming leg (or the
+    # straight pipe for bend_missed_frames images) is this far off the start leg.
+    bend_max_leg_change_deg: 25.0
+    bend_missed_frames: 5
     # Starting gains copied from trash controlled_spin_node (auv5). TUNE y/yaw.
     kp_x: 35.0
     ki_x: 3.0

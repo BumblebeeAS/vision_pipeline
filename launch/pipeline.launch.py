@@ -105,6 +105,20 @@ def generate_launch_description():
             name="lightbox_sequence_decoder_node",
             parameters=[config],
         ),
+        # Classical red light blob, always on (no lifecycle): bot cam, and the
+        # slanted DWE (camera1). Fallback tiers for light_box_dock_node.
+        Node(
+            package="pose_estimator",
+            executable="red_blob_node",
+            name="red_blob_bot_cam_node",
+            parameters=[config],
+        ),
+        Node(
+            package="pose_estimator",
+            executable="red_blob_node",
+            name="red_blob_dwe_node",
+            parameters=[config],
+        ),
         # Classical (no-YOLO) alternative to light_box_yolo_node: publishes the
         # same red/green/blue_faceplate detections on the same topic. Toggled
         # by its own manager at /auv5/pipeline/light_box_classical/manage_nodes;
