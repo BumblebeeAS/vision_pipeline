@@ -25,7 +25,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             "color_model_path", default_value=os.path.join(
-                models, "buoy_color", "mobilenet_v3_small_20261114_0", "classifier_pipeline_fp32.trt"
+                models, "buoy_color", "mobilenet_v3_small_20261114_1", "classifier_pipeline_fp32.trt"
             ),
         ),
         PushRosNamespace(["/uav/", LaunchConfiguration("camera_name")]),
