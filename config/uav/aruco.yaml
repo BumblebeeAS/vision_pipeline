@@ -1,10 +1,16 @@
-/**/aruco_detector_node:
+/**/apriltag3_detector_node:
   ros__parameters:
-    input_image_topic: image
+    input_image_topic: rect/mono
     output_point_correspondences_topic: aruco/point_correspondences
     output_annotations_topic: aruco/annotations
     aruco_tags_path: /workspaces/isaac_ros-dev/src/aruco_loco/aruco_tags/robotx26/asv.json
 /**/points_pose_estimator_node:
   ros__parameters:
-    camera_info_topic: camera_info
+    camera_info_topic: rect/camera_info
+    is_image_rectified: true
+    object_frame_id: aruco_board
+    output_pose_topic: asv/pose
     input_points_topic: aruco/point_correspondences
+    homography_flip_object_y: true  # Board Y-up, image Y-down.
+    min_points: 8  # Two tags, each contributing four corners.
+    max_reprojection_error: 10.0  # Pixels, for PnP RANSAC; homography uses 3.5 pixels.

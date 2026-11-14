@@ -8,11 +8,14 @@
   <license>todo</license>
 
   <!-- Bumblebee's Packages -->
-  <!-- <exec_depend>aruco_loco</exec_depend> -->
+  <exec_depend>aruco_loco</exec_depend>
+  <exec_depend>bb_filters</exec_depend>
+  <exec_depend>bb_localization</exec_depend>
   <exec_depend>custom_image_republisher</exec_depend>
   <!-- <exec_depend>depth_anything_ros2_trt</exec_depend> -->
   <exec_depend>image_matching</exec_depend>
   <exec_depend>image_processing</exec_depend>
+  <exec_depend>ml_models</exec_depend>
   <exec_depend>pose_estimator</exec_depend>
   <exec_depend>yolo_ros_trt</exec_depend>
   <exec_depend>dock_led_counter</exec_depend>
@@ -27,6 +30,9 @@
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>gscam</exec_depend>
   <exec_depend>isaac_ros_image_proc</exec_depend>
+  <exec_depend>isaac_ros_h264_encoder</exec_depend>
+  <exec_depend>topic_tools</exec_depend>
+  <exec_depend>foxglove_msgs</exec_depend>
   <exec_depend>image_transport</exec_depend>
   <exec_depend>compressed_image_transport</exec_depend>
 

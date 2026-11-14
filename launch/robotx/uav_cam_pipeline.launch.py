@@ -13,6 +13,7 @@ from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 
 from vision_pipeline.common.uav_image_proc import (
+    get_foxglove_video_node,
     get_image_proc_nodes,
     get_rectified_camera_info_node,
 )
@@ -22,7 +23,13 @@ def evaluate_launch(context, *args, **kwargs):
     camera_name = LaunchConfiguration("camera_name").perform(context)
     camera_id = LaunchConfiguration("camera_id").perform(context)
     camera_mode = LaunchConfiguration("camera_mode").perform(context)
+    camera_fps = int(LaunchConfiguration("camera_fps").perform(context))
+    if camera_fps <= 0:
+        raise ValueError("camera_fps must be positive")
     camera_frame_id = LaunchConfiguration("camera_frame_id").perform(context)
+    exposure_compensation = float(LaunchConfiguration("exposure_compensation").perform(context))
+    if not -2.0 <= exposure_compensation <= 2.0:
+        raise ValueError("exposure_compensation must be between -2 and 2 EV")
 
     config_dir = os.path.join(
         get_package_share_directory("vision_pipeline"), "config", "uav"
@@ -30,14 +37,15 @@ def evaluate_launch(context, *args, **kwargs):
     calibration_data_file = os.path.join(config_dir, "calib", f"{camera_name}.yaml")
     gscam_config = (
         f"nvarguscamerasrc sensor-id={int(camera_id)} "
-        f"sensor-mode={int(camera_mode)} do-timestamp=true ! "
-        "video/x-raw(memory:NVMM),width=1280,height=720,format=NV12,framerate=30/1 ! "
+        f"sensor-mode={int(camera_mode)} do-timestamp=true "
+        f"exposurecompensation={exposure_compensation} aelock=false ! "
+        f"video/x-raw(memory:NVMM),width=1280,height=720,format=NV12,framerate={camera_fps}/1 ! "
         "nvvidconv ! video/x-raw,format=BGRx ! "
         "videoconvert ! video/x-raw,format=RGB"
     )
     # Prepare the full processing chain before GSCam starts producing frames.
     cam_container_nodes = [
-        *get_image_proc_nodes(use_intra_process_comms=True),
+        *get_image_proc_nodes(use_intra_process_comms=True, camera_fps=camera_fps),
         ComposableNode(
             name="gscam",
             package="gscam",
@@ -61,16 +69,13 @@ def evaluate_launch(context, *args, **kwargs):
     ]
     lib_dir = os.path.join(get_package_prefix("isaac_ros_image_proc"), "lib")
     camera_env = {
-        # Allow more time for component-loading service replies.
-        "FASTDDS_DEFAULT_PROFILES_FILE": os.path.join(
-            get_package_share_directory("vision_pipeline"),
-            "config", "uav", "camera_fastdds.xml",
-        ),
+        # DDS discovery and component-service QoS come from bring-up's UAV profile.
         # CUDA IPC dispatcher threads outlive component dlclose in Isaac ROS 5.0.
         # Keep their code mapped until process exit.
         "LD_PRELOAD": " ".join(filter(None, [
             os.path.join(lib_dir, "libresize_node.so"),
             os.path.join(lib_dir, "librectify_node.so"),
+            os.path.join(lib_dir, "libimage_format_converter_node.so"),
             os.environ.get("LD_PRELOAD", ""),
         ])),
     }
@@ -90,6 +95,7 @@ def evaluate_launch(context, *args, **kwargs):
         UnsetEnvironmentVariable("DISPLAY"),
         camera_container,
         get_rectified_camera_info_node(),
+        get_foxglove_video_node(),
     ])]
 
 
@@ -99,7 +105,9 @@ def generate_launch_description():
             DeclareLaunchArgument("camera_name", default_value=""),
             DeclareLaunchArgument("camera_id", default_value="-1"),
             DeclareLaunchArgument("camera_mode", default_value="4"),
+            DeclareLaunchArgument("camera_fps", default_value="15"),
             DeclareLaunchArgument("camera_frame_id", default_value=""),
+            DeclareLaunchArgument("exposure_compensation", default_value="0.0"),
             OpaqueFunction(function=evaluate_launch),
         ]
     )

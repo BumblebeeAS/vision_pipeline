@@ -1,24 +1,34 @@
 # Pipeline nodes
-/**/tins_yolo_node:
-  ros__parameters:
-    model_path: /workspaces/isaac_ros-dev/src/ml_models/yolov11_segment/yolov11s_tins_20260101_0.engine
-    conf: 0.25
-    iou: 0.7
-    agnostic_nms: true
-    input_image_topic: /uav/wide_a/rect/image
-    output_detections_topic: tins/yolo/detections
-    output_annotations_topic: tins/yolo/annotations
 /**/helipad_pose_estimator_node:
   ros__parameters:
     camera_info_topic: /uav/wide_a/rect/camera_info
     object_frame_id: helipad
-    input_detections_topic: tins/yolo/detections
-    output_pose_topic: tins/helipad/pose
+    input_detections_topic: /uav/wide_a/rfdetr/detections
+    output_pose_topic: helipad/pose
     is_image_rectified: true
+/**/tins_pad_pose_estimator_node:
+  ros__parameters:
+    camera_info_topic: /uav/wide_a/rect/camera_info
+    input_detections_topic: /uav/wide_a/rfdetr/detections
+    input_odom_topic: /uav/odom_ned
+    is_image_rectified: true
+    object_frame_id: tins_pad
+    output_pose_topic: tins_pad/pose
+    # RobotX26 Task 2: 60-70 cm circles; the example drawing shows 70 cm.
+    circle_diameter: 0.70
+    # Approximate offsets from the example illustration. Measure the actual pad.
+    # Origin: center of the 2 m square. +x red -> green, +y toward blue, +z down.
+    red_circle_center_xy: [-0.5, -0.35]
+    green_circle_center_xy: [0.5, -0.35]
+    blue_circle_center_xy: [0.0, 0.5]
+    # Pixel distance for ellipse RANSAC and joint platform inlier selection.
+    contour_inlier_threshold: 8.0
+    # Legacy TF-based reference service only; explicit saved-orientation handoff has no TTL.
+    orientation_reference_max_age_s: 5.0
 /**/tins_pose_estimator_depth_from_odom_node:
   ros__parameters:
     camera_info_topic: /uav/wide_a/rect/camera_info
-    input_track_detections_topic: tins/yolo/detections
+    input_track_detections_topic: /uav/wide_a/rfdetr/detections
     input_odom_topic: /uav/odom_ned
     odom_frame: odom_ned
     time_sync_slop: 0.2
@@ -26,6 +36,7 @@
 /**/lifecycle_manager_node:
   ros__parameters:
     node_names:
-      - tins_yolo_node
+      - /uav/wide_a/rfdetr_node
+      - /uav/narrow_a/rfdetr_node
     wait_timeout_sec: 1.0
 # Visualization nodes

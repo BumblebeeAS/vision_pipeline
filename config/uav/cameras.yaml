@@ -1,4 +1,10 @@
-camera_names: [narrow_a, wide_a] # narrow = 0, wide = 1
+camera_names: [narrow_a, wide_a]
+# Argus sensor IDs are independent of the enabled-camera list order.
+camera_ids: {narrow_a: 0, wide_a: 1}
+# EV bias for Argus auto-exposure; negative values preserve bright tag detail.
+exposure_compensation: {narrow_a: 0.0, wide_a: -0.5}
 
 # Use nvgstcapture to see the available modes for the camera
 camera_mode: 4  # 1280 x 720 FR = 60
+
+camera_fps: 15

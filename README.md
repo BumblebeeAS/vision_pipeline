@@ -67,3 +67,11 @@ Most vision nodes use "sensor data" QoS with "best effort" reliability. Note tha
 - [Image processing](https://github.com/BumblebeeAS/image_processing)
 - [Pose estimator](https://github.com/BumblebeeAS/pose_estimator)
 - [YOLO ROS TensorRT](https://github.com/bumblebeeas/yolo_ros_trt)
+
+## UAV RF-DETR
+
+Build the selected models in `ml_models/robotx26` and install the RF-DETR/classifier nodes from `yolo_ros_trt`. Run `ros2 launch vision_pipeline rfdetr.launch.py camera_name:=wide_a` (or `narrow_a`). Defaults select the 20261114_0 FP16 detector and FP32 classifier; `model_path` and `color_model_path` override them. Each camera publishes detector results under `rfdetr/detections` and classified buoy poses under `buoy/detections`.
+
+## UAV competition pipelines
+
+Both cameras can run RF-DETR and buoy ROI classification using `rfdetr.launch.py`; defaults select the 20261114_0 FP16 detector and FP32 classifier. Build their engines in `ml_models` first. The UAV launch also provides AprilTag board detection, two-camera tin estimation, rolling ASV clusters, and compressed H.264 visualization. Camera DDS follows the bring-up policy.
