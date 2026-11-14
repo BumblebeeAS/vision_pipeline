@@ -20,15 +20,16 @@ def generate_launch_description():
             "camera_name",
             default_value="",
         ),
+        DeclareLaunchArgument("activate_on_start", default_value="false"),
         PushRosNamespace(["/uav/", LaunchConfiguration("camera_name")]),
     ]
 
     pipeline_nodes = [
         Node(
             package="aruco_loco",
-            executable="aruco_detector_node",
-            name="aruco_detector_node",
-            parameters=[config],
+            executable="apriltag3_detector_node",
+            name="apriltag3_detector_node",
+            parameters=[config, {"activate_on_start": LaunchConfiguration("activate_on_start")}],
         ),
         Node(
             package="pose_estimator",
@@ -38,6 +39,4 @@ def generate_launch_description():
         ),
     ]
 
-    vis_nodes = []
-
-    return LaunchDescription(launch_objects + pipeline_nodes + vis_nodes)
+    return LaunchDescription(launch_objects + pipeline_nodes)

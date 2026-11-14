@@ -1,0 +1,25 @@
+/**/rfdetr_node:
+  ros__parameters:
+    conf: 0.25
+    input_image_topic: rect/image
+    output_detections_topic: rfdetr/detections
+    output_annotations_topic: rfdetr/annotations
+    activate_on_start: true
+/**/classifier_node:
+  ros__parameters:
+    input_classes: [buoy]
+    label_prefix: buoy_
+    input_image_topic: rect/image
+    input_detections_topic: rfdetr/detections
+    output_detections_topic: buoy/classified_detections
+    output_classifications_topic: buoy/colors
+    output_annotations_topic: buoy/annotations
+/**/buoy_pose_estimator_node:
+  ros__parameters:
+    camera_info_topic: rect/camera_info
+    input_detections_topic: buoy/classified_detections
+    output_detections_topic: buoy/detections
+    output_poses_topic: buoy/poses
+    output_pose_labels_topic: buoy/pose_labels
+    # Near top-down body silhouette, excluding floats: 17-inch square bottom.
+    max_range: 100.0

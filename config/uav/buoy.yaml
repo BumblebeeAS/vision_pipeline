@@ -18,12 +18,16 @@
 /**/buoy_gate_manager_node:
   ros__parameters:
     buoy_detections_topic: "buoy_detections"
+    buoy_detections_topics: [/uav/wide_a/buoy/detections, /uav/narrow_a/buoy/detections]
     marker_topic: "gate_manager_markers"
     local_axes: ned
     reference_topic: /uav/home_lat_lon
     reference_frame_id: odom_enu
     global_position_topic: /fmu/out/vehicle_global_position
     path_topic: /uav/buoy/safe_passage/path
+    send_report_on_freeze: true
+    report_action: /uav/report/safe_passage
+    report_timeout: 30.0
     set_state_service: "set_gate_manager_state"
     reset_service: "reset_tracks"
     extract_goal_service: "extract_local_goal"
@@ -37,7 +41,7 @@
     virtual_sampling_rate: 10.0
     max_association_radius: 2.0
     dbscan_min_samples: 5
-    track_timeout: 60.0
+    track_timeout: 0.0  # Keep observed buoys until the competition survey is reset.
     butterworth_cutoff_freq: 3.0
     butterworth_order: 4
     target_freq: 0.5

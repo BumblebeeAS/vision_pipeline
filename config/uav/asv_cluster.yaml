@@ -1,0 +1,20 @@
+/**/asv_gps_offset:
+  ros__parameters:
+    action_name: capture_gps_offset
+    pose_stamped_topics: [/uav/wide_a/asv/pose, /uav/narrow_a/asv/pose]
+    odom_topic: /uav/odom_ned
+    local_frame: odom_ned
+    clustered_child_frame_id: asv/clustered
+    max_poses_per_topic: 1000
+    sync_tolerance: 0.1
+    min_poses: 5
+    min_cluster_size: 5
+    min_samples: 2
+    cluster_selection_epsilon: 0.1
+    reference_topic: /uav/home_lat_lon
+    global_position_topic: /fmu/out/vehicle_global_position
+    asv_gps_topic: /asv5/gps
+    output_topic: /uav/asv/gps_offset
+    max_age_seconds: 2.0
+    sync_tolerance_seconds: 0.5
+    publish_period: 1.0

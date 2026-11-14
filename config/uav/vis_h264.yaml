@@ -1,0 +1,13 @@
+/**/vis_compression_node:
+  ros__parameters:
+    input_width: 640
+    input_height: 360
+    # Custom selects CBR; the CQP presets ignore the bitrate setting.
+    config: custom
+    # Per camera target; two feeds total 400 kbit/s before transport overhead.
+    # This is a rate-control target, not a strict per-frame/network traffic cap.
+    bitrate: 200000
+    profile: 0  # Baseline; no frame reordering in the viewer.
+    num_bframes: 0
+    hw_preset_type: 0
+    # Launch sets framerate and I/IDR intervals from camera_fps.
